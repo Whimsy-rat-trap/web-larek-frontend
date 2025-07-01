@@ -83,8 +83,8 @@
 
 Структура проекта:
 - src/ — исходные файлы проекта
-- src/c-mp-nents/ — папка с JS компонентами
-- src/c-mp-nents/base/ — папка с базовым кодом
+- src/components/ — папка с JS компонентами
+- src/components/base/ — папка с базовым кодом
 
 Важные файлы:
 - src/pages/index.html — HTML-файл главной страницы
@@ -112,12 +112,12 @@ yarn start
 Для корректной работы проекта требуется создать файл .env в корневой директории:
 
 ```
-t-uch .env
+touch .env
 ```
 
 Внутри .env так же необходимо указать базовый URL API-сервера:
 
-API_-RIGIN=https://larek-api.n-m-reparties.c-
+API_ORIGIN=https://larek-api.nomoreparties.co
 
 ## Сборка
 
