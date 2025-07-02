@@ -98,7 +98,6 @@ classDiagram
         +string productId
         +string name
         +number price
-        +number quantity
     }
 
     class Basket {
