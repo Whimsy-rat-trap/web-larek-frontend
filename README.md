@@ -78,6 +78,56 @@
 2.	Главная страница -> Иконка корзины -> Модальное окно корзины
 3.	Корзина -> Форма оплаты -> Форма контактов -> Подтверждение заказа
 
+## Архитектура приложения
+
+```mermaid
+classDiagram
+    class Product {
+        +string id
+        +string image
+        +string title
+        +string category
+        +number|null price
+        +string? description
+    }
+
+    class BasketItem {
+        +string productId
+        +string name
+        +number price
+        +number quantity = 1
+    }
+
+    class Basket {
+        +BasketItem[] items
+        +number total
+    }
+
+    class Order {
+        +'online'|'on_delivery' payment
+        +string address
+        +string email
+        +string phone
+        +number total
+        +string[] items
+    }
+
+    class SuccessfulOrderResponse {
+        +string id
+        +number total
+    }
+
+    class ProductListResponse {
+        +number total
+        +Product[] items
+    }
+
+    Product "1" --> "0..*" BasketItem : Содержит
+    BasketItem "0..*" --> "1" Basket : Входит в
+    Basket --> Order : Преобразуется в
+    Order --> SuccessfulOrderResponse : Результат
+    ProductListResponse "1" --> "0..*" Product : Содержит
+```
 
 Стек: HTML, SCSS, TS, Webpack
 
