@@ -105,33 +105,59 @@ classDiagram
         +BasketItem[] items
         +number total
         +addItem()
+        +removeItem()
+        +checkout()
     }
 
-    %% UI компоненты
-    class ProductModal {
-        +Product data
-        +addToBasket() Только здесь!
-    }
-
-    class ProductCard {
-        +Product data
-        +openModal()
-    }
-
-    %% Связи
-    ProductCard --> ProductModal : "Открывает"
-    ProductModal --> Basket : "Добавляет товар"
-    Product "1" ..> BasketItem : "id → productId"
-    Basket "1" *-- "1..*" BasketItem : Состав
-
-    %% Оформление заказа
     class Order {
         +'online'|'on_delivery' payment
         +string address
         +string email
         +string phone
+        +number total
+        +string[] items
     }
-    Basket --> Order : "Создаёт"
+
+    class SuccessfulOrderResponse {
+        +string id
+        +number total
+    }
+
+    %% UI компоненты
+    class ProductListResponse {
+        +number total
+        +Product[] items
+    }
+
+    class ProductCard {
+        +Product data
+        +openDetails()
+    }
+
+    class ProductModal {
+        +Product data
+        +showDescription()
+        +addToBasket()
+    }
+
+    class BasketModal {
+        +Basket data
+        +removeItem()
+        +proceedToCheckout()
+    }
+
+    %% Связи между компонентами
+    Product "1" --> "0..*" BasketItem : "Содержит (id → productId)"
+    Basket "1" *-- "1..*" BasketItem : Агрегация
+    Basket --> Order : "Создаёт при оформлении"
+    Order --> SuccessfulOrderResponse : "Возвращает"
+
+    %% Взаимодействие UI
+    ProductListResponse ..> ProductCard : "Рендерит"
+    ProductCard --> ProductModal : "Открывает"
+    ProductModal --> Basket : "Добавляет товар"
+    Basket ..> BasketModal : "Отображает"
+    BasketModal --> Order : "Инициирует оформление"
 ```
 
 Стек: HTML, SCSS, TS, Webpack
