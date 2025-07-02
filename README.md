@@ -82,12 +82,15 @@
 
 ```mermaid
 classDiagram
+    direction TB
+    
+    %% Основные классы данных
     class Product {
         +string id
-        +string image
         +string title
-        +string category
         +number|null price
+        +string category
+        +string image
         +string? description
     }
 
@@ -95,12 +98,15 @@ classDiagram
         +string productId
         +string name
         +number price
-        +number quantity = 1
+        +number quantity
     }
 
     class Basket {
         +BasketItem[] items
         +number total
+        +addItem()
+        +removeItem()
+        +checkout()
     }
 
     class Order {
@@ -117,16 +123,41 @@ classDiagram
         +number total
     }
 
+    %% Связи между компонентами
+    Product "1" --> "0..*" BasketItem : "Содержит (id → productId)"
+    Basket "1" *-- "1..*" BasketItem : Агрегация
+    Basket --> Order : "Создаёт при оформлении"
+    Order --> SuccessfulOrderResponse : "Возвращает"
+
+    %% UI компоненты
     class ProductListResponse {
         +number total
         +Product[] items
     }
 
-    Product "1" --> "0..*" BasketItem : Содержит
-    BasketItem "0..*" --> "1" Basket : Входит в
-    Basket --> Order : Преобразуется в
-    Order --> SuccessfulOrderResponse : Результат
-    ProductListResponse "1" --> "0..*" Product : Содержит
+    class ProductCard {
+        +Product data
+        +openDetails()
+        +addToBasket()
+    }
+
+    class ProductModal {
+        +Product data
+        +showDescription()
+    }
+
+    class BasketModal {
+        +Basket data
+        +removeItem()
+        +proceedToCheckout()
+    }
+
+    %% Взаимодействие UI
+    ProductListResponse ..> ProductCard : "Рендерит"
+    ProductCard --> ProductModal : "Открывает"
+    ProductCard --> Basket : "Добавляет товар"
+    Basket ..> BasketModal : "Отображает"
+    BasketModal --> Order : "Инициирует оформление"
 ```
 
 Стек: HTML, SCSS, TS, Webpack
