@@ -1,8 +1,45 @@
+export interface ICardActions {
+	onClick?: (event: MouseEvent) => void;
+}
+
+export interface Product {
+	id: string;
+	title: string;
+	category: string;
+	image: string;
+	price: number | null;
+	description?: string;
+}
+
+//Состояние каталога, корзины, выбранного товара, заказа
+export interface IAppState {
+	catalog: Product[];
+	basket: string[];
+	preview: string | null;
+	order: IOrder | null;
+}
+
+//Данные заказа: оплата, контакты, адрес
+export interface IOrder {
+	payment: string;
+	email: string;
+	phone: string;
+	address: string;
+	items: string[];
+	total: number;
+}
+
+//Ответ от сервера в формате списка
+export interface ApiListResponse<Type> {
+	total: number;    // Общее количество элементов (для пагинации)
+	items: Type[];    // Массив элементов
+}
+
 /**
  * Класс, представляющий товар/продукт
  * @class
  */
-class Product {
+class Product1 {
 	/**
 	 * Создает экземпляр Product
 	 * @param {string} id - Уникальный идентификатор продукта

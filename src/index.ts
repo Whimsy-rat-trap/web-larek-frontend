@@ -1,11 +1,40 @@
 import './scss/styles.scss';
 import { ensureElement } from './utils/utils';
+import { ICardActions } from './types';
+import { CardList } from './components/CardList';
 
 const productModal = ensureElement<HTMLElement>('#product-modal');
 const basketModal = ensureElement<HTMLElement>('#basket-modal');
 const paymentModal = ensureElement<HTMLElement>('#payment-modal');
 const contactsModal = ensureElement<HTMLElement>('#contacts-modal');
 const successModal = ensureElement<HTMLElement>('#success-modal');
+
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const galleryContainer = ensureElement<HTMLElement>('.gallery');
+
+// Обработчик клика по карточке
+const cardActions: ICardActions = {
+	onClick: (event: MouseEvent) => {
+		const cardElement = event.currentTarget as HTMLElement;
+		const cardId = cardElement.dataset.id;
+		if (cardId) {
+			console.log(`Карточка с ID ${cardId} была нажата`);
+			// Здесь можно добавить логику для отображения детальной информации о продукте
+		}
+	}
+};
+
+// Создание списка карточек
+const cardList = new CardList(galleryContainer, cardCatalogTemplate, cardActions);
+
+// Загрузка и отображение карточек
+api.getProducts()
+	.then(products => {
+		cardList.addCards(products);
+	})
+	.catch(error => {
+		console.error('Ошибка при загрузке продуктов:', error);
+	});
 
 // Обработчики для всех модальных окон
 document.addEventListener('DOMContentLoaded', () => {
