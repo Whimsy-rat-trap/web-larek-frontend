@@ -41,8 +41,18 @@ export class Card {
 	set category(value: string) {
 		this._category = value;
 		this.categoryElement.textContent = value;
-		// Добавляем класс в зависимости от категории
-		const categoryClass = `card__category_${value.toLowerCase().replace(' ', '-')}`;
+
+		// Функция для определения класса категории
+		const getCategoryClass = (category: string): string => {
+			const lowerCategory = category.toLowerCase();
+			if (lowerCategory.includes('софт') || lowerCategory.includes('soft')) return 'soft';
+			if (lowerCategory.includes('хард') || lowerCategory.includes('hard')) return 'hard';
+			if (lowerCategory.includes('дополн') || lowerCategory.includes('add')) return 'additional';
+			if (lowerCategory.includes('кнопк') || lowerCategory.includes('button')) return 'button';
+			return 'other'; // По умолчанию
+		};
+
+		const categoryClass = `card__category_${getCategoryClass(value)}`;
 		this.categoryElement.className = 'card__category';
 		this.categoryElement.classList.add(categoryClass);
 	}
