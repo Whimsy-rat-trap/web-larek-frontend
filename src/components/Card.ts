@@ -1,5 +1,6 @@
 import { cloneTemplate, ensureElement } from '../utils/utils';
 import { ICardActions, Product  } from '../types';
+import { CDN_URL } from '../utils/constants';
 
 export class Card {
 		protected _id: string; // Добавляем явное объявление свойства
@@ -48,7 +49,13 @@ export class Card {
 
 	set image(value: string) {
 		this._image = value;
-		this.imageElement.src = value;
+		// Проверяем, является ли путь уже полным URL
+		if (value.startsWith('http://') || value.startsWith('https://')) {
+			this.imageElement.src = value;
+		} else {
+			// Добавляем префикс CDN_URL к относительному пути
+			this.imageElement.src = `${CDN_URL}${value}`;
+		}
 		this.imageElement.alt = this._title;
 	}
 

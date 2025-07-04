@@ -192,7 +192,7 @@ class SuccessfulOrderResponse {
  * Класс, представляющий ответ со списком товаров
  * @class
  */
-class ProductListResponse {
+export class ProductListResponse {
 	/**
 	 * Создает экземпляр ProductListResponse
 	 * @param {number} total - Общее количество товаров
