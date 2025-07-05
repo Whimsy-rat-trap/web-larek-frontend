@@ -1,10 +1,12 @@
 import './scss/styles.scss';
-import { ensureElement } from './utils/utils';
+import { ensureElement, cloneTemplate } from './utils/utils';
 import { ICardActions, Product } from './types';
 import { CardList } from './components/CardList';
 import { Api } from './components/base/api';
 import { AppData } from './components/AppData';
 import { API_URL } from './utils/constants';
+import { Card } from './components/Card';
+import { Basket } from './components/Basket';
 
 // Получаем DOM-элементы
 const productModal = ensureElement<HTMLElement>('#product-modal');
@@ -14,24 +16,65 @@ const contactsModal = ensureElement<HTMLElement>('#contacts-modal');
 const successModal = ensureElement<HTMLElement>('#success-modal');
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const galleryContainer = ensureElement<HTMLElement>('.gallery');
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+
+// Инициализация API и данных приложения
+const api = new Api(API_URL);
+const appData = new AppData(api);
+const basket = new Basket();
+
+// Функции для управления модальными окнами
+function toggleBodyScroll(enable: boolean) {
+	document.body.classList.toggle('_modal-open', !enable);
+}
+
+function openModal(modal: HTMLElement) {
+	modal.classList.add('modal_active');
+	toggleBodyScroll(false);
+	// Прокручиваем к началу модального окна
+	modal.scrollTo(0, 0);
+}
+
+function closeModal(modal: HTMLElement) {
+	modal.classList.remove('modal_active');
+	toggleBodyScroll(true);
+}
 
 // Обработчик клика по карточке
 const cardActions: ICardActions = {
 	onClick: (event: MouseEvent) => {
 		const cardElement = event.currentTarget as HTMLElement;
 		const cardId = cardElement.dataset.id;
-		if (cardId) {
-			console.log(`Карточка с ID ${cardId} была нажата`);
-			// Здесь можно добавить логику для отображения детальной информации о продукте
+		if (!cardId) return;
+
+		// Находим товар в каталоге
+		const product = appData.catalog.find(item => item.id === cardId);
+		if (!product) return;
+
+		// Клонируем шаблон для модального окна
+		const modalContent = productModal.querySelector('.modal__content');
+		if (!modalContent) return;
+
+		// Создаем карточку для превью
+		const previewCard = new Card(cardPreviewTemplate);
+		previewCard.render(product);
+		modalContent.innerHTML = '';
+		modalContent.appendChild(previewCard.render(product));
+
+		// Добавляем обработчик для кнопки "В корзину"
+		const addToCartButton = productModal.querySelector('.button');
+		if (addToCartButton) {
+			addToCartButton.addEventListener('click', () => {
+				basket.addItem(product);
+				closeModal(productModal);
+			});
 		}
+
+		openModal(productModal);
 	}
 };
 
-// Инициализация API и данных приложения
-const api = new Api(API_URL);
-const appData = new AppData(api);
-
-// Создание списка карточек (единственное объявление!)
+// Создание списка карточек
 const cardList = new CardList(galleryContainer, cardCatalogTemplate, cardActions);
 
 // Загрузка и отображение карточек
@@ -49,43 +92,50 @@ document.addEventListener('DOMContentLoaded', () => {
 	const basketButton = document.querySelector('.header__basket');
 	if (basketButton) {
 		basketButton.addEventListener('click', () => {
-			document.getElementById('basket-modal')?.classList.add('modal_active');
+			openModal(basketModal);
 		});
 	}
 
-	// Находим все кнопки закрытия модальных окон и добавляем обработчики
+	// Находим все кнопки закрытия модальных окон
 	const closeButtons = document.querySelectorAll('.modal__close, .order-success__close');
 	closeButtons.forEach(button => {
 		button.addEventListener('click', () => {
 			const modal = button.closest('.modal');
 			if (modal) {
-				modal.classList.remove('modal_active');
+				closeModal(modal as HTMLElement);
 			}
 		});
 	});
 
-	// Добавить в корзину
-	const addToCartButtons = document.querySelectorAll('#product-modal .button');
-	addToCartButtons.forEach(button => {
-		button.addEventListener('click', () => {
-			console.log('Товар был добавлен в корзину');
+	// Закрытие по клику на оверлей
+	document.querySelectorAll('.modal').forEach(modal => {
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				closeModal(modal as HTMLElement);
+			}
 		});
 	});
 
-	// Удаление из корзины
+	// Обработчики для кнопок внутри корзины
 	const deleteItemButtons = document.querySelectorAll('.basket__item-delete');
 	deleteItemButtons.forEach(button => {
-		button.addEventListener('click', () => {
-			console.log('Товар удален из корзины');
+		button.addEventListener('click', (e) => {
+			const item = (e.currentTarget as HTMLElement).closest('.basket__item');
+			if (item) {
+				const productId = item.getAttribute('data-id');
+				if (productId) {
+					basket.removeItem(productId);
+				}
+			}
 		});
 	});
 
-	// Оформление в корзине
+	// Оформление заказа в корзине
 	const checkoutButton = document.querySelector('#basket-modal .button');
 	if (checkoutButton) {
 		checkoutButton.addEventListener('click', () => {
-			document.getElementById('basket-modal')?.classList.remove('modal_active');
-			document.getElementById('payment-modal')?.classList.add('modal_active');
+			closeModal(basketModal);
+			openModal(paymentModal);
 		});
 	}
 
@@ -93,7 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const paymentButtons = document.querySelectorAll('#payment-modal .button_alt');
 	paymentButtons.forEach(button => {
 		button.addEventListener('click', () => {
-			// Логика выбора способа оплаты
+			paymentButtons.forEach(btn => btn.classList.remove('button_active'));
+			button.classList.add('button_active');
 		});
 	});
 
@@ -102,8 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (nextButton) {
 		nextButton.addEventListener('click', (e) => {
 			e.preventDefault();
-			document.getElementById('payment-modal')?.classList.remove('modal_active');
-			document.getElementById('contacts-modal')?.classList.add('modal_active');
+			closeModal(paymentModal);
+			openModal(contactsModal);
 		});
 	}
 
@@ -112,8 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (payButton) {
 		payButton.addEventListener('click', (e) => {
 			e.preventDefault();
-			document.getElementById('contacts-modal')?.classList.remove('modal_active');
-			document.getElementById('success-modal')?.classList.add('modal_active');
+			closeModal(contactsModal);
+			openModal(successModal);
 		});
 	}
 });
