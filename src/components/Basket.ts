@@ -15,7 +15,11 @@ export class Basket {
         this.basketItemTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
         this.basketModal = ensureElement<HTMLElement>('#basket-modal');
         this.basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
-    }
+
+			//счётчик
+			this.updateCounter();
+
+		}
 
     // Добавить товар в корзину
     addItem(product: Product): void {
@@ -53,8 +57,13 @@ export class Basket {
         this.updateBasket();
     }
 
+		private updateCounter(): void {
+			this.basketCounter.textContent = this.items.length.toString();
+		}
+
     // Обновить отображение корзины
     private updateBasket(): void {
+				this.updateCounter();
         this.basketCounter.textContent = this.items.length.toString();
 
         const basketContent = this.basketModal.querySelector('.modal__content');
@@ -75,6 +84,9 @@ export class Basket {
                 basketItemElement.querySelector('.basket__item-index')!.textContent = (index + 1).toString();
                 basketItemElement.querySelector('.card__title')!.textContent = item.title;
                 basketItemElement.querySelector('.card__price')!.textContent = `${item.price} синапсов`;
+
+								// Устанавливаем data-id для возможности удаления
+								basketItemElement.dataset.id = item.id;
 
                 // Добавляем обработчик для кнопки удаления
                 const deleteButton = basketItemElement.querySelector('.basket__item-delete');
