@@ -21,7 +21,15 @@ const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 // Инициализация API и данных приложения
 const api = new Api(API_URL);
 const appData = new AppData(api);
-const basket = new Basket();
+const basket =  new Basket(
+	ensureElement<HTMLTemplateElement>('#basket'),
+	ensureElement<HTMLTemplateElement>('#card-basket'),
+	basketModal,
+	ensureElement<HTMLElement>('.header__basket-counter'),
+	paymentModal,
+	openModal,
+	closeModal
+);
 
 // Функции для управления модальными окнами
 function toggleBodyScroll(enable: boolean) {
@@ -129,15 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	});
-
-	// Оформление заказа в корзине
-	const checkoutButton = document.querySelector('#basket-modal .button');
-	if (checkoutButton) {
-		checkoutButton.addEventListener('click', () => {
-			closeModal(basketModal);
-			openModal(paymentModal);
-		});
-	}
 
 	// Выбор способа оплаты
 	const paymentButtons = document.querySelectorAll('#payment-modal .button_alt');

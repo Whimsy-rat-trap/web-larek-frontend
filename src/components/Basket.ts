@@ -10,15 +10,33 @@ export class Basket {
     private basketModal: HTMLElement;
     private basketCounter: HTMLElement;
 
-    constructor() {
+		private paymentModal: HTMLElement;
+		private openModal: (modal: HTMLElement) => void;
+		private closeModal: (modal: HTMLElement) => void;
+
+    constructor(
+			basketTemplate: HTMLTemplateElement,
+			basketItemTemplate: HTMLTemplateElement,
+			basketModal: HTMLElement,
+			basketCounter: HTMLElement,
+			paymentModal: HTMLElement,
+			openModal: (modal: HTMLElement) => void,
+			closeModal: (modal: HTMLElement) => void
+		) {
         this.basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
         this.basketItemTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
         this.basketModal = ensureElement<HTMLElement>('#basket-modal');
         this.basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
+				this.paymentModal = paymentModal;
+				this.openModal = openModal;
+				this.closeModal = closeModal;
+				this.openModal = openModal;
 
 			//счётчик
 			this.updateCounter();
 
+			//кнопка оформления
+			this.setupCheckoutButton();
 		}
 
     // Добавить товар в корзину
@@ -72,6 +90,7 @@ export class Basket {
         const basketElement = cloneTemplate<HTMLElement>(this.basketTemplate);
         const basketList = basketElement.querySelector('.basket__list');
         const basketPrice = basketElement.querySelector('.basket__price');
+				const checkoutButton = basketElement.querySelector('.button') as HTMLButtonElement; // Находим кнопку оформления
 
         if (basketList && basketPrice) {
             // Очищаем список перед обновлением
@@ -100,10 +119,23 @@ export class Basket {
             });
 
             basketPrice.textContent = `${this.total} синапсов`;
+
+						// Обновляем состояние кнопки оформления
+						checkoutButton.disabled = this.items.length === 0;
+
+						// Добавляем обработчик клика
+						checkoutButton.addEventListener('click', () => {
+							if (this.items.length > 0) {
+								this.proceedToCheckout();
+							}
+						});
         }
 
         basketContent.innerHTML = '';
         basketContent.appendChild(basketElement);
+
+			// Обработчик для кнопки "Оформить" после обновления корзины
+			this.setupCheckoutButton();
     }
 
     // Получить текущее состояние корзины
@@ -113,4 +145,25 @@ export class Basket {
             total: this.total
         };
     }
+
+		private setupCheckoutButton(): void {
+			const checkoutButton = this.basketModal.querySelector('.button');
+			if (checkoutButton) {
+				checkoutButton.addEventListener('click', () => {
+					this.proceedToCheckout();
+				});
+			}
+		}
+
+	public proceedToCheckout(): void {
+		// Закрываем корзину и открываем окно оплаты
+		this.closeModal(this.basketModal);
+		this.openModal(this.paymentModal);
+
+		// Можно также добавить проверку, что корзина не пуста
+		if (this.items.length === 0) {
+			console.warn('Корзина пуста, оформление невозможно');
+			return;
+		}
+	}
 }
