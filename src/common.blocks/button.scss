@@ -8,13 +8,23 @@
   &_alt {
     @include mixins.button(white, $primaryLight, $primaryLight);
     border: $defaultBorder;
+
     &:hover {
       border: $hoverBorder;
+    }
+
+    &_active, &-active {
+      border: $hoverBorder;
+      background-color: $primaryLight;
+      color: white;
     }
   }
 
   &_alt-active {
-    @include mixins.button(white, $primaryLight, $primaryLight);
-    border: $hoverBorder;
+    opacity: 0.5;
+    cursor: not-allowed;
+    &:hover {
+      background-color: $primary;
+    }
   }
 }
