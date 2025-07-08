@@ -8,6 +8,7 @@ import { API_URL } from './utils/constants';
 import { Card } from './components/Card';
 import { Basket } from './components/Basket';
 import { Order } from './components/Order';
+import { Contacts } from './components/Contacts';
 
 // Получаем DOM-элементы
 const productModal = ensureElement<HTMLElement>('#product-modal');
@@ -20,6 +21,23 @@ const galleryContainer = ensureElement<HTMLElement>('.gallery');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 // Инициализация формы заказа
 const order = new Order(paymentModal);
+const contacts = new Contacts(contactsModal);
+
+// Обновляем обработчик для кнопки оплаты в контактах
+contactsModal.addEventListener('click', (e) => {
+	const target = e.target as HTMLElement;
+
+	// Обработка кнопки "Оплатить"
+	const payButton = target.closest('.modal__actions .button');
+	if (payButton) {
+		e.preventDefault();
+		if (contacts.validateForm()) {
+			closeModal(contactsModal);
+			openModal(successModal);
+			contacts.resetForm(); // Сбрасываем форму после успешной отправки
+		}
+	}
+});
 
 // Инициализация API и данных приложения
 const api = new Api(API_URL);
