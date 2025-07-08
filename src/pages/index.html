@@ -189,26 +189,32 @@
 			</div>
 			<div class="modal__actions">
 				<button type="submit" disabled class="button order__button">Далее</button>
-				<span class="form__errors"></span>
+				<div class="hints">
+					<span class="hint hint-payment">Выберите способ оплаты</span>
+					<span class="hint hint-address">Введите адрес доставки</span>
+				</div>
 			</div>
 		</form>
 	</template>
 
 	<template id="contacts">
-		<form class="form" name="contacts">
+		<form class="form" name="contacts" novalidate>
 			<div class="order">
 				<label class="order__field">
 					<span class="form__label modal__title">Email</span>
-					<input name="email" class="form__input" type="text" placeholder="Введите Email" />
+					<input name="email" class="form__input" type="email" placeholder="Введите Email" required />
 				</label>
 				<label class="order__field">
 					<span class="form__label modal__title">Телефон</span>
-					<input name="phone" class="form__input" type="text" placeholder="+7 (" />
+					<input name="phone" class="form__input" type="tel" placeholder="+7 (" required />
 				</label>
 			</div>
 			<div class="modal__actions">
-				<button type="submit" disabled class="button">Оплатить</button>
-				<span class="form__errors"></span>
+				<button type="submit" class="button">Оплатить</button>
+				<div class="hints">
+					<span class="hint hint-email">Необходимо указать почту</span>
+					<span class="hint hint-phone">Необходимо указать телефон</span>
+				</div>
 			</div>
 		</form>
 	</template>

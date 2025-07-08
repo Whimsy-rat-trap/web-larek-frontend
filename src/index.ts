@@ -19,30 +19,15 @@ const successModal = ensureElement<HTMLElement>('#success-modal');
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const galleryContainer = ensureElement<HTMLElement>('.gallery');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
-// Инициализация формы заказа
+
+// Инициализация форм
 const order = new Order(paymentModal);
 const contacts = new Contacts(contactsModal);
-
-// Обновляем обработчик для кнопки оплаты в контактах
-contactsModal.addEventListener('click', (e) => {
-	const target = e.target as HTMLElement;
-
-	// Обработка кнопки "Оплатить"
-	const payButton = target.closest('.modal__actions .button');
-	if (payButton) {
-		e.preventDefault();
-		if (contacts.validateForm()) {
-			closeModal(contactsModal);
-			openModal(successModal);
-			contacts.resetForm(); // Сбрасываем форму после успешной отправки
-		}
-	}
-});
 
 // Инициализация API и данных приложения
 const api = new Api(API_URL);
 const appData = new AppData(api);
-const basket =  new Basket(
+const basket = new Basket(
 	ensureElement<HTMLTemplateElement>('#basket'),
 	ensureElement<HTMLTemplateElement>('#card-basket'),
 	basketModal,
@@ -60,7 +45,6 @@ function toggleBodyScroll(enable: boolean) {
 function openModal(modal: HTMLElement) {
 	modal.classList.add('modal_active');
 	toggleBodyScroll(false);
-	// Прокручиваем к началу модального окна
 	modal.scrollTo(0, 0);
 }
 
@@ -76,21 +60,17 @@ const cardActions: ICardActions = {
 		const cardId = cardElement.dataset.id;
 		if (!cardId) return;
 
-		// Находим товар в каталоге
 		const product = appData.catalog.find(item => item.id === cardId);
 		if (!product) return;
 
-		// Клонируем шаблон для модального окна
 		const modalContent = productModal.querySelector('.modal__content');
 		if (!modalContent) return;
 
-		// Создаем карточку для превью
 		const previewCard = new Card(cardPreviewTemplate);
 		previewCard.render(product);
 		modalContent.innerHTML = '';
 		modalContent.appendChild(previewCard.render(product));
 
-		// Добавляем обработчик для кнопки "В корзину"
 		const addToCartButton = productModal.querySelector('.button');
 		if (addToCartButton) {
 			addToCartButton.addEventListener('click', () => {
@@ -125,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	// Находим все кнопки закрытия модальных окон
+	// Кнопки закрытия модальных окон
 	const closeButtons = document.querySelectorAll('.modal__close, .order-success__close');
 	closeButtons.forEach(button => {
 		button.addEventListener('click', () => {
@@ -159,25 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	});
 
-	// Выбор способа оплаты
-	const paymentButtons = document.querySelectorAll('#payment-modal .button_alt');
-	paymentModal.addEventListener('click', (e) => {
-		const target = e.target as HTMLElement;
-		if (target.closest('.order__button')) {
-			e.preventDefault();
-			if (order.validateForm()) {
-				closeModal(paymentModal);
-				openModal(contactsModal);
-			}
-		}
-	});
-
-	// Переход от оплаты к контактам
 	// Обработчик для модального окна оплаты
 	paymentModal.addEventListener('click', (e) => {
 		const target = e.target as HTMLElement;
 
-		// Обработка выбора способа оплаты
+		// Выбор способа оплаты
 		const paymentButton = target.closest<HTMLButtonElement>('.button_alt');
 		if (paymentButton) {
 			e.preventDefault();
@@ -185,28 +151,33 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		// Обработка кнопки "Далее" с явным приведением типа
+		// Кнопка "Далее" с правильной проверкой
 		const nextButton = target.closest<HTMLButtonElement>('.order__button');
 		if (nextButton) {
 			e.preventDefault();
-
-			// Всегда проверяем форму, но показываем ошибки только при нажатии
-			const isValid = order.validateForm();
-
-			if (isValid && !nextButton.disabled) {
+			// Проверяем disabled через hasAttribute для максимальной совместимости
+			if (!nextButton.hasAttribute('disabled') && order.validateAndProceed()) {
 				closeModal(paymentModal);
 				openModal(contactsModal);
 			}
 		}
 	});
 
-	// Кнопка оплаты в контактах
-	const payButton = document.querySelector('#contacts-modal .modal__actions .button');
-	if (payButton) {
-		payButton.addEventListener('click', (e) => {
+	// Обработчик для модального окна контактов
+	contactsModal.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+
+		// Обработка кнопки "Оплатить"
+		const payButton = target.closest<HTMLButtonElement>('.modal__actions .button');
+		if (payButton) {
 			e.preventDefault();
-			closeModal(contactsModal);
-			openModal(successModal);
-		});
-	}
+
+			// Принудительно показываем ошибки при отправке
+			if (contacts.validateForm(true)) {
+				closeModal(contactsModal);
+				openModal(successModal);
+				contacts.resetForm();
+			}
+		}
+	});
 });
