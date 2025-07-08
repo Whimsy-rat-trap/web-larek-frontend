@@ -9,16 +9,18 @@ import { Card } from './components/Card';
 import { Basket } from './components/Basket';
 import { Order } from './components/Order';
 import { Contacts } from './components/Contacts';
+import { SuccessModal } from './components/SuccessModal';
 
 // Получаем DOM-элементы
 const productModal = ensureElement<HTMLElement>('#product-modal');
 const basketModal = ensureElement<HTMLElement>('#basket-modal');
 const paymentModal = ensureElement<HTMLElement>('#payment-modal');
 const contactsModal = ensureElement<HTMLElement>('#contacts-modal');
-const successModal = ensureElement<HTMLElement>('#success-modal');
+const successModalElement = ensureElement<HTMLElement>('#success-modal');
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const galleryContainer = ensureElement<HTMLElement>('.gallery');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 // Инициализация форм
 const order = new Order(paymentModal);
@@ -34,6 +36,18 @@ const basket = new Basket(
 	ensureElement<HTMLElement>('.header__basket-counter'),
 	paymentModal,
 	openModal,
+	closeModal
+);
+
+// Инициализация модального окна успеха
+const successModal = new SuccessModal(
+	successModalElement,
+	successTemplate,
+	basket,
+	contactsModal,
+	paymentModal,
+	order,
+	contacts,
 	closeModal
 );
 
@@ -175,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// Принудительно показываем ошибки при отправке
 			if (contacts.validateForm(true)) {
 				closeModal(contactsModal);
-				openModal(successModal);
+				successModal.show();
 				contacts.resetForm();
 			}
 		}

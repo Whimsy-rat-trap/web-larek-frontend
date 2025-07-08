@@ -111,4 +111,24 @@ export class Order {
             address: this.deliveryAddress
         };
     }
+
+    // В класс Order добавим:
+    public resetForm(): void {
+        // Сбрасываем выбранный способ оплаты
+        this.paymentButtons.forEach(button => {
+            button.classList.remove('button_alt_active');
+        });
+        this.paymentMethod = null;
+
+        // Очищаем поле адреса
+        this.addressInput.value = '';
+        this.deliveryAddress = null;
+
+        // Сбрасываем подсказки
+        this.paymentHint.classList.remove('active');
+        this.addressHint.classList.remove('active');
+
+        // Обновляем состояние кнопки
+        this.updateButtonState();
+    }
 }
