@@ -3,15 +3,18 @@
 
 .modal {
   @include mixins.sublayer;
-  // height: max-content;
-  position: absolute;
+  position: fixed; // Изменено с absolute на fixed
   display: none;
   justify-content: center;
+  align-items: flex-start; // Добавлено для вертикального позиционирования
   background-color: $overlayBackground;
   z-index: 100;
-  padding-top: 5vh;
-  padding-bottom: 5vh;
-  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto; // Добавлено для прокрутки если контент не помещается
+  padding: 20px 0; // Добавлены отступы сверху и снизу
 
   &_active {
     display: flex;
@@ -22,10 +25,10 @@
     @include mixins.flex(column);
     gap: $defaultPadding;
     background-color: $background;
-    // min-height: 90vmin;
     border-radius: 3rem;
     box-sizing: border-box;
     position: relative;
+    margin: auto; // Центрирование по вертикали
   }
 
   &__content {
