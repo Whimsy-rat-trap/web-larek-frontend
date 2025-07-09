@@ -32,14 +32,41 @@ export class AppData {
         return this._order;
     }
 
+    // Добавляем товары в корзину
+    addToBasket(item: Product) {
+        if (!this._basket.includes(item.id)) {
+            this._basket.push(item.id);
+        }
+    }
+
+    // Удаляем товары из корзины
+    removeFromBasket(id: string) {
+        this._basket = this._basket.filter(item => item !== id);
+    }
+
+    // Очищаем корзину
+    clearBasket() {
+        this._basket = [];
+    }
+
     // Загрузка товаров
     async getProducts(): Promise<Product[]> {
         try {
-            const data = await this.api.get('/product') as ApiListResponse<Product>;
-            this.setCatalog(data.items);
-            return data.items;
+            const response = await this.api.get('/product') as ApiListResponse<Product>;
+            this.setCatalog(response.items);
+            return response.items;
         } catch (error) {
             console.error('Ошибка загрузки товаров:', error);
+            throw error;
+        }
+    }
+
+    // Оформление заказа
+    async submitOrder(order: IOrder): Promise<{id: string, total: number}> {
+        try {
+            return await this.api.post('/order', order) as {id: string, total: number};
+        } catch (error) {
+            console.error('Ошибка оформления заказа:', error);
             throw error;
         }
     }

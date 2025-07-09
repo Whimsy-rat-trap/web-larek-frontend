@@ -2,6 +2,7 @@ import { ensureElement, cloneTemplate } from "../utils/utils";
 import { Basket } from "./Basket";
 import { Order } from "./Order";
 import { Contacts } from "./Contacts";
+import {AppData} from "./AppData";
 
 export class SuccessModal {
     private modal: HTMLElement;
@@ -12,6 +13,7 @@ export class SuccessModal {
     private order: Order;
     private contacts: Contacts;
     private closeModalFn: (modal: HTMLElement) => void;
+    private appData: AppData;
 
     constructor(
         modal: HTMLElement,
@@ -21,7 +23,8 @@ export class SuccessModal {
         paymentModal: HTMLElement,
         order: Order,
         contacts: Contacts,
-        closeModal: (modal: HTMLElement) => void
+        closeModal: (modal: HTMLElement) => void,
+        appData: AppData
     ) {
         this.modal = ensureElement<HTMLElement>(modal);
         this.template = ensureElement<HTMLTemplateElement>(template);
@@ -31,75 +34,7 @@ export class SuccessModal {
         this.order = order;
         this.contacts = contacts;
         this.closeModalFn = closeModal;
-    }
-
-    private setupEventListeners(content: HTMLElement): void {
-        // Обработчик для кнопки "За новыми покупками!"
-        const continueButton = content.querySelector('.order-success__close');
-        if (continueButton) {
-            continueButton.addEventListener('click', () => {
-                this.closeAndReset();
-            });
-        }
-
-        // Обработчик для крестика
-        const closeButton = this.modal.querySelector('.modal__close');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                this.closeAndReset();
-            });
-        }
-
-        // Обработчик клика вне модального окна
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
-                this.closeAndReset();
-            }
-        });
-    }
-
-    private closeAndReset(): void {
-        this.close();
-        this.clearForms();
-        this.clearBasket();
-    }
-
-    private clearForms(): void {
-        // Очищаем форму оплаты
-        this.order.resetForm();
-
-        // Очищаем форму контактов
-        this.contacts.resetForm();
-    }
-
-    public show(): void {
-        // Закрываем модальное окно контактов
-        this.closeModalFn(this.contactsModal);
-
-        // Получаем данные из корзины
-        const basketState = this.basket.getState();
-        const total = basketState.total;
-
-        // Создаем содержимое из шаблона
-        const content = cloneTemplate<HTMLElement>(this.template);
-        const description = content.querySelector('.order-success__description');
-
-        if (description) {
-            description.textContent = `Списано ${total} синапсов`;
-        }
-
-        // Очищаем и добавляем новое содержимое
-        const modalContent = this.modal.querySelector('.modal__content');
-        if (modalContent) {
-            modalContent.innerHTML = '';
-            modalContent.appendChild(content);
-        }
-
-        // Настраиваем обработчики событий после добавления в DOM
-        this.setupEventListeners(content);
-
-        // Показываем модальное окно
-        this.modal.classList.add('modal_active');
+        this.appData = appData;
     }
 
     private close(): void {
@@ -108,5 +43,81 @@ export class SuccessModal {
 
     private clearBasket(): void {
         this.basket.clearBasket();
+    }
+
+    private clearForms(): void {
+        this.order.resetForm();
+        this.contacts.resetForm();
+    }
+
+    private closeAndReset(): void {
+        this.close();
+        this.clearForms();
+        this.clearBasket();
+    }
+
+    private setupEventListeners(content: HTMLElement): void {
+        const continueButton = content.querySelector('.order-success__close');
+        if (continueButton) {
+            continueButton.addEventListener('click', () => {
+                this.closeAndReset();
+            });
+        }
+
+        const closeButton = this.modal.querySelector('.modal__close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                this.closeAndReset();
+            });
+        }
+
+        this.modal.addEventListener('click', (e) => {
+            if (e.target === this.modal) {
+                this.closeAndReset();
+            }
+        });
+    }
+
+    public async show(): Promise<void> {
+        this.closeModalFn(this.contactsModal);
+
+        const basketState = this.basket.getState();
+        const total = basketState.total;
+
+        const orderData = this.order.getOrderData();
+        const contactsData = this.contacts.getContactsData();
+
+        const fullOrder = {
+            ...orderData,
+            ...contactsData,
+            items: basketState.items.map(item => item.id),
+            total: total
+        };
+
+        try {
+            const response = await this.appData.submitOrder(fullOrder);
+            const successTotal = response.total;
+
+            const content = cloneTemplate<HTMLElement>(this.template);
+            const description = content.querySelector('.order-success__description');
+
+            if (description) {
+                description.textContent = `Списано ${successTotal} синапсов`;
+            }
+
+            const modalContent = this.modal.querySelector('.modal__content');
+            if (modalContent) {
+                modalContent.innerHTML = '';
+                modalContent.appendChild(content);
+            }
+
+            this.setupEventListeners(content);
+            this.modal.classList.add('modal_active');
+
+            this.basket.clearBasket();
+            this.clearForms();
+        } catch (error) {
+            console.error('Ошибка при оформлении заказа:', error);
+        }
     }
 }

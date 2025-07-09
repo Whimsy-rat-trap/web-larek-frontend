@@ -166,4 +166,12 @@ export class Basket {
 			return;
 		}
 	}
+
+    // Метод для получения данных корзины
+    public getBasketData(): {items: string[], total: number} {
+        return {
+            items: this.items.map(item => item.id),
+            total: this.total
+        };
+    }
 }

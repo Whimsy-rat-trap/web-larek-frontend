@@ -3,85 +3,67 @@ import { ICardActions, Product  } from '../types';
 import { CDN_URL } from '../utils/constants';
 
 export class Card {
-		protected _id: string; // Добавляем явное объявление свойства
-		protected _title: string;
-		protected _category: string;
-		protected _image: string;
-		protected _price: number | null;
-		protected _description?: string;
+	protected element: HTMLElement;
+	protected categoryElement: HTMLElement;
+	protected titleElement: HTMLElement;
+	protected imageElement: HTMLImageElement;
+	protected priceElement: HTMLElement;
+	protected descriptionElement: HTMLElement | null;
 
-    private element: HTMLElement;
-    private categoryElement: HTMLElement;
-    private titleElement: HTMLElement;
-    private imageElement: HTMLImageElement;
-    private priceElement: HTMLElement;
+	constructor(template: HTMLTemplateElement, actions?: ICardActions) {
+		this.element = cloneTemplate(template);
+		this.categoryElement = ensureElement('.card__category', this.element);
+		this.titleElement = ensureElement('.card__title', this.element);
+		this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.element);
+		this.priceElement = ensureElement('.card__price', this.element);
+		this.descriptionElement = this.element.querySelector('.card__text');
 
-    constructor(private template: HTMLTemplateElement, private actions?: ICardActions) {
-        this.element = cloneTemplate<HTMLElement>(template);
-        this.categoryElement = ensureElement<HTMLElement>('.card__category', this.element);
-        this.titleElement = ensureElement<HTMLElement>('.card__title', this.element);
-        this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.element);
-        this.priceElement = ensureElement<HTMLElement>('.card__price', this.element);
-
-        if (actions?.onClick) {
-            this.element.addEventListener('click', actions.onClick);
-        }
-    }
-
-	set id(value: string) {
-		this._id = value;
-		this.element.dataset.id = value;
+		if (actions?.onClick) {
+			this.element.addEventListener('click', actions.onClick);
+		}
 	}
 
-	set title(value: string) {
-		this._title = value;
-		this.titleElement.textContent = value;
-	}
-
-	set category(value: string) {
-		this._category = value;
+	setCategory(value: string): void {
 		this.categoryElement.textContent = value;
 
-		// Функция для определения класса категории
-		const getCategoryClass = (category: string): string => {
-			const lowerCategory = category.toLowerCase();
-			if (lowerCategory.includes('софт') || lowerCategory.includes('soft')) return 'soft';
-			if (lowerCategory.includes('хард') || lowerCategory.includes('hard')) return 'hard';
-			if (lowerCategory.includes('дополн') || lowerCategory.includes('add')) return 'additional';
-			if (lowerCategory.includes('кнопк') || lowerCategory.includes('button')) return 'button';
-			return 'other'; // По умолчанию
-		};
-
-		const categoryClass = `card__category_${getCategoryClass(value)}`;
+		// Очищаем все классы категорий
 		this.categoryElement.className = 'card__category';
-		this.categoryElement.classList.add(categoryClass);
+
+		// Добавляем соответствующий класс
+		const categoryClass = this.getCategoryClass(value);
+		this.categoryElement.classList.add(`card__category_${categoryClass}`);
 	}
 
-	set image(value: string) {
-		this._image = value;
-		// Проверяем, является ли путь уже полным URL
-		if (value.startsWith('http://') || value.startsWith('https://')) {
-			this.imageElement.src = value;
-		} else {
-			// Добавляем префикс CDN_URL к относительному пути
-			this.imageElement.src = `${CDN_URL}${value}`;
+	private getCategoryClass(category: string): string {
+		const lowerCategory = category.toLowerCase();
+		if (lowerCategory.includes('софт') || lowerCategory.includes('soft')) return 'soft';
+		if (lowerCategory.includes('хард') || lowerCategory.includes('hard')) return 'hard';
+		if (lowerCategory.includes('дополн') || lowerCategory.includes('additional')) return 'additional';
+		if (lowerCategory.includes('кнопк') || lowerCategory.includes('button')) return 'button';
+		return 'other';
+	}
+
+	render(product: Product): HTMLElement {
+		this.element.dataset.id = product.id;
+		this.titleElement.textContent = product.title;
+		this.setCategory(product.category);
+
+		// Обработка изображения
+		this.imageElement.src = product.image.startsWith('/')
+			? `${CDN_URL}${product.image}`
+			: product.image;
+		this.imageElement.alt = product.title;
+
+		// Обработка цены
+		this.priceElement.textContent = product.price !== null
+			? `${product.price} синапсов`
+			: 'Бесценно';
+
+		// Обработка описания (если есть поле в шаблоне)
+		if (this.descriptionElement && product.description) {
+			this.descriptionElement.textContent = product.description;
 		}
-		this.imageElement.alt = this._title;
+
+		return this.element;
 	}
-
-	set price(value: number | null) {
-		this._price = value;
-		this.priceElement.textContent = value ? `${value} синапсов` : 'Бесценно';
-	}
-
-
-	// Геттеры и сеттеры для свойств карточки
-    render(data: Product): HTMLElement {
-        this.id = data.id;
-        this.title = data.title;
-        this.category = data.category;
-        this.image = data.image;
-        this.price = data.price;
-        return this.element;
-    }
 }
