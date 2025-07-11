@@ -33,7 +33,6 @@ const basket = new Basket(
 	ensureElement<HTMLTemplateElement>('#basket'),
 	ensureElement<HTMLTemplateElement>('#card-basket'),
 	basketModal,
-	ensureElement<HTMLElement>('.header__basket-counter'),
 	paymentModal,
 	openModal,
 	closeModal

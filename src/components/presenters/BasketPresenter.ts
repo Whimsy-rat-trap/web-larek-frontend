@@ -29,7 +29,6 @@ export class BasketPresenter extends BasePresenter {
             this.basketTemplate,
             this.basketItemTemplate,
             this.basketModal,
-            this.basketCounter,
             this.paymentModal,
             (modal) => this.modalManager.openModal(modal),
             (modal) => this.modalManager.closeModal(modal)
