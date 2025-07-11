@@ -18,7 +18,6 @@ export class Basket {
 			basketTemplate: HTMLTemplateElement,
 			basketItemTemplate: HTMLTemplateElement,
 			basketModal: HTMLElement,
-			basketCounter: HTMLElement,
 			paymentModal: HTMLElement,
 			openModal: (modal: HTMLElement) => void,
 			closeModal: (modal: HTMLElement) => void
@@ -31,9 +30,6 @@ export class Basket {
 				this.openModal = openModal;
 				this.closeModal = closeModal;
 				this.openModal = openModal;
-
-			//счётчик
-			this.updateCounter();
 
 			//кнопка оформления
 			this.setupCheckoutButton();
@@ -75,13 +71,8 @@ export class Basket {
         this.updateBasket();
     }
 
-		private updateCounter(): void {
-			this.basketCounter.textContent = this.items.length.toString();
-		}
-
     // Обновить отображение корзины
     private updateBasket(): void {
-				this.updateCounter();
         this.basketCounter.textContent = this.items.length.toString();
 
         const basketContent = this.basketModal.querySelector('.modal__content');
