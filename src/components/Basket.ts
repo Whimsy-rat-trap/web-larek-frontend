@@ -1,6 +1,7 @@
 import { ensureElement, cloneTemplate } from '../utils/utils';
 import { Product } from '../types';
 import { CDN_URL } from '../utils/constants';
+import { BasketItemPresenter } from './presenters/BasketItemPresenter';
 
 export class Basket {
     private items: Product[] = [];
@@ -87,27 +88,19 @@ export class Basket {
             // Очищаем список перед обновлением
             basketList.innerHTML = '';
 
-            // Добавляем все товары из корзины
-            this.items.forEach((item, index) => {
-                const basketItemElement = cloneTemplate<HTMLElement>(this.basketItemTemplate);
+          // Добавляем все товары из корзины
+					this.items.forEach((item, index) => {
+						const basketItemPresenter = new BasketItemPresenter(
+							this.basketItemTemplate,
+							{
+								onDelete: (productId: string) => this.removeItem(productId)
+							},
+							null
+						);
 
-                basketItemElement.querySelector('.basket__item-index')!.textContent = (index + 1).toString();
-                basketItemElement.querySelector('.card__title')!.textContent = item.title;
-                basketItemElement.querySelector('.card__price')!.textContent = `${item.price} синапсов`;
-
-								// Устанавливаем data-id для возможности удаления
-								basketItemElement.dataset.id = item.id;
-
-                // Добавляем обработчик для кнопки удаления
-                const deleteButton = basketItemElement.querySelector('.basket__item-delete');
-                if (deleteButton) {
-                    deleteButton.addEventListener('click', () => {
-                        this.removeItem(item.id);
-                    });
-                }
-
-                basketList.appendChild(basketItemElement);
-            });
+						const basketItemElement = basketItemPresenter.renderItem(item, index);
+						basketList.appendChild(basketItemElement);
+					});
 
             basketPrice.textContent = `${this.total} синапсов`;
 
