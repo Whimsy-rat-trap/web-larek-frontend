@@ -3,9 +3,9 @@ import { BasketView } from '../views/BasketView';
 import { ModalManager } from '../views/ModalManager';
 import { Product } from '../../types';
 import { Basket } from '../models/Basket';
-import { document } from 'postcss';
+import { IBasketView } from '../../interfaces/views/IBasketView';
 
-export class BasketPresenter extends BasePresenter<BasketView, Basket> {
+export class BasketPresenter extends BasePresenter<IBasketView, Basket> {
 	private basket: BasketView;
 	private modalManager: ModalManager;
 

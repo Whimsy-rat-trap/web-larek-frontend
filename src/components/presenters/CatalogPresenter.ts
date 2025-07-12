@@ -5,7 +5,6 @@ import { Product } from '../../types';
 import { CardView } from '../views/CardView';
 import { Catalog } from '../models/Catalog';
 import { ApiService } from '../services/ApiService';
-import { document } from 'postcss';
 import * as console from 'node:console';
 
 export class CatalogPresenter extends BasePresenter<CatalogView, Catalog> {
@@ -33,7 +32,7 @@ export class CatalogPresenter extends BasePresenter<CatalogView, Catalog> {
 			this.galleryContainer,
 			this.cardCatalogTemplate,
 			{
-				onClick: (event) => this.handleCardClick(event),
+				cardActions: {onClick: (event) => this.handleCardClick(event)}
 			}
 		);
 	}
@@ -84,7 +83,7 @@ export class CatalogPresenter extends BasePresenter<CatalogView, Catalog> {
 		try {
 			const apiService = new ApiService();
 			const products = await apiService.getProducts();
-			this.cardList.addCards(products);
+			this.cardList.updateProducts(products);
 		} catch (error) {
 			console.error('Не удалось загрузить товары:', error);
 			this.galleryContainer.innerHTML =

@@ -4,8 +4,9 @@ import { ContactsView } from '../views/ContactsView';
 import { SuccessModal } from '../views/SuccessModal';
 import { ModalManager } from '../views/ModalManager';
 import { Order } from '../models/Order';
+import { IOrderView } from '../../interfaces/views/IOrderView';
 
-export class OrderPresenter extends BasePresenter<OrderView, Order> {
+export class OrderPresenter extends BasePresenter<IOrderView, Order> {
     private order: OrderView;
     private contacts: ContactsView;
     private successModal: SuccessModal;

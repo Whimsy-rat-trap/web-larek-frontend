@@ -1,31 +1,48 @@
 import { ICardActions, Product } from '../../types';
 import { CardView } from './CardView';
-import { IView } from '../../interfaces/IView';
+import { ICatalogView } from '../../interfaces/views/ICatalogView';
+import { BaseView } from '../base/BaseView';
+import { EventEmitter } from '../base/events';
 
-export class CatalogView implements IView{
+export class CatalogView extends BaseView implements ICatalogView {
 	private cards: CardView[] = [];
+	private readonly container: HTMLElement;
+	private readonly template: HTMLTemplateElement;
+	private cardActions?: ICardActions;
 
 	constructor(
-		private container: HTMLElement,
-		private template: HTMLTemplateElement,
-		private actions?: ICardActions
-	) {}
+		container: HTMLElement,
+		template: HTMLTemplateElement,
+		callbacks: {
+			cardActions?: ICardActions;
+		} = {},
+		eventEmitter?: EventEmitter,
+	) {
+		super(eventEmitter)
+		this.container = container;
+		this.template = template;
+		this.cardActions = callbacks.cardActions;
+		this.bindEvents();
+	}
+
+	updateProducts(products: Product[]): void {
+		this.clear();
+		products.forEach((product) => {
+			const card = new CardView(this.template, this.cardActions);
+			const cardElement = card.render(product);
+			this.container.appendChild(cardElement);
+			this.cards.push(card);
+		});
+	}
+	render(data: Product[]): HTMLElement {
+		throw new Error('Method not implemented.');
+	}
 
 	clear(): void {
 		this.container.innerHTML = '';
 		this.cards = [];
 	}
 
-	addCard(product: Product): CardView {
-		const card = new CardView(this.template, this.actions);
-		const cardElement = card.render(product);
-		this.container.appendChild(cardElement);
-		this.cards.push(card);
-		return card;
-	}
-
-	addCards(products: Product[]): void {
-		this.clear();
-		products.forEach(product => this.addCard(product));
+	protected bindEvents(): void {
 	}
 }

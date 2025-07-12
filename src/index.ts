@@ -59,7 +59,7 @@ async function initializeApp() {
 	try {
 		const products = await apiService.getProducts();
 		catalog.products = products;
-		cardList.addCards(products);
+		cardList.updateProducts(products);
 	} catch (error) {
 		console.error('Не удалось загрузить товары:', error);
 		// Можно показать сообщение об ошибке пользователю
@@ -114,66 +114,20 @@ const cardActions: ICardActions = {
 };
 
 // Создание списка карточек
-const cardList = new CatalogView(galleryContainer, cardCatalogTemplate, cardActions);
+const cardList = new CatalogView(galleryContainer, cardCatalogTemplate, {cardActions: cardActions});
 
 // Загрузка и отображение карточек
 apiService.getProducts()
 	.then((products: Product[]) => {
 		catalog.products = products;
-		cardList.addCards(products);
+		cardList.updateProducts(products);
 	})
 	.catch((error: Error) => {
 		console.error('Ошибка при загрузке продуктов:', error);
 	});
 
-async function loadProducts() {
-	try {
-		const products = await apiService.getProducts();
-		catalog.products = products;
-		const cardList = new CatalogView(
-			galleryContainer,
-			cardCatalogTemplate,
-			{
-				onClick: (event) => {
-					const cardElement = event.currentTarget as HTMLElement;
-					const productId = cardElement.dataset.id;
-					const product = products.find(p => p.id === productId);
-
-					if (product) {
-						const previewCard = new CardView(cardPreviewTemplate);
-						const modalContent = productModal.querySelector('.modal__content');
-						if (modalContent) {
-							modalContent.innerHTML = '';
-							modalContent.appendChild(previewCard.render(product));
-
-							// Добавляем обработчик для кнопки "В корзину"
-							const addButton = modalContent.querySelector('.button');
-							if (addButton) {
-								addButton.addEventListener('click', () => {
-									basket.addItem(product);
-									closeModal(productModal);
-								});
-							}
-						}
-						openModal(productModal);
-					}
-				}
-			}
-		);
-		cardList.addCards(products);
-	} catch (error) {
-		console.error('Ошибка загрузки товаров:', error);
-		galleryContainer.innerHTML = '<p class="error">Не удалось загрузить товары</p>';
-	}
-}
-
 // Обработчики для всех модальных окон
 document.addEventListener('DOMContentLoaded', () => {
-	loadProducts().catch(error => {
-		console.error('Failed to load products:', error);
-		galleryContainer.innerHTML = '<p class="error">Ошибка загрузки товаров</p>';
-	});
-
 	initializeApp().catch(error => {
 		console.error('App initialization failed:', error);
 	});
