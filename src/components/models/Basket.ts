@@ -1,12 +1,13 @@
 import { IModel } from '../../interfaces/IModel';
 import { Product } from '../../types';
+import { EventEmitter } from '../base/events';
 
 /**
  * Класс, представляющий корзину покупок
  * @class
  * @implements {IModel}
  */
-export class Basket implements IModel {
+export class Basket extends EventEmitter implements IModel {
 	/**
 	 * Массив товаров в корзине
 	 * @type {Product[]}
@@ -38,6 +39,7 @@ export class Basket implements IModel {
 	add(item: Product) {
 		if (!this._items.includes(item)) {
 			this._items.push(item);
+			this.emit('basket:changed', this._items);
 		}
 	}
 
@@ -47,6 +49,7 @@ export class Basket implements IModel {
 	 */
 	remove(id: string) {
 		this._items = this._items.filter((item) => item.id !== id);
+		this.emit('basket:changed', this._items);
 	}
 
 	/**
@@ -54,5 +57,6 @@ export class Basket implements IModel {
 	 */
 	clear() {
 		this._items = [];
+		this.emit('basket:changed', this._items);
 	}
 }

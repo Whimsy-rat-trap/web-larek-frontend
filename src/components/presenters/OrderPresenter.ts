@@ -19,7 +19,7 @@ export class OrderPresenter extends BasePresenter<OrderView, Order> {
         private basketPresenter: any, // BasketPresenter
         model: any
     ) {
-        super(null, model);
+        super(null, model,null);
         this.modalManager = ModalManager.getInstance();
     }
 
@@ -94,4 +94,7 @@ export class OrderPresenter extends BasePresenter<OrderView, Order> {
             }
         }
     }
+
+	protected bindEvents(): void {
+	}
 }

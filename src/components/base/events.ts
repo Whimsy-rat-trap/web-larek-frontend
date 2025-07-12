@@ -51,6 +51,8 @@ export class EventEmitter implements IEvents {
      * Инициировать событие с данными
      */
     emit<T extends object>(eventName: string, data?: T) {
+			// todo убрать после отладки
+			console.log("Событие", eventName, data);
         this._events.forEach((subscribers, name) => {
             if (name === '*') subscribers.forEach(callback => callback({
                 eventName,
