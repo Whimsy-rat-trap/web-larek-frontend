@@ -24,12 +24,12 @@ export class ApiService {
 	async submitOrder(order: Order): Promise<OrderSubmitResult> {
 		try {
 			const orderData = {
-				payment: order.paymentMethod,
-				email: order.email,
-				phone: order.phone,
-				address: order.address,
-				items: order.products.map(item => item.id),
-				total: order.total,
+				payment: order.data.paymentMethod,
+				email: order.data.email,
+				phone: order.data.phone,
+				address: order.data.address,
+				items: order.data.products.map(item => item.id),
+				total: order.data.total,
 			}
 			return (await this.api.post('/order', orderData)) as OrderSubmitResult;
 		} catch (error) {

@@ -2,56 +2,58 @@ import { PaymentMethod, Product } from '../../types';
 import { IModel } from '../../interfaces/IModel';
 import { EventEmitter } from '../base/events';
 
+type OrderData = {
+	products: Product[],
+	paymentMethod: PaymentMethod,
+	address: string,
+	email: string,
+	phone: string,
+	total: number,
+};
+
 /**
  * Модель заказа
  */
 export class Order extends EventEmitter implements IModel {
-	protected _products: Product[] = [];
-	protected _paymentMethod: PaymentMethod = 'online';
-	protected _address = '';
-	protected _email = '';
-	protected _phone = '';
+	protected _data: OrderData = {
+		products: [],
+		paymentMethod: 'online',
+		address: '',
+		email: '',
+		phone: '',
+		total: 0,
+	};
 
-	get products(): Product[] {
-		return this._products;
+	get data(): OrderData {
+		return this._data;
 	}
+
 	set products(products: Product[]) {
-		this._products = products;
+		this._data.products = products;
+		this._data.total = this._data.products.reduce(
+			(total, item) => total + item.price,
+			0
+		);
+		this.emit('order:changed', this._data);
 	}
 
-	get paymentMethod(): PaymentMethod {
-		return this._paymentMethod;
-	}
 	set paymentMethod(paymentMethod: PaymentMethod) {
-		this._paymentMethod = paymentMethod;
+		this._data.paymentMethod = paymentMethod;
+		this.emit('order:changed', this._data);
 	}
 
-	get address(): string {
-		return this._address;
-	}
 	set address(address: string) {
-		this._address = address;
+		this._data.address = address;
+		this.emit('order:changed', this._data);
 	}
 
-	get email(): string {
-		return this._email;
-	}
 	set email(email: string) {
-		this._email = email;
+		this._data.email = email;
+		this.emit('order:changed', this._data);
 	}
 
-	get phone(): string {
-		return this._phone;
-	}
 	set phone(phone: string) {
-		this._phone = phone;
-	}
-
-	/**
-	 * Вычисляет и возвращает общую стоимость всех товаров в заказе
-	 * @returns {number} Общая стоимость товаров
-	 */
-	get total(): number {
-		return this._products.reduce((total, item) => total + item.price, 0);
+		this._data.phone = phone;
+		this.emit('order:changed', this._data);
 	}
 }
