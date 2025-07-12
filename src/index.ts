@@ -1,15 +1,16 @@
 import './scss/styles.scss';
-import { ensureElement, cloneTemplate } from './utils/utils';
+import { ensureElement } from './utils/utils';
 import { ICardActions, Product } from './types';
-import { CardList } from './components/views/CardList';
+import { CardListView } from './components/views/CardListView';
 import { Api } from './components/base/api';
 import { AppData } from './components/models/AppData';
 import { API_URL } from './utils/constants';
-import { Card } from './components/views/Card';
-import { Basket } from './components/views/Basket';
-import { Order } from './components/views/Order';
-import { Contacts } from './components/views/Contacts';
+import { CardView } from './components/views/CardView';
+import { BasketView } from './components/views/BasketView';
+import { OrderView } from './components/views/OrderView';
+import { ContactsView } from './components/views/ContactsView';
 import { SuccessModal } from './components/views/SuccessModal';
+import { Catalog } from './components/models/Catalog';
 
 // Получаем DOM-элементы
 const productModal = ensureElement<HTMLElement>('#product-modal');
@@ -23,13 +24,14 @@ const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 // Инициализация форм
-const order = new Order(paymentModal);
-const contacts = new Contacts(contactsModal);
+const order = new OrderView(paymentModal);
+const contacts = new ContactsView(contactsModal);
 
 // Инициализация API и данных приложения
 const api = new Api(API_URL);
 const appData = new AppData(api);
-const basket = new Basket(
+const catalog = new Catalog(api);
+const basket = new BasketView(
 	ensureElement<HTMLTemplateElement>('#basket'),
 	ensureElement<HTMLTemplateElement>('#card-basket'),
 	basketModal,
@@ -54,7 +56,7 @@ const successModal = new SuccessModal(
 async function initializeApp() {
 	galleryContainer.innerHTML = '<p class="loading">Загрузка товаров...</p>';
 	try {
-		const products = await appData.getProducts();
+		const products = await catalog.getProducts();
 		cardList.addCards(products);
 	} catch (error) {
 		console.error('Не удалось загрузить товары:', error);
@@ -86,13 +88,13 @@ const cardActions: ICardActions = {
 		const cardId = cardElement.dataset.id;
 		if (!cardId) return;
 
-		const product = appData.catalog.find(item => item.id === cardId);
+		const product = catalog.items.find(item => item.id === cardId);
 		if (!product) return;
 
 		const modalContent = productModal.querySelector('.modal__content');
 		if (!modalContent) return;
 
-		const previewCard = new Card(cardPreviewTemplate);
+		const previewCard = new CardView(cardPreviewTemplate);
 		previewCard.render(product);
 		modalContent.innerHTML = '';
 		modalContent.appendChild(previewCard.render(product));
@@ -110,10 +112,10 @@ const cardActions: ICardActions = {
 };
 
 // Создание списка карточек
-const cardList = new CardList(galleryContainer, cardCatalogTemplate, cardActions);
+const cardList = new CardListView(galleryContainer, cardCatalogTemplate, cardActions);
 
 // Загрузка и отображение карточек
-appData.getProducts()
+catalog.getProducts()
 	.then((products: Product[]) => {
 		cardList.addCards(products);
 	})
@@ -123,8 +125,8 @@ appData.getProducts()
 
 async function loadProducts() {
 	try {
-		const products = await appData.getProducts();
-		const cardList = new CardList(
+		const products = await catalog.getProducts();
+		const cardList = new CardListView(
 			galleryContainer,
 			cardCatalogTemplate,
 			{
@@ -134,7 +136,7 @@ async function loadProducts() {
 					const product = products.find(p => p.id === productId);
 
 					if (product) {
-						const previewCard = new Card(cardPreviewTemplate);
+						const previewCard = new CardView(cardPreviewTemplate);
 						const modalContent = productModal.querySelector('.modal__content');
 						if (modalContent) {
 							modalContent.innerHTML = '';

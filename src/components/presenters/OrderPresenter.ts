@@ -1,12 +1,12 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { Order } from '../views/Order';
-import { Contacts } from '../views/Contacts';
+import { OrderView } from '../views/OrderView';
+import { ContactsView } from '../views/ContactsView';
 import { SuccessModal } from '../views/SuccessModal';
 import { ModalManager } from '../views/ModalManager';
 
 export class OrderPresenter extends BasePresenter {
-    private order: Order;
-    private contacts: Contacts;
+    private order: OrderView;
+    private contacts: ContactsView;
     private successModal: SuccessModal;
     private modalManager: ModalManager;
 
@@ -28,8 +28,8 @@ export class OrderPresenter extends BasePresenter {
     }
 
     private setupComponents(): void {
-        this.order = new Order(this.paymentModal);
-        this.contacts = new Contacts(this.contactsModal);
+        this.order = new OrderView(this.paymentModal);
+        this.contacts = new ContactsView(this.contactsModal);
 
         this.successModal = new SuccessModal(
             this.successModalElement,

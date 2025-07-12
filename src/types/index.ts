@@ -29,12 +29,6 @@ export interface IOrder {
 	total: number;
 }
 
-//Ответ от сервера в формате списка
-export interface ApiListResponse<Type> {
-	total: number;    // Общее количество элементов (для пагинации)
-	items: Type[];    // Массив элементов
-}
-
 /**
  * Класс, представляющий товар/продукт
  * @class

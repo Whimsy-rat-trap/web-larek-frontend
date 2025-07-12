@@ -1,12 +1,12 @@
 import { BasePresenter } from '../base/BasePresenter';
 import { AppData } from '../models/AppData';
-import { CardList } from '../views/CardList';
+import { CardListView } from '../views/CardListView';
 import { ModalManager } from '../views/ModalManager';
 import {Product} from "../../types";
-import {Card} from "../views/Card";
+import {CardView} from "../views/CardView";
 
 export class ProductPresenter extends BasePresenter {
-    private cardList: CardList;
+    private cardList: CardListView;
     private modalManager: ModalManager;
 
     constructor(
@@ -26,7 +26,7 @@ export class ProductPresenter extends BasePresenter {
     }
 
     private setupCardList(): void {
-        this.cardList = new CardList(
+        this.cardList = new CardListView(
             this.galleryContainer,
             this.cardCatalogTemplate,
             {
@@ -50,7 +50,7 @@ export class ProductPresenter extends BasePresenter {
         const modalContent = this.productModal.querySelector('.modal__content');
         if (!modalContent) return;
 
-        const previewCard = new Card(this.cardPreviewTemplate);
+        const previewCard = new CardView(this.cardPreviewTemplate);
         modalContent.innerHTML = '';
         modalContent.appendChild(previewCard.render(product));
 

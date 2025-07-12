@@ -1,10 +1,10 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { Basket } from '../views/Basket';
+import { BasketView } from '../views/BasketView';
 import { ModalManager } from '../views/ModalManager';
 import { Product } from '../../types';
 
 export class BasketPresenter extends BasePresenter {
-    private basket: Basket;
+    private basket: BasketView;
     private modalManager: ModalManager;
 
     constructor(
@@ -25,7 +25,7 @@ export class BasketPresenter extends BasePresenter {
     }
 
     private setupBasket(): void {
-        this.basket = new Basket(
+        this.basket = new BasketView(
             this.basketTemplate,
             this.basketItemTemplate,
             this.basketModal,
@@ -56,7 +56,7 @@ export class BasketPresenter extends BasePresenter {
         this.model.addToBasket(product);
     }
 
-    public getBasket(): Basket {
+    public getBasket(): BasketView {
         return this.basket;
     }
 }
