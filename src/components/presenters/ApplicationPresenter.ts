@@ -1,18 +1,18 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { ProductPresenter } from './ProductPresenter';
+import { CatalogPresenter } from './CatalogPresenter';
 import { BasketPresenter } from './BasketPresenter';
 import { OrderPresenter } from './OrderPresenter';
 import { ModalManager } from '../views/ModalManager';
-import { Order } from '../models/Order';
 import { ensureElement } from '../../utils/utils';
+import { AppData } from '../models/AppData';
 
-export class ApplicationPresenter extends BasePresenter {
-    private productPresenter: ProductPresenter;
+export class ApplicationPresenter extends BasePresenter<null,AppData> {
+    private productPresenter: CatalogPresenter;
     private basketPresenter: BasketPresenter;
     private orderPresenter: OrderPresenter;
     private modalManager: ModalManager;
 
-    constructor(model: Order) {
+    constructor(model: AppData) {
         super(null, model);
     }
 
@@ -39,12 +39,12 @@ export class ApplicationPresenter extends BasePresenter {
         const basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
 
         // Создаем презентеры
-        this.productPresenter = new ProductPresenter(
+        this.productPresenter = new CatalogPresenter(
             galleryContainer,
             productModal,
             cardCatalogTemplate,
             cardPreviewTemplate,
-            this.model
+            this.model.catalog
         );
 
         this.basketPresenter = new BasketPresenter(

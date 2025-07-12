@@ -1,12 +1,12 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { Order } from '../models/Order';
-import { CardListView } from '../views/CardListView';
+import { CatalogView } from '../views/CatalogView';
 import { ModalManager } from '../views/ModalManager';
 import {Product} from "../../types";
 import {CardView} from "../views/CardView";
+import { Catalog } from '../models/Catalog';
 
-export class ProductPresenter extends BasePresenter {
-    private cardList: CardListView;
+export class CatalogPresenter extends BasePresenter<CatalogView, Catalog> {
+    private cardList: CatalogView;
     private modalManager: ModalManager;
 
     constructor(
@@ -14,7 +14,7 @@ export class ProductPresenter extends BasePresenter {
         private productModal: HTMLElement,
         private cardCatalogTemplate: HTMLTemplateElement,
         private cardPreviewTemplate: HTMLTemplateElement,
-        model: Order
+        model: Catalog
     ) {
         super(null, model);
         this.modalManager = ModalManager.getInstance();
@@ -26,7 +26,7 @@ export class ProductPresenter extends BasePresenter {
     }
 
     private setupCardList(): void {
-        this.cardList = new CardListView(
+        this.cardList = new CatalogView(
             this.galleryContainer,
             this.cardCatalogTemplate,
             {
@@ -40,7 +40,7 @@ export class ProductPresenter extends BasePresenter {
         const cardId = cardElement.dataset.id;
         if (!cardId) return;
 
-        const product = this.model.catalog.find((item: Product): boolean => item.id === cardId);
+        const product = this.model.products.find((item: Product): boolean => item.id === cardId);
         if (!product) return;
 
         this.showProductModal(product);

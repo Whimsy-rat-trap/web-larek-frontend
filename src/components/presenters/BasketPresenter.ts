@@ -2,8 +2,9 @@ import { BasePresenter } from '../base/BasePresenter';
 import { BasketView } from '../views/BasketView';
 import { ModalManager } from '../views/ModalManager';
 import { Product } from '../../types';
+import { Basket } from '../models/Basket';
 
-export class BasketPresenter extends BasePresenter {
+export class BasketPresenter extends BasePresenter<BasketView, Basket> {
     private basket: BasketView;
     private modalManager: ModalManager;
 
@@ -53,7 +54,7 @@ export class BasketPresenter extends BasePresenter {
     private addToBasket(product: Product): void {
         this.basket.addItem(product);
         // Уведомляем модель о изменении
-        this.model.addToBasket(product);
+        this.model.add(product);
     }
 
     public getBasket(): BasketView {

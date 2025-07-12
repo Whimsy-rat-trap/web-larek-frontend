@@ -1,14 +1,14 @@
-import { IModel } from '../../interfaces/IModel';
 import { Product } from '../../types';
 import { Api, ApiListResponse } from '../base/api';
+import { ICatalogModel } from '../../interfaces/models/ICatalogModel';
 
-export class Catalog implements IModel {
-	protected _items: Product[] = [];
+export class Catalog implements ICatalogModel {
+	protected _products: Product[] = [];
 
 	constructor(protected api: Api) {}
 
-	get items(): Product[] {
-		return this._items;
+	get products(): Product[] {
+		return this._products;
 	}
 
 	// Загрузка товаров
@@ -17,7 +17,7 @@ export class Catalog implements IModel {
 			const response = (await this.api.get(
 				'/product'
 			)) as ApiListResponse<Product>;
-			this._items = response.items;
+			this._products = response.items;
 			return response.items;
 		} catch (error) {
 			console.error('Ошибка загрузки товаров:', error);

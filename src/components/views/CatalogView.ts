@@ -1,7 +1,8 @@
 import { ICardActions, Product } from '../../types';
 import { CardView } from './CardView';
+import { IView } from '../../interfaces/IView';
 
-export class CardListView {
+export class CatalogView implements IView{
 	private cards: CardView[] = [];
 
 	constructor(

@@ -1,7 +1,7 @@
 import './scss/styles.scss';
 import { ensureElement } from './utils/utils';
 import { ICardActions, Product } from './types';
-import { CardListView } from './components/views/CardListView';
+import { CatalogView } from './components/views/CatalogView';
 import { Api } from './components/base/api';
 import { Order } from './components/models/Order';
 import { API_URL } from './utils/constants';
@@ -88,7 +88,7 @@ const cardActions: ICardActions = {
 		const cardId = cardElement.dataset.id;
 		if (!cardId) return;
 
-		const product = catalog.items.find(item => item.id === cardId);
+		const product = catalog.products.find(item => item.id === cardId);
 		if (!product) return;
 
 		const modalContent = productModal.querySelector('.modal__content');
@@ -112,7 +112,7 @@ const cardActions: ICardActions = {
 };
 
 // Создание списка карточек
-const cardList = new CardListView(galleryContainer, cardCatalogTemplate, cardActions);
+const cardList = new CatalogView(galleryContainer, cardCatalogTemplate, cardActions);
 
 // Загрузка и отображение карточек
 catalog.getProducts()
@@ -126,7 +126,7 @@ catalog.getProducts()
 async function loadProducts() {
 	try {
 		const products = await catalog.getProducts();
-		const cardList = new CardListView(
+		const cardList = new CatalogView(
 			galleryContainer,
 			cardCatalogTemplate,
 			{
