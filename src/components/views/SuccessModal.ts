@@ -3,6 +3,7 @@ import { BasketView } from "./BasketView";
 import { OrderView } from "./OrderView";
 import { ContactsView } from "./ContactsView";
 import {Order} from "../models/Order";
+import { PaymentMethod } from '../../types';
 
 export class SuccessModal {
     private modal: HTMLElement;
@@ -10,10 +11,10 @@ export class SuccessModal {
     private basket: BasketView;
     private contactsModal: HTMLElement;
     private paymentModal: HTMLElement;
-    private order: OrderView;
+    private orderView: OrderView;
     private contacts: ContactsView;
     private closeModalFn: (modal: HTMLElement) => void;
-    private appData: Order;
+    private order: Order;
 
     constructor(
         modal: HTMLElement,
@@ -21,20 +22,20 @@ export class SuccessModal {
         basket: BasketView,
         contactsModal: HTMLElement,
         paymentModal: HTMLElement,
-        order: OrderView,
+        orderView: OrderView,
         contacts: ContactsView,
         closeModal: (modal: HTMLElement) => void,
-        appData: Order
+        order: Order
     ) {
         this.modal = ensureElement<HTMLElement>(modal);
         this.template = ensureElement<HTMLTemplateElement>(template);
         this.basket = basket;
         this.contactsModal = ensureElement<HTMLElement>(contactsModal);
         this.paymentModal = ensureElement<HTMLElement>(paymentModal);
-        this.order = order;
+        this.orderView = orderView;
         this.contacts = contacts;
         this.closeModalFn = closeModal;
-        this.appData = appData;
+        this.order = order;
     }
 
     private close(): void {
@@ -46,7 +47,7 @@ export class SuccessModal {
     }
 
     private clearForms(): void {
-        this.order.resetForm();
+        this.orderView.resetForm();
         this.contacts.resetForm();
     }
 
@@ -84,18 +85,18 @@ export class SuccessModal {
         const basketState = this.basket.getState();
         const total = basketState.total;
 
-        const orderData = this.order.getOrderData();
+        const orderData = this.orderView.getOrderData();
         const contactsData = this.contacts.getContactsData();
+        basketState.items.map(item => item.id);
 
-        const fullOrder = {
-            ...orderData,
-            ...contactsData,
-            items: basketState.items.map(item => item.id),
-            total: total
-        };
+        this.order.paymentMethod = orderData.payment as PaymentMethod;
+        this.order.email = contactsData.email;
+        this.order.phone = contactsData.phone;
+        this.order.address = orderData.address;
+        this.order.products = basketState.items;
 
         try {
-            const response = await this.appData.submitOrder(fullOrder);
+            const response = await this.order.submit();
             const successTotal = response.total;
 
             const content = cloneTemplate<HTMLElement>(this.template);
