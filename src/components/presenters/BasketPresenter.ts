@@ -1,6 +1,6 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { Basket } from '../Basket';
-import { ModalManager } from '../ModalManager';
+import { Basket } from '../views/Basket';
+import { ModalManager } from '../views/ModalManager';
 import { Product } from '../../types';
 
 export class BasketPresenter extends BasePresenter {

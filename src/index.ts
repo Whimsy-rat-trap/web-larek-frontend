@@ -1,15 +1,15 @@
 import './scss/styles.scss';
 import { ensureElement, cloneTemplate } from './utils/utils';
 import { ICardActions, Product } from './types';
-import { CardList } from './components/CardList';
+import { CardList } from './components/views/CardList';
 import { Api } from './components/base/api';
-import { AppData } from './components/AppData';
+import { AppData } from './components/models/AppData';
 import { API_URL } from './utils/constants';
-import { Card } from './components/Card';
-import { Basket } from './components/Basket';
-import { Order } from './components/Order';
-import { Contacts } from './components/Contacts';
-import { SuccessModal } from './components/SuccessModal';
+import { Card } from './components/views/Card';
+import { Basket } from './components/views/Basket';
+import { Order } from './components/views/Order';
+import { Contacts } from './components/views/Contacts';
+import { SuccessModal } from './components/views/SuccessModal';
 
 // Получаем DOM-элементы
 const productModal = ensureElement<HTMLElement>('#product-modal');

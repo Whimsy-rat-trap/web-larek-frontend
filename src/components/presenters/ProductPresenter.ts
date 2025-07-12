@@ -1,9 +1,9 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { AppData } from '../AppData';
-import { CardList } from '../CardList';
-import { ModalManager } from '../ModalManager';
+import { AppData } from '../models/AppData';
+import { CardList } from '../views/CardList';
+import { ModalManager } from '../views/ModalManager';
 import {Product} from "../../types";
-import {Card} from "../Card";
+import {Card} from "../views/Card";
 
 export class ProductPresenter extends BasePresenter {
     private cardList: CardList;

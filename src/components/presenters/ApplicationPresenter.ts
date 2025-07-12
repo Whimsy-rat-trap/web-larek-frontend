@@ -2,8 +2,8 @@ import { BasePresenter } from '../base/BasePresenter';
 import { ProductPresenter } from './ProductPresenter';
 import { BasketPresenter } from './BasketPresenter';
 import { OrderPresenter } from './OrderPresenter';
-import { ModalManager } from '../ModalManager';
-import { AppData } from '../AppData';
+import { ModalManager } from '../views/ModalManager';
+import { AppData } from '../models/AppData';
 import { ensureElement } from '../../utils/utils';
 
 export class ApplicationPresenter extends BasePresenter {

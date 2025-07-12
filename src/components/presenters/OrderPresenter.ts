@@ -1,8 +1,8 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { Order } from '../Order';
-import { Contacts } from '../Contacts';
-import { SuccessModal } from '../SuccessModal';
-import { ModalManager } from '../ModalManager';
+import { Order } from '../views/Order';
+import { Contacts } from '../views/Contacts';
+import { SuccessModal } from '../views/SuccessModal';
+import { ModalManager } from '../views/ModalManager';
 
 export class OrderPresenter extends BasePresenter {
     private order: Order;
