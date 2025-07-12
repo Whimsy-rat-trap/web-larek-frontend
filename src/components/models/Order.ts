@@ -1,18 +1,16 @@
-import { PaymentMethod, Product, OrderSubmitResult } from '../../types';
-import { Api } from '../base/api';
+import { PaymentMethod, Product } from '../../types';
 import { IModel } from '../../interfaces/IModel';
+import { EventEmitter } from '../base/events';
 
 /**
  * Модель заказа
  */
-export class Order implements IModel {
+export class Order extends EventEmitter implements IModel {
 	protected _products: Product[] = [];
 	protected _paymentMethod: PaymentMethod = 'online';
 	protected _address = '';
 	protected _email = '';
 	protected _phone = '';
-
-	constructor(protected api: Api) {}
 
 	get products(): Product[] {
 		return this._products;
@@ -55,26 +53,5 @@ export class Order implements IModel {
 	 */
 	get total(): number {
 		return this._products.reduce((total, item) => total + item.price, 0);
-	}
-
-	// Оформление заказа
-	async submit(): Promise<OrderSubmitResult> {
-		try {
-			const orderData = {
-				payment: this._paymentMethod,
-				email: this._email,
-				phone: this._phone,
-				address: this._address,
-				items: this._products.map(item => item.id),
-				total: this.total,
-			}
-			return (await this.api.post('/order', orderData)) as {
-				id: string;
-				total: number;
-			};
-		} catch (error) {
-			console.error('Ошибка оформления заказа:', error);
-			throw error;
-		}
 	}
 }

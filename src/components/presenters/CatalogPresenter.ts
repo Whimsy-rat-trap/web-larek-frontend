@@ -4,6 +4,7 @@ import { ModalManager } from '../views/ModalManager';
 import {Product} from "../../types";
 import {CardView} from "../views/CardView";
 import { Catalog } from '../models/Catalog';
+import { ApiService } from '../services/ApiService';
 
 export class CatalogPresenter extends BasePresenter<CatalogView, Catalog> {
     private cardList: CatalogView;
@@ -79,7 +80,8 @@ export class CatalogPresenter extends BasePresenter<CatalogView, Catalog> {
         this.galleryContainer.innerHTML = '<p class="loading">Загрузка товаров...</p>';
 
         try {
-            const products = await this.model.getProducts();
+            const apiService = new ApiService();
+            const products = await apiService.getProducts();
             this.cardList.addCards(products);
         } catch (error) {
             console.error('Не удалось загрузить товары:', error);

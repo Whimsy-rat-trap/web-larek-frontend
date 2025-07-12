@@ -9,9 +9,9 @@ export class AppData implements IModel {
 	public readonly basket: Basket;
 	public readonly order: Order;
 
-	constructor(api:Api	) {
-		this.catalog = new Catalog(api);
+	constructor() {
+		this.catalog = new Catalog();
 		this.basket = new Basket();
-		this.order = new Order(api);
+		this.order = new Order();
 	}
 }

@@ -4,6 +4,7 @@ import { OrderView } from "./OrderView";
 import { ContactsView } from "./ContactsView";
 import {Order} from "../models/Order";
 import { PaymentMethod } from '../../types';
+import { ApiService } from '../services/ApiService';
 
 export class SuccessModal {
     private modal: HTMLElement;
@@ -96,7 +97,8 @@ export class SuccessModal {
         this.order.products = basketState.items;
 
         try {
-            const response = await this.order.submit();
+            const apiService = new ApiService();
+            const response = await apiService.submitOrder(this.order);
             const successTotal = response.total;
 
             const content = cloneTemplate<HTMLElement>(this.template);

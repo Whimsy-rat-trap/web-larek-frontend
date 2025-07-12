@@ -11,6 +11,7 @@ import { OrderView } from './components/views/OrderView';
 import { ContactsView } from './components/views/ContactsView';
 import { SuccessModal } from './components/views/SuccessModal';
 import { Catalog } from './components/models/Catalog';
+import { ApiService } from './components/services/ApiService';
 
 // Получаем DOM-элементы
 const productModal = ensureElement<HTMLElement>('#product-modal');
@@ -28,9 +29,9 @@ const order = new OrderView(paymentModal);
 const contacts = new ContactsView(contactsModal);
 
 // Инициализация API и данных приложения
-const api = new Api(API_URL);
-const appData = new Order(api);
-const catalog = new Catalog(api);
+const apiService = new ApiService();
+const appData = new Order();
+const catalog = new Catalog();
 const basket = new BasketView(
 	ensureElement<HTMLTemplateElement>('#basket'),
 	ensureElement<HTMLTemplateElement>('#card-basket'),
@@ -56,7 +57,8 @@ const successModal = new SuccessModal(
 async function initializeApp() {
 	galleryContainer.innerHTML = '<p class="loading">Загрузка товаров...</p>';
 	try {
-		const products = await catalog.getProducts();
+		const products = await apiService.getProducts();
+		catalog.products = products;
 		cardList.addCards(products);
 	} catch (error) {
 		console.error('Не удалось загрузить товары:', error);
@@ -115,8 +117,9 @@ const cardActions: ICardActions = {
 const cardList = new CatalogView(galleryContainer, cardCatalogTemplate, cardActions);
 
 // Загрузка и отображение карточек
-catalog.getProducts()
+apiService.getProducts()
 	.then((products: Product[]) => {
+		catalog.products = products;
 		cardList.addCards(products);
 	})
 	.catch((error: Error) => {
@@ -125,7 +128,8 @@ catalog.getProducts()
 
 async function loadProducts() {
 	try {
-		const products = await catalog.getProducts();
+		const products = await apiService.getProducts();
+		catalog.products = products;
 		const cardList = new CatalogView(
 			galleryContainer,
 			cardCatalogTemplate,
