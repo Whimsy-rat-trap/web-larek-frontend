@@ -1,5 +1,5 @@
 import { BasePresenter } from '../base/BasePresenter';
-import { AppData } from '../models/AppData';
+import { Order } from '../models/Order';
 import { CardListView } from '../views/CardListView';
 import { ModalManager } from '../views/ModalManager';
 import {Product} from "../../types";
@@ -14,7 +14,7 @@ export class ProductPresenter extends BasePresenter {
         private productModal: HTMLElement,
         private cardCatalogTemplate: HTMLTemplateElement,
         private cardPreviewTemplate: HTMLTemplateElement,
-        model: AppData
+        model: Order
     ) {
         super(null, model);
         this.modalManager = ModalManager.getInstance();

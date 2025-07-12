@@ -1,8 +1,8 @@
-import { Product, IOrder } from '../../types';
+import { IOrder } from '../../types';
 import { Api } from '../base/api';
+import { IModel } from '../../interfaces/IModel';
 
-export class AppData {
-    protected _basket: string[] = [];
+export class Order implements IModel{
     protected _order: IOrder = {
         payment: '',
         email: '',
@@ -14,29 +14,8 @@ export class AppData {
 
 	constructor(protected api: Api) {}
 
-	get basket(): string[] {
-        return this._basket;
-    }
-
     get order(): IOrder {
         return this._order;
-    }
-
-    // Добавляем товары в корзину
-    addToBasket(item: Product) {
-        if (!this._basket.includes(item.id)) {
-            this._basket.push(item.id);
-        }
-    }
-
-    // Удаляем товары из корзины
-    removeFromBasket(id: string) {
-        this._basket = this._basket.filter(item => item !== id);
-    }
-
-    // Очищаем корзину
-    clearBasket() {
-        this._basket = [];
     }
 
     // Оформление заказа

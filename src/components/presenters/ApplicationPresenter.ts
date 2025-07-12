@@ -3,7 +3,7 @@ import { ProductPresenter } from './ProductPresenter';
 import { BasketPresenter } from './BasketPresenter';
 import { OrderPresenter } from './OrderPresenter';
 import { ModalManager } from '../views/ModalManager';
-import { AppData } from '../models/AppData';
+import { Order } from '../models/Order';
 import { ensureElement } from '../../utils/utils';
 
 export class ApplicationPresenter extends BasePresenter {
@@ -12,7 +12,7 @@ export class ApplicationPresenter extends BasePresenter {
     private orderPresenter: OrderPresenter;
     private modalManager: ModalManager;
 
-    constructor(model: AppData) {
+    constructor(model: Order) {
         super(null, model);
     }
 

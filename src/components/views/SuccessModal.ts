@@ -2,7 +2,7 @@ import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { BasketView } from "./BasketView";
 import { OrderView } from "./OrderView";
 import { ContactsView } from "./ContactsView";
-import {AppData} from "../models/AppData";
+import {Order} from "../models/Order";
 
 export class SuccessModal {
     private modal: HTMLElement;
@@ -13,7 +13,7 @@ export class SuccessModal {
     private order: OrderView;
     private contacts: ContactsView;
     private closeModalFn: (modal: HTMLElement) => void;
-    private appData: AppData;
+    private appData: Order;
 
     constructor(
         modal: HTMLElement,
@@ -24,7 +24,7 @@ export class SuccessModal {
         order: OrderView,
         contacts: ContactsView,
         closeModal: (modal: HTMLElement) => void,
-        appData: AppData
+        appData: Order
     ) {
         this.modal = ensureElement<HTMLElement>(modal);
         this.template = ensureElement<HTMLTemplateElement>(template);

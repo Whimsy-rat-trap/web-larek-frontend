@@ -3,7 +3,7 @@ import { ensureElement } from './utils/utils';
 import { ICardActions, Product } from './types';
 import { CardListView } from './components/views/CardListView';
 import { Api } from './components/base/api';
-import { AppData } from './components/models/AppData';
+import { Order } from './components/models/Order';
 import { API_URL } from './utils/constants';
 import { CardView } from './components/views/CardView';
 import { BasketView } from './components/views/BasketView';
@@ -29,7 +29,7 @@ const contacts = new ContactsView(contactsModal);
 
 // Инициализация API и данных приложения
 const api = new Api(API_URL);
-const appData = new AppData(api);
+const appData = new Order(api);
 const catalog = new Catalog(api);
 const basket = new BasketView(
 	ensureElement<HTMLTemplateElement>('#basket'),

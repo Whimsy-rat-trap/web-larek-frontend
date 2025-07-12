@@ -2,15 +2,6 @@ export interface ICardActions {
 	onClick?: (event: MouseEvent) => void;
 }
 
-export interface Product {
-	id: string;
-	title: string;
-	category: string;
-	image: string;
-	price: number | null;
-	description?: string;
-}
-
 //Состояние каталога, корзины, выбранного товара, заказа
 export interface IAppState {
 	catalog: Product[];
@@ -33,7 +24,7 @@ export interface IOrder {
  * Класс, представляющий товар/продукт
  * @class
  */
-class Product1 {
+export class Product {
 	/**
 	 * Создает экземпляр Product
 	 * @param {string} id - Уникальный идентификатор продукта
