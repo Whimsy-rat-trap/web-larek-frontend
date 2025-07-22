@@ -37,10 +37,6 @@
 		- order:payment_set (от Модального окна оформления заказа)
 		- ui:order:input:mail:changed (от Модального окна оформления заказа)
 		- ui:order:input:phone:changed (от Модального окна оформления заказа)
-    - Публикует события:
-		- order:delivery_valid (в Модальное окно оформления заказа)
-		- order:validation_error (в Модальное окно оформления заказа)
-		- order:payment_valid (в Модальное окно оформления заказа)
 	- **Команды**:
 		- loadProducts()
 			- Публикует события: products_list:loaded (при успехе)
@@ -59,12 +55,6 @@
     - Слушает события:
 		- modal:product:cart_item_added (от Модального окна оформления заказа)
 		- modal:product:item_removed (от Модального окна оформления заказа)
-    - Публикует события:
-		- cart:item_added (В Список товаров корзины)
-		- cart:item_add_error (никем не обрабатывается)
-		- cart:item_removed (в Список товаров корзины)
-		- cart:updated (в Список товаров и счётчик)
-		- cart:clear (в Список товаров и счётчик)
 	- **Команды**:
 		- addToCart()
 			- Вызывается по событию: modal:product:cart_item_added
@@ -153,48 +143,71 @@
 			- Вызывается по событию: ui:order:input:phone:changed
 			- Публикует: phone:valid, phone:validation_error
 
-### Основные компоненты:
+### Основные компоненты и их события:
 
-1. **Главная страница**:
-   - Каталог товаров (карточки товаров)
-   - Кнопка корзины
+1. **Главная страница**
+	- Слушает события:
+		- products_list:loaded (от API Service) - для отрисовки каталога
+		- cart:updated (от Cart Service) - для обновления счетчика корзины
+	- Публикует события:
+		- page:main:loaded (при загрузке страницы)
+		- ui:button:cart:clicked (при клике на кнопку корзины)
+		- product:details_requested (при клике на карточку товара)
+	
+2. **Карточка товара (в каталоге)**
+	- Слушает события:
+		- products_list:loaded (от API Service) - получение данных для отрисовки
+    - Публикует события:
+		- product:details_requested (при клике на товар)
+		
+3. **Модальное окно карточки товара**
+	- Слушает события:
+		- product:details_loaded (от API Service)
+		- cart:item_added (от Cart Service) - подтверждение добавления
+		- cart:item_add_error (от Cart Service) - ошибка добавления
+	- Публикует события:
+		- modal:product:cart_item_added (при клике "Добавить в корзину")
+		- modal:closed (при закрытии окна)
 
-2. **Модальные окна**:
-   - Карточка товара:
-     - Изображение товара
-     - Название
-     - Описание
-     - Категория
-     - Цена
-     - Кнопка "Добавить в корзину"
-   - Корзина:
-     - Список товаров
-     - Общая стоимость
-     - Кнопка "Оформить заказ"
-     - Кнопки удаления товаров
-   - Оформление заказа:
-     - Форма ввода адреса
-     - Выбор способа оплаты
-     - Кнопка "Далее"
-   - Контактные данные:
-     - Поля для email и телефона
-     - Кнопка "Оплатить"
-   - Подтверждение заказа:
-     - Информация о успешном оформлении
-     - Кнопка "За новыми покупками"
+4. **Модальное окно корзины**
+	- Слушает события:
+		- cart:updated (от Cart Service)
+		- cart:item_removed (от Cart Service)
+		- cart:clear (от Cart Service)
+	- Публикует события:
+		- modal:cart:item_removed (при удалении товара)
+		- ui:order:button:start_clicked (при клике "Оформить заказ")
+		- modal:closed (при закрытии окна)
 
-## События
+5. **Модальное окно оформления заказа (адрес+оплата)**
+	- Слушает события:
+		- order:delivery_valid (от Validation Service)
+		- order:validation_error (от Validation Service)
+		- order:payment_valid (от Validation Service)
+	- Публикует события:
+		- ui:order:input:delivery:changed (при изменении адреса)
+		- ui:order:select:payment:changed (при изменении способа оплаты)
+		- ui:order:button:next:clicked (при клике "Далее")
+		- modal:closed (при закрытии окна)
 
-Основные пользовательские сценарии:
-1. Просмотр каталога товаров
-2. Открытие карточки товара
-3. Добавление товара в корзину
-4. Управление корзиной (удаление товаров)
-5. Оформление заказа:
-   - Ввод адреса доставки
-   - Выбор способа оплаты
-   - Ввод контактных данных
-6. Подтверждение заказа
+6. **Модальное окно контактных данных**
+	- Слушает события:
+		- email:valid (от Validation Service)
+        - email:validation_error (от Validation Service)
+		- phone:valid (от Validation Service)
+		- phone:validation_error (от Validation Service)
+	- Публикует события:
+		- ui:order:input:mail:changed (при изменении email)
+		- ui:order:input:phone:changed (при изменении телефона)
+		- ui:order:button:payment:clicked (при клике "Оплатить")
+		- modal:closed (при закрытии окна)
+
+7. **Модальное окно подтверждения заказа**
+	- Слушает события:
+		- order:submitted (от API Service)
+	- Публикует события:
+		- modal:closed (при клике "За новыми покупками")
+		- page:main:loaded (при возврате на главную)
 
 ## Модели данных
 
