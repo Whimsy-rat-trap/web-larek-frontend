@@ -31,108 +31,127 @@
 1. **API Service**:
     - Проверяет корректность введённых данных
     - Слушает события:
-      - order:delivery_set (от Модального окна оформления заказа)
-      - order:payment_set (от Модального окна оформления заказа)
-      - ui:order:input:mail:changed (от Модального окна оформления заказа)
-      - ui:order:input:phone:changed (от Модального окна оформления заказа)
+		- page:main:loaded
+		- product:details_requested
+		- order:delivery_set (от Модального окна оформления заказа)
+		- order:payment_set (от Модального окна оформления заказа)
+		- ui:order:input:mail:changed (от Модального окна оформления заказа)
+		- ui:order:input:phone:changed (от Модального окна оформления заказа)
     - Публикует события:
-      - order:delivery_valid (в Модальное окно оформления заказа)
-      - order:validation_error (в Модальное окно оформления заказа)
-      - order:payment_valid (в Модальное окно оформления заказа)
+		- order:delivery_valid (в Модальное окно оформления заказа)
+		- order:validation_error (в Модальное окно оформления заказа)
+		- order:payment_valid (в Модальное окно оформления заказа)
+	- **Команды**:
+		- loadProducts()
+			- Публикует события: products_list:loaded (при успехе)
+			- Вызывается по событию: page:main:loaded
+		- loadProductDetails(productId)
+			- Публикует события: product:details_loaded (при успехе)
+			- Вызывается по событию: product:details_requested
+		- submitOrder(orderData)
+			- Публикует события:
+				- order:sent (при отправке)
+				- order:submitted (при успешном ответе 200)
+			- Вызывается по событию: order:ready
 
 2. **Cart Service**:
     - Управляет состоянием корзины
     - Слушает события:
-      - modal:product:cart_item_added (от Модального окна оформления заказа)
-      - modal:product:item_removed (от Модального окна оформления заказа)
+		- modal:product:cart_item_added (от Модального окна оформления заказа)
+		- modal:product:item_removed (от Модального окна оформления заказа)
     - Публикует события:
-      - cart:item_added (В Список товаров корзины)
-      - cart:item_add_error (никем не обрабатывается)
-      - cart:item_removed (в Список товаров корзины)
-      - cart:updated (в Список товаров и счётчик)
-      - cart:clear (в Список товаров и счётчик)
+		- cart:item_added (В Список товаров корзины)
+		- cart:item_add_error (никем не обрабатывается)
+		- cart:item_removed (в Список товаров корзины)
+		- cart:updated (в Список товаров и счётчик)
+		- cart:clear (в Список товаров и счётчик)
+	- **Команды**:
+		- addToCart()
+			- Вызывается по событию: modal:product:cart_item_added
+			- Публикует:
+				- cart:item_added (при успехе)
+				- cart:item_add_error (при ошибке)
+				- cart:updated (всегда)
+		- removeFromCart(itemId)
+			- Вызывается по событию: modal:cart:item_removed
+			- Публикует:
+				- cart:item_removed
+				- cart:updated
+		- clearCart()
+			- Вызывается по событию: ui:order:button:payment:clicked
+			- Публикует: cart:clear
 
 3. **Modal Service**:
-   - Управляет открытием / закрытием модальных окон
-   - Слушает события:
-     - ui:button:cart:clicked (от Кнопки "Корзина")
-     - ui:order:button:next:clicked (от Модального окна оформления заказа)
-     - order:submitted (от API-сервиса)
-   - Публикует события:
-     - modal:opened (окно открыто)
-     - modal:closed (окно закрыто)
+	- Управляет открытием / закрытием модальных окон
+	- Слушает события:
+		- ui:button:cart:clicked (от Кнопки "Корзина")
+		- ui:order:button:start_clicked (от Модального окна корзины)
+		- ui:order:button:next:clicked (от Модального окна оформления заказа)
+		- ui:order:button:payment:clicked (от Модального окна контактных данных)
+		- order:submitted (от API-сервиса)
+		- product:details_requested (от Карточки товара)
+	- **Команды**:
+		- openCartModal()
+			- Вызывается по событию: ui:button:cart:clicked
+			- Публикует: modal:opened (тип: 'cart')
+		- openProductModal(productId)
+			- Вызывается по: product:details_requested
+			- Публикует: modal:opened (тип: 'product')
+		- openOrderModal()
+			- Вызывается по: ui:order:button:start_clicked
+			- Публикует: modal:opened (тип: 'order')
+		- openContactsModal()
+			- Вызывается по: ui:order:button:next:clicked
+			- Публикует:
+				- modal:closed (текущее окно)
+				- modal:opened (тип: 'contacts')
+		- openSuccessModal()
+			- Вызывается по событию: order:submitted
+			- Публикует: 
+				- modal:closed (текущее окно)
+				- modal:opened (с типом 'success')
+		- closeCurrentModal()
+			- Публикует: modal:closed
+			- Вызывается:
+				- При ручном закрытии модального окна пользователем
+				- При успешном оформлении заказа (после открытия success-модалки)
 
 4. **Order Service**:
-   - Управляет процессом оформления заказа
-   - Слушает события:
-     - ui:order:button:start_clicked (от Модального окна корзины)
-     - ui:order:button:next:clicked (от Модального окна оформления заказа)
-     - ui:order:button:payment:clicked (от Модального окна контактных данных)
-   - Публикует события:
-     - order:initiated (от Модального окна оформления заказа)
-     - order:ready (d API-сервис)
+	- Управляет процессом оформления заказа
+	- Слушает события:
+		- ui:order:button:start_clicked (от Модального окна корзины)
+		- ui:order:button:next:clicked (от Модального окна оформления заказа)
+		- ui:order:button:payment:clicked (от Модального окна контактных данных)
+	- **Команды**:
+		- initOrder()
+			- Вызывается по событию: ui:order:button:start_clicked
+			- Публикует событие: order:initiated (от Модального окна оформления заказа)
+		- prepareOrder() 
+			- Вызывается по:
+				- ui:order:button:next:clicked (шаг оформления)
+				- ui:order:button:payment:clicked (финальное подтверждение)
+			- Публикует: order:ready (в API-сервис)
 
 5. **Validation Service**:
-   - Проверяет корректность введенных данных
-   - Слушает события:
-     - order:delivery_set (от Модального окна оформления заказа)
-     - order:payment_set (от Модального окна оформления заказа)
-     - ui:order:input:mail:changed (от Модального окна контактных данных)
-     - ui:order:input:phone:changed (от Модального окна контактных данных)
-   - Публикует события:
-       - order:initiated (от Модального окна оформления заказа)
-       - order:ready (d API-сервис)
-
-### Список команд сервисов
-
-1. **API Service Commands**:
-	- loadProducts() → публикует products_list:loaded (при успехе)
-		- Вызывается по событию: page:main:loaded
-	- loadProductDetails(productId) → публикует product:details_loaded (при успехе)
-		- Вызывается по событию: product:details_requested
-	- submitOrder(orderData) → публикует:
-		- order:sent (при отправке)
-		- order:submitted (при успешном ответе 200)
-		- Вызывается по событию: order:ready
-
-2. **Cart Service Commands**:
-	- addToCart(product) → публикует:
-		- cart:item_added (при успехе)
-		- cart:item_add_error (при ошибке)
-		- cart:updated (всегда)
-		- Вызывается по событию: modal:product:cart_item_added
-	- removeFromCart(itemId) → публикует:
-		- cart:item_removed
-		- cart:updated
-		- Вызывается по событию: modal:cart:item_removed
-	- clearCart() → публикует:
-		- cart:clear
-		- Вызывается при: завершении заказа (по событию ui:order:button:payment:clicked)
-
-3. **Order Service Commands**:
-	- initOrder() → публикует order:initiated
-		- Вызывается по событию: ui:order:button:start_clicked
-	- prepareOrder() → публикует order:ready
-		- Вызывается по:
-			- ui:order:button:next:clicked (шаг оформления)
-			- ui:order:button:payment:clicked (финальное подтверждение)
-		
-4. **Validation Service Commands**:
-	- validateDelivery(address) → публикует:
-		- order:delivery_valid (при успехе)
-		- order:validation_error (при ошибке)
-		- Вызывается по событию: order:delivery_set
-	- validatePayment(method) → публикует:
-		- order:payment_valid
-		- order:validation_error
-		- Вызывается по событию: order:payment_set
-	- validateContactForm(data) → публикует:
-		- order:delivery_valid/order:payment_valid (для разблокировки кнопок)
-		- order:validation_error
-		- Вызывается по:
-			- ui:order:input:mail:changed
-			- ui:order:input:phone:changed
-
+	- Проверяет корректность введенных данных
+	- Слушает события:
+		- ui:order:input:delivery:changed
+		- ui:order:select:payment:changed
+		- ui:order:input:mail:changed
+		- ui:order:input:phone:changed
+	- **Команды**:
+		- validateDelivery(address)
+			- Вызывается по событию: ui:order:input:delivery:changed
+			- Публикует: order:delivery_valid, order:validation_error
+		- validatePayment(method)
+			- Вызывается по событию: ui:order:select:payment:changed
+			- Публикует: payment:valid, payment:validation_error
+		- validateEmail(email)
+			- Вызывается по событию: ui:order:input:mail:changed
+			- Публикует: email:valid, email:validation_error
+		- validatePhone(phone)
+			- Вызывается по событию: ui:order:input:phone:changed
+			- Публикует: phone:valid, phone:validation_error
 
 ### Основные компоненты:
 
