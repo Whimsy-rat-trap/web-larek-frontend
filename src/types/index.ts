@@ -50,19 +50,39 @@ export interface IApiState {
 
 // Модель состояния модальных окон
 export interface IModalState {
-	product: boolean;
-	cart: boolean;
-	checkout: boolean;
-	confirmation: boolean;
-	currentProductId: string | null;
+	isOpened: boolean;
+	type: 'product' | 'cart' | 'order' | 'contacts' | 'success' | null;
+	productId: string | null;
 }
 
 // Модель состояния формы заказа
 export interface IOrderFormState {
+	payment: PaymentMethod | null;
 	address: string;
 	email: string;
 	phone: string;
-	payment: PaymentMethod;
+	isValid: boolean; // Убрал valid, оставил только isValid
 	errors: IValidationError[];
-	isValid: boolean;
+}
+
+// Состояние приложения
+export interface IAppState {
+	catalog: IProduct[];
+	basket: string[];
+	order: IOrderFormState;
+	preview: string | null;
+}
+
+// Модель для отображения товара в корзине
+export interface IBasketItem {
+	id: string;
+	title: string;
+	price: number;
+	index: number;
+}
+
+// Модель состояния корзины
+export interface IBasketState {
+	items: string[];
+	total: number;
 }
