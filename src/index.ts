@@ -1,3 +1,4 @@
+import './scss/styles.scss';
 import { EventEmitter } from "./components/base/events";
 import { Api } from "./components/base/api";
 import { ApiService } from "./components/services/ApiService";
