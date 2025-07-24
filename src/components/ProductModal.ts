@@ -3,7 +3,7 @@ import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
 import { AppEvents } from "../types/events";
 import { IProduct } from "../types";
-import { CDN_URL } from '../utils/constants';
+import { CategoryType, CDN_URL, settings } from '../utils/constants';
 
 /**
  * Модальное окно просмотра товара
@@ -57,8 +57,9 @@ export class ProductModal extends Modal {
 			this.addToCartButton.textContent = 'Недоступно';
 		}
 
-		const categoryClass = `card__category_${product.category.toLowerCase().replace(' ', '-')}`;
-		category.classList.add(categoryClass);
+		// Обработка категории с защитой от ошибок
+		const categorySlug = settings.categories[product.category] || 'other';
+		category.className = `card__category card__category_${categorySlug}`;
 
 		super.render(card);
 	}

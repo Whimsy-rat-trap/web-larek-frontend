@@ -2,7 +2,7 @@ import { EventEmitter } from "./base/events";
 import { ensureElement } from "../utils/utils";
 import { AppEvents } from "../types/events";
 import { IProduct, IBasketState } from "../types";
-import { CDN_URL } from '../utils/constants';
+import { CategoryType, CDN_URL, settings } from '../utils/constants';
 
 /**
  * Класс главной страницы приложения
@@ -94,7 +94,8 @@ export class Page {
 		price.textContent = product.price ? `${product.price} синапсов` : 'Бесценно';
 
 		// Добавляем класс для категории
-		const categoryClass = `card__category_${product.category.toLowerCase().replace(' ', '-')}`;
+		const categoryName = product.category as CategoryType;
+		const categoryClass = `card__category_${settings.categories[categoryName]}`;
 		category.classList.add(categoryClass);
 
 		// Обработчик клика на товар
