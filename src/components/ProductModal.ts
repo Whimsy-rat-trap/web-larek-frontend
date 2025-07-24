@@ -57,7 +57,7 @@ export class ProductModal extends Modal {
 			this.addToCartButton.textContent = 'Недоступно';
 		}
 
-		// Обработка категории с защитой от ошибок
+		// Обработка категории
 		const categorySlug = settings.categories[product.category] || 'other';
 		category.className = `card__category card__category_${categorySlug}`;
 
