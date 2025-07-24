@@ -2,6 +2,7 @@ import { EventEmitter } from "./base/events";
 import { ensureElement } from "../utils/utils";
 import { AppEvents } from "../types/events";
 import { IProduct, IBasketState } from "../types";
+import { CDN_URL } from '../utils/constants';
 
 /**
  * Класс главной страницы приложения
@@ -87,7 +88,7 @@ export class Page {
 		const price = card.querySelector('.card__price') as HTMLElement;
 
 		title.textContent = product.title;
-		image.src = product.image;
+		image.src = `${CDN_URL}${product.image}`;
 		image.alt = product.title;
 		category.textContent = product.category;
 		price.textContent = product.price ? `${product.price} синапсов` : 'Бесценно';

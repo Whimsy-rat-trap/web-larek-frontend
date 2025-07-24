@@ -3,6 +3,7 @@ import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
 import { AppEvents } from "../types/events";
 import { IProduct } from "../types";
+import { CDN_URL } from '../utils/constants';
 
 /**
  * Модальное окно просмотра товара
@@ -36,7 +37,7 @@ export class ProductModal extends Modal {
 		this.addToCartButton = ensureElement<HTMLButtonElement>('.card__button', card);
 
 		title.textContent = product.title;
-		image.src = product.image;
+		image.src = `${CDN_URL}${product.image}`;
 		image.alt = product.title;
 		category.textContent = product.category;
 		description.textContent = product.description;
