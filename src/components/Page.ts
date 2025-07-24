@@ -21,7 +21,6 @@ export class Page {
 	 * Создает экземпляр Page
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @emits AppEvents.PAGE_MAIN_LOADED При инициализации
 	 */
 	constructor(eventEmitter: EventEmitter) {
 		this.eventEmitter = eventEmitter;
@@ -32,9 +31,6 @@ export class Page {
 
 		this.setupEventListeners();
 		this.setupUIListeners();
-
-		// Инициируем загрузку страницы
-		this.eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);
 	}
 
 	/**
