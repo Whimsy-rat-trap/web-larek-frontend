@@ -33,7 +33,6 @@ export class SuccessModal extends Modal {
 
 		closeButton.addEventListener('click', () => {
 			this.close();
-			this.eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);
 		});
 
 		super.render(success);

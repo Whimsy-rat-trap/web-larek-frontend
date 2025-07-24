@@ -13,24 +13,33 @@ import { OrderModal } from "./components/OrderModal";
 import { ContactsModal } from "./components/ContactsModal";
 import { SuccessModal } from "./components/SuccessModal";
 import { API_URL } from "./utils/constants";
+import { AppEvents } from "./types/events";
 
-// Инициализация EventEmitter
-const eventEmitter = new EventEmitter();
+/**
+ * Инициализация приложения после загрузки страницы
+ */
+document.addEventListener('DOMContentLoaded', () => {
+	// Инициализация EventEmitter
+	const eventEmitter = new EventEmitter();
 
-// Инициализация API
-const api = new Api(API_URL);
+	// Инициализация API
+	const api = new Api(API_URL);
 
-// Инициализация сервисов
-const apiService = new ApiService(api, eventEmitter); // Передаем экземпляр Api
-const cartService = new CartService(eventEmitter);
-const modalService = new ModalService(eventEmitter);
-const orderService = new OrderService(eventEmitter);
-const validationService = new ValidationService(eventEmitter);
+	// Инициализация сервисов
+	const apiService = new ApiService(api, eventEmitter);
+	const cartService = new CartService(eventEmitter);
+	const modalService = new ModalService(eventEmitter);
+	const orderService = new OrderService(eventEmitter);
+	const validationService = new ValidationService(eventEmitter);
 
-// Инициализация компонентов
-const page = new Page(eventEmitter);
-const productModal = new ProductModal(eventEmitter);
-const cartModal = new CartModal(eventEmitter);
-const orderModal = new OrderModal(eventEmitter);
-const contactsModal = new ContactsModal(eventEmitter);
-const successModal = new SuccessModal(eventEmitter);
+	// Инициализация компонентов
+	const page = new Page(eventEmitter);
+	const productModal = new ProductModal(eventEmitter);
+	const cartModal = new CartModal(eventEmitter);
+	const orderModal = new OrderModal(eventEmitter);
+	const contactsModal = new ContactsModal(eventEmitter);
+	const successModal = new SuccessModal(eventEmitter);
+
+	// Публикация события загрузки страницы
+	eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);
+});
