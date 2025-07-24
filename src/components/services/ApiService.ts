@@ -1,6 +1,6 @@
 import { Api } from "../base/api";
 import { IProduct, IOrderRequest, IOrderResponse } from "../../types";
-import { AppEvents } from "../../utils/events";
+import { AppEvents } from "../../types/events";
 import { EventEmitter } from "../base/events";
 
 interface IProductListResponse {
@@ -8,7 +8,18 @@ interface IProductListResponse {
 	items: IProduct[];
 }
 
+/**
+ * Сервис для работы с API магазина
+ * @class ApiService
+ * @property {Api} api - Экземпляр API клиента
+ * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
+ */
 export class ApiService {
+	/**
+	 * Создает экземпляр ApiService
+	 * @param {Api} api - Экземпляр API клиента
+	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
+	 */
 	constructor(private api: Api, private eventEmitter: EventEmitter) {
 		this.setupEventListeners();
 	}
@@ -21,6 +32,11 @@ export class ApiService {
 			this.submitOrder(data));
 	}
 
+	/**
+	 * Загружает список товаров с сервера
+	 * @private
+	 * @emits AppEvents.PRODUCTS_LIST_LOADED При успешной загрузке
+	 */
 	private async loadProducts(): Promise<void> {
 		try {
 			const response = await this.api.get('/product') as IProductListResponse;
@@ -30,6 +46,12 @@ export class ApiService {
 		}
 	}
 
+	/**
+	 * Загружает детали конкретного товара
+	 * @private
+	 * @param {string} productId - ID товара
+	 * @emits AppEvents.PRODUCT_DETAILS_LOADED При успешной загрузке
+	 */
 	private async loadProductDetails(productId: string): Promise<void> {
 		try {
 			const response = await this.api.get(`/product/${productId}`) as IProduct;
@@ -39,6 +61,13 @@ export class ApiService {
 		}
 	}
 
+	/**
+	 * Отправляет заказ на сервер
+	 * @private
+	 * @param {IOrderRequest} orderData - Данные заказа
+	 * @emits AppEvents.ORDER_SENT При начале отправки
+	 * @emits AppEvents.ORDER_SUBMITTED При успешном оформлении
+	 */
 	private async submitOrder(orderData: IOrderRequest): Promise<void> {
 		this.eventEmitter.emit(AppEvents.ORDER_SENT);
 

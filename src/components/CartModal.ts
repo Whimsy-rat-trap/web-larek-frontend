@@ -1,9 +1,14 @@
 import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../utils/events";
+import { AppEvents } from "../types/events";
 import { IBasketState } from "../types";
 
+/**
+ * Модальное окно корзины
+ * @class CartModal
+ * @extends Modal
+ */
 export class CartModal extends Modal {
 	private checkoutButton: HTMLButtonElement;
 
@@ -14,6 +19,11 @@ export class CartModal extends Modal {
 			this.renderCart(data));
 	}
 
+	/**
+	 * Рендерит содержимое корзины
+	 * @private
+	 * @param {IBasketState} state - Текущее состояние корзины
+	 */
 	private renderCart(state: IBasketState): void {
 		const template = ensureElement<HTMLTemplateElement>('#basket');
 		const cart = cloneTemplate(template);

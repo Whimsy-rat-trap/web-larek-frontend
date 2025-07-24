@@ -1,9 +1,14 @@
 import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../utils/events";
+import { AppEvents } from "../types/events";
 import { IOrderResponse } from "../types";
 
+/**
+ * Модальное окно успешного оформления заказа
+ * @class SuccessModal
+ * @extends Modal
+ */
 export class SuccessModal extends Modal {
 	constructor(eventEmitter: EventEmitter) {
 		super(eventEmitter);
@@ -12,6 +17,11 @@ export class SuccessModal extends Modal {
 			this.renderSuccess(data));
 	}
 
+	/**
+	 * Рендерит сообщение об успешном заказе
+	 * @private
+	 * @param {IOrderResponse} order - Данные заказа
+	 */
 	private renderSuccess(order: IOrderResponse): void {
 		const template = ensureElement<HTMLTemplateElement>('#success');
 		const success = cloneTemplate(template);

@@ -1,6 +1,10 @@
 import { EventEmitter } from "../base/events";
-import { AppEvents } from "../../utils/events";
+import { AppEvents } from "../../types/events";
 
+/**
+ * Сервис валидации данных формы заказа
+ * @class ValidationService
+ */
 export class ValidationService {
 	private eventEmitter: EventEmitter;
 
@@ -21,6 +25,12 @@ export class ValidationService {
 			this.validatePhone(data.value));
 	}
 
+	/**
+	 * Проверяет валидность адреса доставки
+	 * @param {string} address - Адрес доставки
+	 * @emits AppEvents.ORDER_DELIVERY_VALID При валидном адресе
+	 * @emits AppEvents.ORDER_VALIDATION_ERROR При ошибке
+	 */
 	validateDelivery(address: string) {
 		const isValid = address.trim().length > 0;
 		if (isValid) {
@@ -33,36 +43,54 @@ export class ValidationService {
 		}
 	}
 
+	/**
+	 * Проверяет валидность способа оплаты
+	 * @param {string} method - Способ оплаты
+	 * @emits AppEvents.PAYMENT_VALID При валидном способе
+	 * @emits AppEvents.PAYMENT_VALIDATION_ERROR При ошибке
+	 */
 	validatePayment(method: string) {
 		const isValid = ['online', 'cash'].includes(method);
 		if (isValid) {
-			this.eventEmitter.emit(AppEvents.PAYMENT_VALID, { method });
+			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_VALID, { method });
 		} else {
-			this.eventEmitter.emit(AppEvents.PAYMENT_VALIDATION_ERROR, {
+			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_VALIDATION_ERROR, {
 				field: 'payment',
 				message: 'Выберите способ оплаты'
 			});
 		}
 	}
 
+	/**
+	 * Проверяет валидность email
+	 * @param {string} email - Email
+	 * @emits AppEvents.EMAIL_VALID При валидном email
+	 * @emits AppEvents.EMAIL_VALIDATION_ERROR При ошибке
+	 */
 	validateEmail(email: string) {
 		const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 		if (isValid) {
-			this.eventEmitter.emit(AppEvents.EMAIL_VALID, { email });
+			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_VALID, { email });
 		} else {
-			this.eventEmitter.emit(AppEvents.EMAIL_VALIDATION_ERROR, {
+			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_VALIDATION_ERROR, {
 				field: 'email',
 				message: 'Введите корректный email'
 			});
 		}
 	}
 
+	/**
+	 * Проверяет валидность телефона
+	 * @param {string} phone - Телефон
+	 * @emits AppEvents.PHONE_VALID При валидном телефоне
+	 * @emits AppEvents.PHONE_VALIDATION_ERROR При ошибке
+	 */
 	validatePhone(phone: string) {
 		const isValid = /^\+?[\d\s\-\(\)]{7,}$/.test(phone);
 		if (isValid) {
-			this.eventEmitter.emit(AppEvents.PHONE_VALID, { phone });
+			this.eventEmitter.emit(AppEvents.ORDER_PHONE_VALID, { phone });
 		} else {
-			this.eventEmitter.emit(AppEvents.PHONE_VALIDATION_ERROR, {
+			this.eventEmitter.emit(AppEvents.ORDER_PHONE_VALIDATION_ERROR, {
 				field: 'phone',
 				message: 'Введите корректный телефон'
 			});

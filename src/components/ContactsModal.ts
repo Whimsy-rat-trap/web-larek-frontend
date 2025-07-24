@@ -1,8 +1,13 @@
 import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../utils/events";
+import { AppEvents } from "../types/events";
 
+/**
+ * Модальное окно ввода контактных данных
+ * @class ContactsModal
+ * @extends Modal
+ */
 export class ContactsModal extends Modal {
 	constructor(eventEmitter: EventEmitter) {
 		super(eventEmitter);
@@ -11,6 +16,10 @@ export class ContactsModal extends Modal {
 			this.renderContactsForm());
 	}
 
+	/**
+	 * Рендерит форму ввода контактных данных
+	 * @private
+	 */
 	private renderContactsForm(): void {
 		const template = ensureElement<HTMLTemplateElement>('#contacts');
 		const form = cloneTemplate(template);

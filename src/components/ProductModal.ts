@@ -1,9 +1,14 @@
 import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../utils/events";
+import { AppEvents } from "../types/events";
 import { IProduct } from "../types";
 
+/**
+ * Модальное окно просмотра товара
+ * @class ProductModal
+ * @extends Modal
+ */
 export class ProductModal extends Modal {
 	private addToCartButton: HTMLButtonElement;
 
@@ -14,6 +19,11 @@ export class ProductModal extends Modal {
 			this.renderProduct(data));
 	}
 
+	/**
+	 * Рендерит информацию о товаре
+	 * @private
+	 * @param {IProduct} product - Данные товара
+	 */
 	private renderProduct(product: IProduct): void {
 		const template = ensureElement<HTMLTemplateElement>('#card-preview');
 		const card = cloneTemplate(template);

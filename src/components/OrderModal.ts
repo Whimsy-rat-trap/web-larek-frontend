@@ -1,9 +1,14 @@
 import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../utils/events";
+import { AppEvents } from "../types/events";
 import { PaymentMethod } from "../types";
 
+/**
+ * Модальное окно оформления заказа
+ * @class OrderModal
+ * @extends Modal
+ */
 export class OrderModal extends Modal {
 	private nextButton: HTMLButtonElement;
 
@@ -13,6 +18,10 @@ export class OrderModal extends Modal {
 		eventEmitter.on(AppEvents.ORDER_INITIATED, () => this.renderOrderForm());
 	}
 
+	/**
+	 * Рендерит форму оформления заказа
+	 * @private
+	 */
 	private renderOrderForm(): void {
 		const template = ensureElement<HTMLTemplateElement>('#order');
 		const form = cloneTemplate(template);
@@ -44,6 +53,13 @@ export class OrderModal extends Modal {
 		super.render(form);
 	}
 
+	/**
+	 * Устанавливает выбранный способ оплаты
+	 * @private
+	 * @param {PaymentMethod} method - Способ оплаты
+	 * @param {HTMLButtonElement} onlineButton - Кнопка онлайн-оплаты
+	 * @param {HTMLButtonElement} cashButton - Кнопка оплаты наличными
+	 */
 	private selectPayment(
 		method: PaymentMethod,
 		onlineButton: HTMLButtonElement,

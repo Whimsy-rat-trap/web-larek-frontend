@@ -1,7 +1,12 @@
 import { EventEmitter } from "../base/events";
-import { AppEvents } from "../../utils/events";
+import { AppEvents } from "../../types/events";
 import { IOrderFormState, PaymentMethod, IValidationError } from "../../types";
 
+/**
+ * Сервис оформления заказа
+ * @class OrderService
+ * @property {IOrderFormState} state - Текущее состояние формы заказа
+ */
 export class OrderService {
 	private state: IOrderFormState = {
 		payment: null,
@@ -24,10 +29,21 @@ export class OrderService {
 			this.prepareOrder('payment'));
 	}
 
+	/**
+	 * Инициализирует процесс оформления заказа
+	 * @private
+	 * @emits AppEvents.ORDER_INITIATED
+	 */
 	private initOrder(): void {
 		this.eventEmitter.emit(AppEvents.ORDER_INITIATED);
 	}
 
+	/**
+	 * Подготавливает заказ к отправке
+	 * @private
+	 * @param {'delivery' | 'payment'} step - Текущий шаг оформления
+	 * @emits AppEvents.ORDER_READY
+	 */
 	private prepareOrder(step: 'delivery' | 'payment'): void {
 		if (step === 'delivery') {
 			this.eventEmitter.emit(AppEvents.ORDER_READY, { step: 'delivery' });
@@ -36,26 +52,54 @@ export class OrderService {
 		}
 	}
 
+	/**
+	 * Обновляет данные о доставке
+	 * @param {string} address - Адрес доставки
+	 * @emits AppEvents.ORDER_READY
+	 */
 	public updateDelivery(address: string): void {
 		this.state.address = address;
 		this.validate();
 	}
 
+	/**
+	 * Обновляет способ оплаты в состоянии заказа
+	 * @public
+	 * @param {PaymentMethod} method - Выбранный способ оплаты
+	 * @emits AppEvents.ORDER_READY После валидации
+	 */
 	public updatePayment(method: PaymentMethod): void {
 		this.state.payment = method;
 		this.validate();
 	}
 
+	/**
+	 * Обновляет email в состоянии заказа
+	 * @public
+	 * @param {string} email - Введенный email
+	 * @emits AppEvents.ORDER_READY После валидации
+	 */
 	public updateEmail(email: string): void {
 		this.state.email = email;
 		this.validate();
 	}
 
+	/**
+	 * Обновляет телефон в состоянии заказа
+	 * @public
+	 * @param {string} phone - Введенный телефон
+	 * @emits AppEvents.ORDER_READY После валидации
+	 */
 	public updatePhone(phone: string): void {
 		this.state.phone = phone;
 		this.validate();
 	}
 
+	/**
+	 * Проверяет валидность данных формы заказа
+	 * @private
+	 * @emits AppEvents.ORDER_READY С результатом валидации
+	 */
 	private validate(): void {
 		// Проверяем обязательные поля для текущего шага
 		const isDeliveryValid = !!this.state.address && !!this.state.payment;
