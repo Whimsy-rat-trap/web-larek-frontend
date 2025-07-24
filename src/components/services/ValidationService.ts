@@ -14,6 +14,14 @@ export class ValidationService {
 		this.setupEventListeners();
 	}
 
+	/**
+	 * Настраивает обработчики событий для сервиса валидации
+	 * @private
+	 * @listens AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED При изменении адреса → вызывает validateDelivery()
+	 * @listens AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED При изменении способа оплаты → вызывает validatePayment()
+	 * @listens AppEvents.UI_ORDER_INPUT_MAIL_CHANGED При изменении email → вызывает validateEmail()
+	 * @listens AppEvents.UI_ORDER_INPUT_PHONE_CHANGED При изменении телефона → вызывает validatePhone()
+	 */
 	private setupEventListeners() {
 		this.eventEmitter.on(AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED, (data: { value: string }) =>
 			this.validateDelivery(data.value));

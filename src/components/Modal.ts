@@ -32,10 +32,18 @@ export class Modal {
 		});
 	}
 
+	/**
+	 * Открывает модальное окно
+	 * @public
+	 */
 	open(): void {
 		this.container.classList.add('modal_active');
 	}
 
+	/**
+	 * Закрывает модальное окно
+	 * @public
+	 */
 	close(): void {
 		this.container.classList.remove('modal_active');
 	}

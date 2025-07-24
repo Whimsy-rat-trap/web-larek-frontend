@@ -12,6 +12,22 @@ export class CartService {
 	private eventEmitter: EventEmitter;
 	private state: IBasketState;
 
+	/**
+	 * Создает экземпляр сервиса корзины
+	 * @constructor
+	 * @param {EventEmitter} eventEmitter - Эмиттер событий для коммуникации между компонентами
+	 *
+	 * Инициализирует:
+	 * - Начальное состояние корзины (пустой массив товаров и нулевая сумма)
+	 * - Подписки на события через setupEventListeners()
+	 *
+	 * Генерируемые события:
+	 * @emits AppEvents.CART_ITEM_ADDED При успешном добавлении товара
+	 * @emits AppEvents.CART_ITEM_ADD_ERROR При ошибке добавления (дубликат)
+	 * @emits AppEvents.CART_ITEM_REMOVED При удалении товара
+	 * @emits AppEvents.CART_UPDATED При любом изменении состояния корзины
+	 * @emits AppEvents.CART_CLEAR При полной очистке корзины
+	 */
 	constructor(eventEmitter: EventEmitter) {
 		this.eventEmitter = eventEmitter;
 		this.state = {
@@ -22,6 +38,13 @@ export class CartService {
 		this.setupEventListeners();
 	}
 
+	/**
+	 * Настраивает обработчики событий для сервиса корзины
+	 * @private
+	 * @listens AppEvents.MODAL_PRODUCT_CART_ITEM_ADDED При добавлении товара в корзину → вызывает addToCart()
+	 * @listens AppEvents.MODAL_CART_ITEM_REMOVED При удалении товара из корзины → вызывает removeFromCart()
+	 * @listens AppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED При подтверждении оплаты → вызывает clearCart()
+	 */
 	private setupEventListeners() {
 		this.eventEmitter.on(AppEvents.MODAL_PRODUCT_CART_ITEM_ADDED, (data: { id: string }) =>
 			this.addToCart(data.id));

@@ -14,10 +14,23 @@ export class ModalService {
 		productId: null
 	};
 
+	/**
+	 * Создает экземпляр ModalService
+	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
+	 */
 	constructor(private eventEmitter: EventEmitter) {
 		this.setupEventListeners();
 	}
 
+	/**
+	 * Настраивает обработчики событий для сервиса модальных окон
+	 * @private
+	 * @listens AppEvents.UI_BUTTON_CART_CLICKED При клике на кнопку корзины → вызывает openCartModal()
+	 * @listens AppEvents.PRODUCT_DETAILS_REQUESTED При запросе деталей товара → вызывает openProductModal()
+	 * @listens AppEvents.UI_ORDER_BUTTON_START_CLICKED При начале оформления заказа → вызывает openOrderModal()
+	 * @listens AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED При переходе к следующему шагу → вызывает openContactsModal()
+	 * @listens AppEvents.ORDER_SUBMITTED При успешном оформлении заказа → вызывает openSuccessModal()
+	 */
 	private setupEventListeners(): void {
 		this.eventEmitter.on(AppEvents.UI_BUTTON_CART_CLICKED, () => this.openCartModal());
 		this.eventEmitter.on(AppEvents.PRODUCT_DETAILS_REQUESTED, (data: { id: string }) =>

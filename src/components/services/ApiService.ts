@@ -24,6 +24,13 @@ export class ApiService {
 		this.setupEventListeners();
 	}
 
+	/**
+	 * Настраивает обработчики событий для API сервиса
+	 * @private
+	 * @listens AppEvents.PAGE_MAIN_LOADED При загрузке главной страницы → вызывает loadProducts()
+	 * @listens AppEvents.PRODUCT_DETAILS_REQUESTED При запросе деталей товара → вызывает loadProductDetails()
+	 * @listens AppEvents.ORDER_READY При готовности заказа → вызывает submitOrder()
+	 */
 	private setupEventListeners(): void {
 		this.eventEmitter.on(AppEvents.PAGE_MAIN_LOADED, () => this.loadProducts());
 		this.eventEmitter.on(AppEvents.PRODUCT_DETAILS_REQUESTED, (data: { id: string }) =>

@@ -38,10 +38,10 @@ export class Page {
 	}
 
 	/**
-	 * Настраивает обработчики событий
+	 * Настраивает обработчики событий для главной страницы
 	 * @private
-	 * @listens AppEvents.PRODUCTS_LIST_LOADED При загрузке списка товаров
-	 * @listens AppEvents.CART_UPDATED При обновлении корзины
+	 * @listens AppEvents.PRODUCTS_LIST_LOADED При загрузке списка товаров вызывает renderProducts()
+	 * @listens AppEvents.CART_UPDATED При обновлении корзины вызывает updateBasketCounter()
 	 */
 	private setupEventListeners() {
 		this.eventEmitter.on(AppEvents.PRODUCTS_LIST_LOADED, (data: { items: IProduct[] }) =>

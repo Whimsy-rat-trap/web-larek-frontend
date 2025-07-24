@@ -21,6 +21,13 @@ export class OrderService {
 		this.setupEventListeners();
 	}
 
+	/**
+	 * Настраивает обработчики событий для сервиса заказов
+	 * @private
+	 * @listens AppEvents.UI_ORDER_BUTTON_START_CLICKED При начале оформления заказа → вызывает initOrder()
+	 * @listens AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED При переходе к следующему шагу → вызывает prepareOrder('delivery')
+	 * @listens AppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED При подтверждении оплаты → вызывает prepareOrder('payment')
+	 */
 	private setupEventListeners(): void {
 		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_START_CLICKED, () => this.initOrder());
 		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () =>
@@ -141,6 +148,11 @@ export class OrderService {
 		this.eventEmitter.emit(AppEvents.ORDER_READY, { isValid: this.state.isValid });
 	}
 
+	/**
+	 * Возвращает текущее состояние формы заказа
+	 * @public
+	 * @returns {IOrderFormState} Состояние формы заказа
+	 */
 	public getState(): IOrderFormState {
 		return this.state;
 	}
