@@ -14,19 +14,20 @@ import { ContactsModal } from "./components/ContactsModal";
 import { SuccessModal } from "./components/SuccessModal";
 import { API_URL } from "./utils/constants";
 import { AppEvents } from "./types/events";
+import { AppState } from "./components/services/AppState";
 
 /**
  * Инициализация приложения после загрузки страницы
  */
 document.addEventListener('DOMContentLoaded', () => {
-	// Инициализация EventEmitter
 	const eventEmitter = new EventEmitter();
-
-	// Инициализация API
 	const api = new Api(API_URL);
 
-	// Инициализация сервисов
-	const apiService = new ApiService(api, eventEmitter);
+	// Создаем сервис состояния
+	const appState = new AppState(eventEmitter);
+
+	// Передаем сервис состояния в ApiService
+	const apiService = new ApiService(api, eventEmitter, appState);
 	const cartService = new CartService(eventEmitter);
 	const modalService = new ModalService(eventEmitter);
 	const orderService = new OrderService(eventEmitter);
