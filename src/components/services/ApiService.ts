@@ -15,6 +15,7 @@ interface IProductListResponse {
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  */
 export class ApiService {
+	private _productList: IProduct[] = []; // Модель хранения товаров
 	/**
 	 * Создает экземпляр ApiService
 	 * @param {Api} api - Экземпляр API клиента
@@ -22,6 +23,13 @@ export class ApiService {
 	 */
 	constructor(private api: Api, private eventEmitter: EventEmitter) {
 		this.setupEventListeners();
+	}
+
+	/**
+	 * Получает текущий список товаров
+	 */
+	get productList(): IProduct[] {
+		return this._productList;
 	}
 
 	/**
@@ -47,9 +55,14 @@ export class ApiService {
 	private async loadProducts(): Promise<void> {
 		try {
 			const response = await this.api.get('/product') as IProductListResponse;
-			this.eventEmitter.emit(AppEvents.PRODUCTS_LIST_LOADED, { items: response.items });
+			this._productList = response.items; // Сохраняем товары в модель
+			this.eventEmitter.emit(AppEvents.PRODUCTS_LIST_LOADED, {
+				items: this._productList // Отправляем сохраненный список
+			});
 		} catch (error) {
 			console.error('Failed to load products:', error);
+			this._productList = []; // Сбрасываем список при ошибке
+			this.eventEmitter.emit(AppEvents.PRODUCTS_LIST_LOADED, { items: [] });
 		}
 	}
 
@@ -61,6 +74,14 @@ export class ApiService {
 	 */
 	private async loadProductDetails(productId: string): Promise<void> {
 		try {
+			// Пытаемся найти товар в сохраненном списке
+			const cachedProduct = this._productList.find(p => p.id === productId);
+			if (cachedProduct) {
+				this.eventEmitter.emit(AppEvents.PRODUCT_DETAILS_LOADED, cachedProduct);
+				return;
+			}
+
+			// Если нет в кеше - загружаем с сервера
 			const response = await this.api.get(`/product/${productId}`) as IProduct;
 			this.eventEmitter.emit(AppEvents.PRODUCT_DETAILS_LOADED, response);
 		} catch (error) {

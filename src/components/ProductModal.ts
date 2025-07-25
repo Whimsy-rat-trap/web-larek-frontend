@@ -3,7 +3,7 @@ import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
 import { AppEvents } from "../types/events";
 import { IProduct } from "../types";
-import { CategoryType, CDN_URL, settings } from '../utils/constants';
+import { CDN_URL, settings } from '../utils/constants';
 
 /**
  * Модальное окно просмотра товара
