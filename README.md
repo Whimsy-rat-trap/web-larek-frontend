@@ -28,27 +28,26 @@
 
 ### Основные сервисы:
 
-1. **API Service**:
-    - Проверяет корректность введённых данных
-    - Слушает события:
-		- page:main:loaded
-		- product:details_requested
-		- order:delivery_set (от Модального окна оформления заказа)
-		- order:payment_set (от Модального окна оформления заказа)
-		- ui:order:input:mail:changed (от Модального окна оформления заказа)
-		- ui:order:input:phone:changed (от Модального окна оформления заказа)
+1. **API Service** (обновлено):
+	- Работает с API магазина
+	- Интегрирован с AppState для хранения данных
+	- Слушает события:
+		- page:main:loaded - загрузка главной страницы
+		- product:details_requested - запрос деталей товара
+		- order:ready - готовность заказа
 	- **Команды**:
 		- loadProducts()
-			- Публикует события: products_list:loaded (при успехе)
-			- Вызывается по событию: page:main:loaded
+			- Загружает список товаров
+			- Сохраняет в AppState.catalog
+			- Публикует: state:catalog:updated
 		- loadProductDetails(productId)
-			- Публикует события: product:details_loaded (при успехе)
-			- Вызывается по событию: product:details_requested
+			- Загружает детали товара
+			- Публикует: product:details_loaded
 		- submitOrder(orderData)
-			- Публикует события:
+			- Отправляет заказ на сервер
+			- Публикует:
 				- order:sent (при отправке)
-				- order:submitted (при успешном ответе 200)
-			- Вызывается по событию: order:ready
+				- order:submitted (при успехе)
 
 2. **Cart Service**:
     - Управляет состоянием корзины
@@ -142,23 +141,18 @@
 		- validatePhone(phone)
 			- Вызывается по событию: ui:order:input:phone:changed
 			- Публикует: phone:valid, phone:validation_error
-6. **AppState Service**:
+6. **AppState Service** (новый):
 	- Централизованное хранилище состояния приложения
-	- Не слушает события (пассивное хранилище)
 	- **Свойства**:
-		- `catalog: IProduct[]` - список товаров
-		- `basket: string[]` - ID товаров в корзине
-		- `order: IOrderFormState` - данные формы заказа
-		- `preview: string | null` - ID просматриваемого товара
-	- **Публикует события**:
-		- `state:catalog:updated` - при обновлении каталога
-			- Данные: `{ catalog: IProduct[] }`
-		- `state:basket:updated` - при изменении корзины
-			- Данные: `{ basket: string[] }`
-		- `state:order:updated` - при изменении формы заказа
-			- Данные: `{ order: IOrderFormState }`
-		- `state:preview:updated` - при изменении просматриваемого товара
-			- Данные: `{ preview: string | null }`
+		- catalog: IProduct[] - список товаров
+		- basket: string[] - ID товаров в корзине
+		- order: IOrderFormState - данные заказа
+		- preview: string | null - ID просматриваемого товара
+	- **Методы**:
+		- set catalog(items) - обновляет каталог, публикует state:catalog:updated
+		- set basket(items) - обновляет корзину, публикует state:basket:updated
+		- set order(form) - обновляет заказ, публикует state:order:updated
+		- set preview(id) - обновляет превью, публикует state:preview:updated
 
 ### Основные компоненты и их события:
 
@@ -352,10 +346,10 @@ yarn build
 ## Граф событий
 
 1. **Инициализация приложения**:
-    - page:main:loaded → API Service.loadProducts() → products_list:loaded → Каталог товаров (отрисовка)
-
+	- page:main:loaded → API Service.loadProducts() → сохраняет в AppState → state:catalog:updated → Главная страница (отрисовка)
+   
 2. **Просмотр товара**:
-    - Пользователь кликает на товар → product:details_requested → API Service.loadProductDetails() → product:details_loaded → Модальное окно карточки товара (открытие)
+	- Пользователь кликает на товар → product:details_requested → API Service.loadProductDetails() → product:details_loaded → Модальное окно товара
 
 3. **Работа с корзиной**:
     - modal:product:cart_item_added → Cart Service.addToCart() → [cart:item_added, cart:updated] → [Список товаров корзины, Счётчик]
