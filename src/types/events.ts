@@ -77,9 +77,9 @@ export const AppEvents = {
 	UI_ORDER_INPUT_PHONE_CHANGED: 'ui:order:input:phone:changed',
 
 	// Модальные окна
-	/** Событие открытия модального окна корзины */
+	/** Событие открытия модального окна */
 	MODAL_OPENED: 'modal:opened',
-	/** Событие закрытия модального окна корзины */
+	/** Событие закрытия модального окна */
 	MODAL_CLOSED: 'modal:closed',
 	/** Событие добавления товара в корзину */
 	MODAL_PRODUCT_CART_ITEM_ADDED: 'modal:product:cart_item_added',
