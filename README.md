@@ -142,6 +142,23 @@
 		- validatePhone(phone)
 			- Вызывается по событию: ui:order:input:phone:changed
 			- Публикует: phone:valid, phone:validation_error
+6. **AppState Service**:
+	- Централизованное хранилище состояния приложения
+	- Не слушает события (пассивное хранилище)
+	- **Свойства**:
+		- `catalog: IProduct[]` - список товаров
+		- `basket: string[]` - ID товаров в корзине
+		- `order: IOrderFormState` - данные формы заказа
+		- `preview: string | null` - ID просматриваемого товара
+	- **Публикует события**:
+		- `state:catalog:updated` - при обновлении каталога
+			- Данные: `{ catalog: IProduct[] }`
+		- `state:basket:updated` - при изменении корзины
+			- Данные: `{ basket: string[] }`
+		- `state:order:updated` - при изменении формы заказа
+			- Данные: `{ order: IOrderFormState }`
+		- `state:preview:updated` - при изменении просматриваемого товара
+			- Данные: `{ preview: string | null }`
 
 ### Основные компоненты и их события:
 

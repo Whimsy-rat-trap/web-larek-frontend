@@ -86,3 +86,14 @@ export const AppEvents = {
 	/** Событие удаления товара из корзины */
 	MODAL_CART_ITEM_REMOVED: 'modal:cart:item_removed'
 };
+
+export const StateEvents = {
+	/** Событие обновления каталога товаров */
+	CATALOG_UPDATED: 'state:catalog:updated',
+	/** Событие обновления корзины */
+	BASKET_UPDATED: 'state:basket:updated',
+	/** Событие обновления формы заказа */
+	ORDER_FORM_UPDATED: 'state:order:updated',
+	/** Событие обновления превью товара */
+	PREVIEW_UPDATED: 'state:preview:updated'
+} as const;

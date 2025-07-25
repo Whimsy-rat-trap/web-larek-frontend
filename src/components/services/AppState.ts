@@ -1,8 +1,11 @@
 import { EventEmitter } from "../base/events";
 import { IAppState, IProduct, IOrderFormState } from "../../types";
+import { StateEvents } from "../../types/events";
 
 /**
  * Сервис управления состоянием приложения
+ * @class AppState
+ * @property {IAppState} state - Текущее состояние приложения
  */
 export class AppState {
 	private _state: IAppState = {
@@ -21,32 +24,40 @@ export class AppState {
 
 	constructor(private events: EventEmitter) {}
 
-	// Получение текущего состояния
+	/** Получение текущего состояния */
 	get state(): IAppState {
 		return this._state;
 	}
 
-	// Обновление каталога товаров
+	/** Обновление каталога товаров */
 	set catalog(items: IProduct[]) {
 		this._state.catalog = items;
-		this.events.emit('state:catalog:updated', this._state.catalog);
+		this.events.emit(StateEvents.CATALOG_UPDATED, {
+			catalog: this._state.catalog
+		});
 	}
 
-	// Обновление корзины
+	/** Обновление корзины */
 	set basket(items: string[]) {
 		this._state.basket = items;
-		this.events.emit('state:basket:updated', this._state.basket);
+		this.events.emit(StateEvents.BASKET_UPDATED, {
+			basket: this._state.basket
+		});
 	}
 
-	// Обновление состояния заказа
+	/** Обновление состояния заказа */
 	set order(form: Partial<IOrderFormState>) {
 		this._state.order = { ...this._state.order, ...form };
-		this.events.emit('state:order:updated', this._state.order);
+		this.events.emit(StateEvents.ORDER_FORM_UPDATED, {
+			order: this._state.order
+		});
 	}
 
-	// Обновление превью товара
+	/** Обновление превью товара */
 	set preview(id: string | null) {
 		this._state.preview = id;
-		this.events.emit('state:catalog:updated', { catalog: this._state.catalog });
+		this.events.emit(StateEvents.PREVIEW_UPDATED, {
+			preview: this._state.preview
+		});
 	}
 }
