@@ -1,6 +1,6 @@
 import { EventEmitter } from "./base/events";
 import { ensureElement } from "../utils/utils";
-import { AppEvents } from "../types/events";
+import { AppEvents, StateEvents } from '../types/events';
 import { IProduct, IBasketState } from "../types";
 import { CategoryType, CDN_URL, settings } from '../utils/constants';
 
@@ -25,7 +25,6 @@ export class Page {
 	 */
 	constructor(eventEmitter: EventEmitter) {
 		this.eventEmitter = eventEmitter;
-
 		this.gallery = ensureElement<HTMLElement>('.gallery');
 		this.basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
 		this.basketButton = ensureElement<HTMLElement>('.header__basket');
@@ -37,14 +36,16 @@ export class Page {
 	/**
 	 * Настраивает обработчики событий для главной страницы
 	 * @private
-	 * @listens AppEvents.PRODUCTS_LIST_LOADED При загрузке списка товаров вызывает renderProducts()
+	 * @listens StateEvents.CATALOG_UPDATED При загрузке списка товаров вызывает renderProducts()
 	 * @listens AppEvents.CART_UPDATED При обновлении корзины вызывает updateBasketCounter()
 	 */
 	private setupEventListeners() {
-		this.eventEmitter.on(AppEvents.PRODUCTS_LIST_LOADED, (data: { items: IProduct[] }) =>
-			this.renderProducts(data.items));
-		this.eventEmitter.on(AppEvents.CART_UPDATED, (data: IBasketState) =>
-			this.updateBasketCounter(data.items.length));
+		this.eventEmitter.on(StateEvents.CATALOG_UPDATED, (data: { catalog: IProduct[] }) => {
+			this.renderProducts(data.catalog);
+		});
+		this.eventEmitter.on(AppEvents.CART_UPDATED, (data: IBasketState) => {
+			this.updateBasketCounter(data.items.length);
+		});
 	}
 
 	/**

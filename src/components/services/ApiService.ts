@@ -54,11 +54,10 @@ export class ApiService {
 		try {
 			const response = await this.api.get('/product') as IProductListResponse;
 			this.appState.catalog = response.items; // Сохраняем в состояние
-			this.events.emit(AppEvents.PRODUCTS_LIST_LOADED, { items: response.items });
 		} catch (error) {
 			console.error('Failed to load products:', error);
 			this.appState.catalog = []; // Очищаем при ошибке
-			this.events.emit(AppEvents.PRODUCTS_LIST_LOADED, { items: [] });
+			// AppState сам отправит CATALOG_UPDATED с пустым массивом
 		}
 	}
 
