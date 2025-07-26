@@ -6,6 +6,13 @@
   gap: 2rem;
   height: 100%;
 
+  &__empty {
+    text-align: left;
+    color: $secondary;
+    font-size: 1.2rem;
+    margin: 2rem 0;
+  }
+
   &__list {
     padding: 0;
     margin: 0;
