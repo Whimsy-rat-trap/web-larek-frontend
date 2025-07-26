@@ -23,20 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	const eventEmitter = new EventEmitter();
 	const api = new Api(API_URL);
 
-	// Создаем сервис состояния
 	const appState = new AppState(eventEmitter);
-
-	// Передаем сервис состояния в ApiService
+	const cartService = new CartService(eventEmitter, appState);
 	const apiService = new ApiService(api, eventEmitter, appState);
-	const cartService = new CartService(eventEmitter);
 	const modalService = new ModalService(eventEmitter);
 	const orderService = new OrderService(eventEmitter);
 	const validationService = new ValidationService(eventEmitter);
 
-	// Инициализация компонентов
 	const page = new Page(eventEmitter);
 	const productModal = new ProductModal(eventEmitter);
-	const cartModal = new CartModal(eventEmitter);
+	const cartModal = new CartModal(eventEmitter, cartService);
 	const orderModal = new OrderModal(eventEmitter);
 	const contactsModal = new ContactsModal(eventEmitter);
 	const successModal = new SuccessModal(eventEmitter);
