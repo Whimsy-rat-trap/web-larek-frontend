@@ -41,8 +41,18 @@ export class ApiService {
 		this.events.on(AppEvents.PAGE_MAIN_LOADED, () => this.loadProducts());
 		this.events.on(AppEvents.PRODUCT_DETAILS_REQUESTED, (data: { id: string }) =>
 			this.loadProductDetails(data.id));
-		this.events.on(AppEvents.ORDER_READY, (data: IOrderRequest) =>
-			this.submitOrder(data));
+		// Изменяем слушатель - теперь слушаем ORDER_SUBMITTED вместо ORDER_READY
+		this.events.on(AppEvents.ORDER_SUBMITTED, () => {
+			const orderData = this.appState.state.order;
+			const items = this.appState.state.basket.map(item => item.id);
+			const total = this.appState.state.basket.reduce((sum, item) => sum + (item.price || 0), 0);
+
+			this.submitOrder({
+				...orderData,
+				items,
+				total
+			} as IOrderRequest);
+		});
 	}
 
 	/**

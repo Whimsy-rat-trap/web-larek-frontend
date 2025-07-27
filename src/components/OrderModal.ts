@@ -31,20 +31,26 @@ export class OrderModal extends Modal {
 		// Обработчики событий
 		this.addressInput.addEventListener('input', () => {
 			this.addressEntered = this.addressInput.value.trim().length > 0;
+			this.eventEmitter.emit(AppEvents.ORDER_DELIVERY_SET, {
+				address: this.addressInput.value
+			});
 			this.updateValidationState();
 		});
 
+
 		this.onlinePaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'online';
-			this.onlinePaymentButton.classList.add('button_alt-active');
-			this.cashPaymentButton.classList.remove('button_alt-active');
+			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, {
+				method: 'online'
+			});
 			this.updateValidationState();
 		});
 
 		this.cashPaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'cash';
-			this.cashPaymentButton.classList.add('button_alt-active');
-			this.onlinePaymentButton.classList.remove('button_alt-active');
+			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, {
+				method: 'cash'
+			});
 			this.updateValidationState();
 		});
 

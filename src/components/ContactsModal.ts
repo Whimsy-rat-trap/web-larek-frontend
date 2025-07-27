@@ -28,18 +28,24 @@ export class ContactsModal extends Modal {
 		// Обработчики событий
 		this.emailInput.addEventListener('input', () => {
 			this.emailEntered = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.emailInput.value.trim());
+			this.eventEmitter.emit(AppEvents.UI_ORDER_INPUT_MAIL_CHANGED, {
+				value: this.emailInput.value
+			});
 			this.updateValidationState();
 		});
 
 		this.phoneInput.addEventListener('input', () => {
 			this.phoneEntered = /^\+?\d[\d\s\-\(\)]{6,}\d$/.test(this.phoneInput.value.trim());
+			this.eventEmitter.emit(AppEvents.UI_ORDER_INPUT_PHONE_CHANGED, {
+				value: this.phoneInput.value
+			});
 			this.updateValidationState();
 		});
 
 		form.addEventListener('submit', (event) => {
 			event.preventDefault();
 			if (this.isFormValid()) {
-				this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED);
+				this.eventEmitter.emit(AppEvents.ORDER_SUBMITTED);
 			}
 		});
 

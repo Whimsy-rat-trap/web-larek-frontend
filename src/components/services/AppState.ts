@@ -49,10 +49,19 @@ export class AppState {
 
 	/** Обновление состояния заказа */
 	set order(form: Partial<IOrderFormState>) {
-		this._state.order = { ...this._state.order, ...form };
+		this._state.order = {
+			...this._state.order,
+			...form,
+			isValid: this.validateOrder(form)
+		};
 		this.events.emit(StateEvents.ORDER_FORM_UPDATED, {
 			order: this._state.order
 		});
+	}
+
+	private validateOrder(form: Partial<IOrderFormState>): boolean {
+		return !!form.address && !!form.payment &&
+			!!form.email && !!form.phone;
 	}
 
 	/** Обновление превью товара */

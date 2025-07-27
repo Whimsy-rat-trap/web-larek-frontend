@@ -62,9 +62,15 @@ export class OrderService {
 				total: 0, // Будет заполнено в ApiService
 				items: [] // Будет заполнено в ApiService
 			};
-			this.eventEmitter.emit(AppEvents.ORDER_READY, orderData);
+
+			// Проверяем валидность перед отправкой
+			this.validate();
+			if (this.state.isValid) {
+				this.eventEmitter.emit(AppEvents.ORDER_READY, orderData);
+			}
 		} else {
-			this.eventEmitter.emit(AppEvents.ORDER_READY, { step: 'delivery' });
+			// Для шага доставки просто валидируем
+			this.validate();
 		}
 	}
 
