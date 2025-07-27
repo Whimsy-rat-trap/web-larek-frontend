@@ -1,7 +1,7 @@
 import { EventEmitter } from "./base/events";
 import { ensureElement } from "../utils/utils";
 import { AppEvents, StateEvents } from '../types/events';
-import { IProduct, ICart } from "../types";
+import { IProduct } from "../types";
 import { CategoryType, CDN_URL, settings } from '../utils/constants';
 
 /**
@@ -40,12 +40,10 @@ export class Page {
 	 * @listens AppEvents.CART_UPDATED При обновлении корзины вызывает updateBasketCounter()
 	 */
 	private setupEventListeners() {
-		this.eventEmitter.on(StateEvents.CATALOG_UPDATED, (data: { catalog: IProduct[] }) => {
-			this.renderProducts(data.catalog);
-		});
-		this.eventEmitter.on(AppEvents.CART_UPDATED, (cart: ICart) => {
-			this.updateBasketCounter(cart.items.length);
-		});
+		this.eventEmitter.on(StateEvents.CATALOG_UPDATED,
+			(data: { catalog: IProduct[] }) => this.renderProducts(data.catalog));
+		this.eventEmitter.on(StateEvents.BASKET_UPDATED,
+			(data: { basket: IProduct[] }) => this.updateBasketCounter(data.basket.length));
 	}
 
 	/**

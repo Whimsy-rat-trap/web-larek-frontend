@@ -1,6 +1,6 @@
 import { EventEmitter } from "../base/events";
 import { IAppState, IProduct, IOrderFormState } from "../../types";
-import { StateEvents } from "../../types/events";
+import { AppEvents, StateEvents } from '../../types/events';
 
 /**
  * Сервис управления состоянием приложения
@@ -38,11 +38,13 @@ export class AppState {
 	}
 
 	/** Обновление корзины */
-	set basket(items: string[]) {
+	set basket(items: IProduct[]) {
 		this._state.basket = items;
 		this.events.emit(StateEvents.BASKET_UPDATED, {
 			basket: this._state.basket
 		});
+		// Эмитим событие обновления корзины
+		this.events.emit(AppEvents.CART_UPDATED);
 	}
 
 	/** Обновление состояния заказа */
