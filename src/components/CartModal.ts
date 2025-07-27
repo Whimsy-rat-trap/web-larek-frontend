@@ -5,6 +5,8 @@ import { AppEvents } from "../types/events";
 import { IProduct } from "../types";
 
 export class CartModal extends Modal {
+	private checkoutButton: HTMLButtonElement;
+
 	constructor(eventEmitter: EventEmitter, private cartService: {
 		getCartItems: () => IProduct[];
 		getTotalPrice: () => number;
@@ -44,7 +46,6 @@ export class CartModal extends Modal {
 
 		checkoutButton.addEventListener('click', () => {
 			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_START_CLICKED);
-			this.close();
 		});
 
 		super.render(cartElement);
