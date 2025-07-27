@@ -1,7 +1,7 @@
 import { EventEmitter } from "./base/events";
 import { ensureElement } from "../utils/utils";
 import { AppEvents, StateEvents } from '../types/events';
-import { IProduct, IBasketState } from "../types";
+import { IProduct, ICart } from "../types";
 import { CategoryType, CDN_URL, settings } from '../utils/constants';
 
 /**
@@ -43,8 +43,8 @@ export class Page {
 		this.eventEmitter.on(StateEvents.CATALOG_UPDATED, (data: { catalog: IProduct[] }) => {
 			this.renderProducts(data.catalog);
 		});
-		this.eventEmitter.on(AppEvents.CART_UPDATED, (data: IBasketState) => {
-			this.updateBasketCounter(data.items.length);
+		this.eventEmitter.on(AppEvents.CART_UPDATED, (cart: ICart) => {
+			this.updateBasketCounter(cart.items.length);
 		});
 	}
 

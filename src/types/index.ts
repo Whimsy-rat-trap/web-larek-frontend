@@ -30,8 +30,21 @@ export interface IProduct {
  * @property {number} total - Общая сумма заказа
  */
 export interface ICart {
-	items: string[];
+	items: ICartItem[];
 	total: number;
+}
+
+/**
+ * Интерфейс товара в корзине
+ * @interface ICartItem
+ * @property {string} id - Уникальный идентификатор товара
+ * @property {string} title - Название товара
+ * @property {number} price - Цена товара
+ */
+export interface ICartItem {
+	id: string;
+	title: string;
+	price: number;
 }
 
 /**
@@ -137,30 +150,4 @@ export interface IAppState {
 	basket: string[];
 	order: IOrderFormState;
 	preview: string | null;
-}
-
-/**
- * Интерфейс товара в корзине для отображения
- * @interface IBasketItem
- * @property {string} id - Идентификатор товара
- * @property {string} title - Название товара
- * @property {number} price - Цена товара
- * @property {number} index - Порядковый номер в корзине
- */
-export interface IBasketItem {
-	id: string;
-	title: string;
-	price: number;
-	index: number;
-}
-
-/**
- * Интерфейс состояния корзины
- * @interface IBasketState
- * @property {string[]} items - Идентификаторы товаров в корзине
- * @property {number} total - Общая сумма товаров в корзине
- */
-export interface IBasketState {
-	items: string[];
-	total: number;
 }

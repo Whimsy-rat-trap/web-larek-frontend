@@ -1,17 +1,17 @@
 import { EventEmitter } from "../base/events";
 import { AppEvents } from "../../types/events";
-import { IBasketState, IProduct } from "../../types";
+import { ICart, IProduct } from "../../types";
 import { AppState } from "./AppState";
 
 export class CartService {
 	private eventEmitter: EventEmitter;
-	private state: IBasketState;
+	private cart: ICart;
 	private appState: AppState;
 
 	constructor(eventEmitter: EventEmitter, appState: AppState) {
 		this.eventEmitter = eventEmitter;
 		this.appState = appState;
-		this.state = {
+		this.cart = {
 			items: [],
 			total: 0
 		};
@@ -29,8 +29,15 @@ export class CartService {
 	}
 
 	addToCart(productId: string) {
-		if (!this.state.items.includes(productId)) {
-			this.state.items.push(productId);
+		const product = this.appState.state.catalog.find(p => p.id === productId);
+		if (!product || !product.price) return;
+
+		if (!this.cart.items.some(item => item.id === productId)) {
+			this.cart.items.push({
+				id: product.id,
+				title: product.title,
+				price: product.price
+			});
 			this.updateCart();
 			this.eventEmitter.emit(AppEvents.CART_ITEM_ADDED, { id: productId });
 		} else {
@@ -39,32 +46,30 @@ export class CartService {
 	}
 
 	removeFromCart(productId: string) {
-		this.state.items = this.state.items.filter(id => id !== productId);
-		this.updateCart();
-		this.eventEmitter.emit(AppEvents.CART_ITEM_REMOVED, { id: productId });
+		const itemIndex = this.cart.items.findIndex(item => item.id === productId);
+		if (itemIndex !== -1) {
+			this.cart.items.splice(itemIndex, 1);
+			this.updateCart();
+			this.eventEmitter.emit(AppEvents.CART_ITEM_REMOVED, { id: productId });
+		}
 	}
 
 	clearCart() {
-		this.state.items = [];
-		this.state.total = 0;
+		this.cart.items = [];
+		this.cart.total = 0;
 		this.eventEmitter.emit(AppEvents.CART_CLEAR);
 	}
 
 	private updateCart() {
-		// Пересчитываем общую стоимость
-		this.state.total = this.state.items.reduce((total, id) => {
-			const product = this.appState.state.catalog.find(p => p.id === id);
-			return total + (product?.price || 0);
-		}, 0);
-
-		this.eventEmitter.emit(AppEvents.CART_UPDATED, this.state);
+		this.cart.total = this.cart.items.reduce((total, item) => total + item.price, 0);
+		this.eventEmitter.emit(AppEvents.CART_UPDATED, this.cart);
 	}
 
-	getState(): IBasketState {
-		return this.state;
+	getCart(): ICart {
+		return this.cart;
 	}
 
-	getProductById(id: string): IProduct | undefined {
+	getItemById(id: string): IProduct | undefined {
 		return this.appState.state.catalog.find(p => p.id === id);
 	}
 }
