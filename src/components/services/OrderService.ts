@@ -1,6 +1,6 @@
 import { EventEmitter } from "../base/events";
 import { AppEvents } from "../../types/events";
-import { IOrderFormState, PaymentMethod, IValidationError } from "../../types";
+import { IOrderFormState, PaymentMethod, IValidationError, IOrderRequest } from '../../types';
 
 /**
  * Сервис оформления заказа
@@ -52,10 +52,19 @@ export class OrderService {
 	 * @emits AppEvents.ORDER_READY
 	 */
 	private prepareOrder(step: 'delivery' | 'payment'): void {
-		if (step === 'delivery') {
-			this.eventEmitter.emit(AppEvents.ORDER_READY, { step: 'delivery' });
+		if (step === 'payment') {
+			// При подтверждении оплаты формируем полные данные заказа
+			const orderData: IOrderRequest = {
+				payment: this.state.payment,
+				address: this.state.address,
+				email: this.state.email,
+				phone: this.state.phone,
+				total: 0, // Будет заполнено в ApiService
+				items: [] // Будет заполнено в ApiService
+			};
+			this.eventEmitter.emit(AppEvents.ORDER_READY, orderData);
 		} else {
-			this.eventEmitter.emit(AppEvents.ORDER_READY, { step: 'payment' });
+			this.eventEmitter.emit(AppEvents.ORDER_READY, { step: 'delivery' });
 		}
 	}
 

@@ -34,4 +34,29 @@
       color: lighten($primaryLight, 23%);
     }
   }
+
+  &__errors {
+    color: $error;
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+  }
+
+  &__error {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: rgba($error, 0.1);
+    border-radius: 0.5rem;
+  }
+}
+
+.order {
+  &__buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__field {
+    margin-bottom: 1.5rem;
+  }
 }
