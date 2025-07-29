@@ -10,11 +10,20 @@ import { IOrderResponse } from "../types";
  * @extends Modal
  */
 export class SuccessModal extends Modal {
-	constructor(eventEmitter: EventEmitter) {
+	constructor(
+		protected eventEmitter: EventEmitter,
+		private cartService: {
+			getTotalPrice: () => number;
+			clearCart: () => void;
+		}
+	) {
 		super(eventEmitter);
 
-		eventEmitter.on(AppEvents.ORDER_SUBMITTED, (data: IOrderResponse) =>
-			this.renderSuccess(data));
+		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
+			if (data.type === 'success') {
+				this.renderSuccess();
+			}
+		});
 	}
 
 	/**
@@ -22,19 +31,24 @@ export class SuccessModal extends Modal {
 	 * @private
 	 * @param {IOrderResponse} order - Данные заказа
 	 */
-	private renderSuccess(order: IOrderResponse): void {
+	private renderSuccess(): void {
 		const template = ensureElement<HTMLTemplateElement>('#success');
 		const success = cloneTemplate(template);
 
 		const description = ensureElement<HTMLElement>('.order-success__description', success);
 		const closeButton = ensureElement<HTMLButtonElement>('.order-success__close', success);
 
-		description.textContent = `Списано ${order.total} синапсов`;
+		// Получаем сумму перед очисткой корзины
+		const total = this.cartService.getTotalPrice();
+		description.textContent = `Списано ${total} синапсов`;
+
+		// Очищаем корзину после отображения суммы
+		this.cartService.clearCart();
 
 		closeButton.addEventListener('click', () => {
 			this.close();
 		});
 
-		super.render(success);
+		this.render(success);
 	}
 }

@@ -18,7 +18,7 @@ export class CartService {
 			(data: { id: string }) => this.addToCart(data.id));
 		this.eventEmitter.on(AppEvents.MODAL_CART_ITEM_REMOVED,
 			(data: { id: string }) => this.removeFromCart(data.id));
-		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED,
+		this.eventEmitter.on(AppEvents.ORDER_SUBMITTED,
 			() => this.clearCart());
 	}
 

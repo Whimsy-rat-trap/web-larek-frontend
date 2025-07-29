@@ -45,7 +45,12 @@ export class ContactsModal extends Modal {
 		form.addEventListener('submit', (event) => {
 			event.preventDefault();
 			if (this.isFormValid()) {
-				this.eventEmitter.emit(AppEvents.ORDER_SUBMITTED);
+				// Только открываем модальное окно успеха
+				// Очистка корзины произойдет внутри SuccessModal
+				this.eventEmitter.emit(AppEvents.MODAL_OPENED, { type: 'success' });
+
+				// Позже, при подключении бэкенда, здесь будет:
+				// this.eventEmitter.emit(AppEvents.ORDER_SUBMITTED);
 			}
 		});
 

@@ -35,7 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const cartModal = new CartModal(eventEmitter, cartService);
 	const orderModal = new OrderModal(eventEmitter);
 	const contactsModal = new ContactsModal(eventEmitter);
-	const successModal = new SuccessModal(eventEmitter);
+	const successModal = new SuccessModal(eventEmitter, {
+		getTotalPrice: () => cartService.getTotalPrice(),
+		clearCart: () => cartService.clearCart()
+	});
 
 	// Публикация события загрузки страницы
 	eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);
