@@ -37,9 +37,9 @@ export class OrderModal extends Modal {
 			this.updateValidationState();
 		});
 
-
 		this.onlinePaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'online';
+			this.updatePaymentButtons();
 			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, {
 				method: 'online'
 			});
@@ -48,6 +48,7 @@ export class OrderModal extends Modal {
 
 		this.cashPaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'cash';
+			this.updatePaymentButtons();
 			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, {
 				method: 'cash'
 			});
@@ -62,6 +63,19 @@ export class OrderModal extends Modal {
 		});
 
 		super.render(form);
+	}
+
+	private updatePaymentButtons(): void {
+		// Сбрасываем стили обеих кнопок
+		this.onlinePaymentButton.classList.remove('button_alt-active');
+		this.cashPaymentButton.classList.remove('button_alt-active');
+
+		// Применяем активный стиль к выбранной кнопке
+		if (this.paymentSelected === 'online') {
+			this.onlinePaymentButton.classList.add('button_alt-active');
+		} else if (this.paymentSelected === 'cash') {
+			this.cashPaymentButton.classList.add('button_alt-active');
+		}
 	}
 
 	private updateValidationState(): void {

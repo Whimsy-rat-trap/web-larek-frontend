@@ -14,10 +14,15 @@
 ## Структура проекта
 
 - src/ — исходные файлы проекта
-- src/components/ — папка с JS компонентами
-- src/pages/ — HTML страница
-- src/types/ — типы и интерфейсы
-- src/utils/ — вспомогательные утилиты и константы
+  - components/ — папка с JS компонентами
+    - base/ — базовые классы (API, EventEmitter)
+    - services/ — сервисы приложения 
+    - Page.ts — главная страница 
+    - Modal.ts и производные — модальные окна
+  - pages/ 
+    - index.html — HTML страница
+  - types/ — типы и интерфейсы
+  - utils/ — вспомогательные утилиты и константы
 
 ## API и компоненты
 
@@ -28,255 +33,421 @@
 
 ### Основные сервисы:
 
-1. **API Service** (обновлено):
+1. **API Service**:
 	- Работает с API магазина
 	- Интегрирован с AppState для хранения данных
 	- Слушает события:
-		- page:main:loaded - загрузка главной страницы
-		- product:details_requested - запрос деталей товара
-		- order:ready - готовность заказа
+		- AppEvents.PAGE_MAIN_LOADED - загрузка главной страницы
+		- AppEvents.PRODUCT_DETAILS_REQUESTED - запрос деталей товара
+		- AppEvents.ORDER_SUBMITTED - событие формирования заказа
 	- **Команды**:
 		- loadProducts()
 			- Загружает список товаров
 			- Сохраняет в AppState.catalog
-			- Публикует: state:catalog:updated
+			- Публикует: CATALOG_UPDATED
 		- loadProductDetails(productId)
 			- Загружает детали товара
-			- Публикует: product:details_loaded
+			- Публикует: AppEvents.PRODUCT_DETAILS_LOADED
 		- submitOrder(orderData)
-			- Отправляет заказ на сервер
+			- Формирует и отправляет заказ на сервер
+            - Использует данные из AppState (корзина и форма заказа)
 			- Публикует:
-				- order:sent (при отправке)
-				- order:submitted (при успехе)
+				- AppEvents.ORDER_SENT (при отправке)
+				- AppEvents.ORDER_SUBMITTED (при успехе)
 
 2. **Cart Service**:
-    - Управляет состоянием корзины
+    - Управляет состоянием корзины через AppState
     - Слушает события:
-		- modal:product:cart_item_added (от Модального окна оформления заказа)
-		- modal:product:item_removed (от Модального окна оформления заказа)
+		- AppEvents.MODAL_PRODUCT_CART_ITEM_ADDED (от Модального окна оформления заказа)
+		- AppEvents.MODAL_CART_ITEM_REMOVED (от Модального окна оформления заказа)
+        - AppEvents.ORDER_SUBMITTED (от API Service)
 	- **Команды**:
-		- addToCart()
-			- Вызывается по событию: modal:product:cart_item_added
+		- addToCart(productId)
+			- Вызывается по событию: AppEvents.MODAL_PRODUCT_CART_ITEM_ADDED
 			- Публикует:
-				- cart:item_added (при успехе)
-				- cart:item_add_error (при ошибке)
-				- cart:updated (всегда)
-		- removeFromCart(itemId)
-			- Вызывается по событию: modal:cart:item_removed
+				- AppEvents.CART_ITEM_ADDED (при успехе)
+				- AppEvents.CART_ITEM_ADD_ERROR (при ошибке)
+				- AppEvents.CART_UPDATED (всегда)
+		- removeFromCart(productId)
+			- Вызывается по событию: AppEvents.MODAL_CART_ITEM_REMOVED
 			- Публикует:
-				- cart:item_removed
-				- cart:updated
+				- AppEvents.CART_ITEM_REMOVED
+				- AppEvents.CART_UPDATED
 		- clearCart()
-			- Вызывается по событию: ui:order:button:payment:clicked
-			- Публикует: cart:clear
+			- Вызывается по событию: AppEvents.ORDER_SUBMITTED
+			- Публикует: AppEvents.CART_CLEAR (после успешного оформления заказа)
 
 3. **Modal Service**:
 	- Управляет открытием / закрытием модальных окон
 	- Слушает события:
-		- ui:button:cart:clicked (от Кнопки "Корзина")
-		- ui:order:button:start_clicked (от Модального окна корзины)
-		- ui:order:button:next:clicked (от Модального окна оформления заказа)
-		- ui:order:button:payment:clicked (от Модального окна контактных данных)
-		- order:submitted (от API-сервиса)
-		- product:details_requested (от Карточки товара)
+		- AppEvents.UI_BUTTON_CART_CLICKED (от Кнопки "Корзина")
+        - AppEvents.PRODUCT_DETAILS_REQUESTED (от Карточки товара)
+		- AppEvents.UI_ORDER_BUTTON_START_CLICKED (от Модального окна корзины)
+		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (от Модального окна оформления заказа)
+		- AppEvents.ORDER_SUBMITTED (от ApiService при успешной отправке заказа)
 	- **Команды**:
 		- openCartModal()
-			- Вызывается по событию: ui:button:cart:clicked
-			- Публикует: modal:opened (тип: 'cart')
+			- Вызывается по событию: AppEvents.UI_BUTTON_CART_CLICKED
+			- Публикует: AppEvents.MODAL_OPENED (тип: 'cart')
 		- openProductModal(productId)
-			- Вызывается по: product:details_requested
-			- Публикует: modal:opened (тип: 'product')
+			- Вызывается по: AppEvents.PRODUCT_DETAILS_REQUESTED
+			- Публикует: AppEvents.MODAL_OPENED (тип: 'product')
 		- openOrderModal()
-			- Вызывается по: ui:order:button:start_clicked
-			- Публикует: modal:opened (тип: 'order')
+			- Вызывается по: AppEvents.UI_ORDER_BUTTON_START_CLICKED
+			- Публикует: AppEvents.MODAL_OPENED (тип: 'order')
 		- openContactsModal()
-			- Вызывается по: ui:order:button:next:clicked
-			- Публикует:
-				- modal:closed (текущее окно)
-				- modal:opened (тип: 'contacts')
+			- Вызывается по: AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED
+			- Публикует: AppEvents.MODAL_OPENED (тип: 'contacts')
 		- openSuccessModal()
-			- Вызывается по событию: order:submitted
-			- Публикует: 
-				- modal:closed (текущее окно)
-				- modal:opened (с типом 'success')
-		- closeCurrentModal()
-			- Публикует: modal:closed
-			- Вызывается:
-				- При ручном закрытии модального окна пользователем
-				- При успешном оформлении заказа (после открытия success-модалки)
+			- Вызывается по событию: AppEvents.ORDER_SUBMITTED
+			- Публикует: AppEvents.MODAL_OPENED (с типом 'success')
+		- closeModal()
+			- Публикует: MODAL_CLOSED
+			- Вызывается при ручном закрытии модального окна пользователем
+			- Сбрасывает состояние модального окна
 
 4. **Order Service**:
 	- Управляет процессом оформления заказа
+    - Интегрирован с AppState для хранения данных заказа
 	- Слушает события:
-		- ui:order:button:start_clicked (от Модального окна корзины)
-		- ui:order:button:next:clicked (от Модального окна оформления заказа)
-		- ui:order:button:payment:clicked (от Модального окна контактных данных)
+		- AppEvents.UI_ORDER_BUTTON_START_CLICKED (от кнопки "Оформить заказ" в корзине)
+		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (от кнопки "Далее" в форме заказа)
+		- ppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED (от кнопки "Оплатить" в форме контактов)
 	- **Команды**:
 		- initOrder()
-			- Вызывается по событию: ui:order:button:start_clicked
-			- Публикует событие: order:initiated (от Модального окна оформления заказа)
-		- prepareOrder() 
-			- Вызывается по:
-				- ui:order:button:next:clicked (шаг оформления)
-				- ui:order:button:payment:clicked (финальное подтверждение)
-			- Публикует: order:ready (в API-сервис)
+			- Вызывается по событию: AppEvents.UI_ORDER_BUTTON_START_CLICKED
+			- Публикует событие: AppEvents.ORDER_INITIATED (для инициализации процесса заказа)
+		- prepareOrder(step) 
+			- Подготавливает заказ к отправке
+			- Для шага 'payment' проверяет валидность через AppState
+			- При валидности публикует AppEvents.ORDER_READY
+    	- validate()
+          - Агрегирует результаты валидации от ValidationService 
+          - Проверяет что у order: 
+            - Все обязательные поля заполнены 
+            - Нет конфликтующих значений 
+          - Формирует общий флаг isValid 
+          - Публикует AppEvents.ORDER_READY с результатом
+    - **Взаимодействие с ValidationService**:
+      - Получает события успешной/неуспешной валидации полей 
+      - Агрегирует результаты валидации отдельных полей 
+      - Принимает окончательное решение о готовности заказа 
+      - Пример цепочки: 
+        - ValidationService проверяет формат email → AppEvents.ORDER_EMAIL_VALID 
+        - OrderService получает это событие и обновляет состояние 
+        - При попытке отправки OrderService проверяет все подобные флаги
 
 5. **Validation Service**:
 	- Проверяет корректность введенных данных
 	- Слушает события:
-		- ui:order:input:delivery:changed
-		- ui:order:select:payment:changed
-		- ui:order:input:mail:changed
-		- ui:order:input:phone:changed
+		- AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED (из OrderModal - при изменении поля адреса)
+		- AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED (из OrderModal - при изменении способа оплаты)
+		- ppEvents.UI_ORDER_INPUT_MAIL_CHANGED (из ContactsModal - при изменении email)
+		- AppEvents.UI_ORDER_INPUT_PHONE_CHANGED (из ContactsModal - при изменении телефона)
 	- **Команды**:
-		- validateDelivery(address)
-			- Вызывается по событию: ui:order:input:delivery:changed
-			- Публикует: order:delivery_valid, order:validation_error
+		- validateDelivery(address: string)
+          - Проверяет форма адреса на пустоту
+          - Вызывается по событию: AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED
+          - Публикует: 
+            - AppEvents.ORDER_DELIVERY_VALID (при успехе)
+            - AppEvents.ORDER_VALIDATION_ERROR (при ошибке)
 		- validatePayment(method)
-			- Вызывается по событию: ui:order:select:payment:changed
-			- Публикует: payment:valid, payment:validation_error
+      		- Проверяет что выбран один из допустимых способов ('online' или 'cash')
+			- Вызывается по событию: AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED
+			- Публикует:
+              - AppEvents.ORDER_PAYMENT_VALID (при успехе)
+              - AppEvents.ORDER_PAYMENT_VALIDATION_ERROR (при ошибке)
 		- validateEmail(email)
-			- Вызывается по событию: ui:order:input:mail:changed
-			- Публикует: email:valid, email:validation_error
+      		- Проверяет email по регулярному выражению
+			- Вызывается по событию: AppEvents.UI_ORDER_INPUT_MAIL_CHANGED
+			- Публикует:
+              - AppEvents.ORDER_EMAIL_VALID (при успехе)
+              - AppEvents.ORDER_EMAIL_VALIDATION_ERROR (при ошибке)
 		- validatePhone(phone)
-			- Вызывается по событию: ui:order:input:phone:changed
-			- Публикует: phone:valid, phone:validation_error
-6. **AppState Service** (новый):
+			- Проверяет телефон по регулярному выражению
+            - Вызывается по событию: AppEvents.UI_ORDER_INPUT_PHONE_CHANGED
+			- Публикует:
+              - AppEvents.ORDER_PHONE_VALID (при успехе)
+              - AppEvents.ORDER_PHONE_VALIDATION_ERROR (при ошибке)
+
+6. **AppState (Service)**:
 	- Централизованное хранилище состояния приложения
+    - Не слушает события напрямую, получает данные через методы
 	- **Свойства**:
 		- catalog: IProduct[] - список товаров
 		- basket: string[] - ID товаров в корзине
+        - basketTotal: number - общая сумма корзины
 		- order: IOrderFormState - данные заказа
 		- preview: string | null - ID просматриваемого товара
 	- **Методы**:
-		- set catalog(items) - обновляет каталог, публикует state:catalog:updated
-		- set basket(items) - обновляет корзину, публикует state:basket:updated
-		- set order(form) - обновляет заказ, публикует state:order:updated
-		- set preview(id) - обновляет превью, публикует state:preview:updated
+      - set catalog(items: IProduct[]):
+        - Обновляет каталог товаров
+        - Публикует: StateEvents.CATALOG_UPDATED - при обновлении каталога товаров
+      - set basket(items: IProduct[]):
+        - Обновляет корзину
+        - Автоматически пересчитывает сумму (basketTotal)
+        - Публикует:
+          - StateEvents.BASKET_UPDATED - при изменении корзины (включая обновление суммы)
+          - AppEvents.CART_UPDATED - дополнительное событие при обновлении корзины
+      - set order(form: Partial<IOrderFormState>):
+        - Обновляет данные заказа
+        - Выполняет валидацию заказа (проверяет заполнение обязательных полей)
+        - Публикует: StateEvents.ORDER_FORM_UPDATED - при изменении данных заказа
+      - set preview(id: string | null):
+        - Устанавливает ID просматриваемого товара
+        - Публикует: StateEvents.PREVIEW_UPDATED - при изменении просматриваемого товара
+      - Геттеры:
+        - state: IAppState - возвращает текущее состояние 
+        - basketTotal: number - возвращает сумму корзины
 
 ### Основные компоненты и их события:
 
-1. **Главная страница**
+1. **Главная страница(Page)**
 	- Слушает события:
-		- products_list:loaded (от API Service) - для отрисовки каталога
-		- cart:updated (от Cart Service) - для обновления счетчика корзины
+		- StateEvents.CATALOG_UPDATED (от AppState) - для отрисовки каталога
+		- StateEvents.BASKET_UPDATED (от AppState) - для обновления счетчика корзины
 	- Публикует события:
-		- page:main:loaded (при загрузке страницы)
-		- ui:button:cart:clicked (при клике на кнопку корзины)
-		- product:details_requested (при клике на карточку товара)
+		- AppEvents.PAGE_MAIN_LOADED (при инициализации страницы - эмитится один раз)
+		- AppEvents.UI_BUTTON_CART_CLICKED (при клике на кнопку корзины)
+		- AppEvents.PRODUCT_DETAILS_REQUESTED (при клике на карточку товара)
 	
 2. **Карточка товара (в каталоге)**
-	- Слушает события:
-		- products_list:loaded (от API Service) - получение данных для отрисовки
-    - Публикует события:
-		- product:details_requested (при клике на товар)
+   - Рендерится внутри Page 
+   - Не является отдельным классом-компонентом, реализована как часть главной страницы (Page)
+   - Создается динамически в методе createProductElement() класса Page
+   - Публикует события:
+     - AppEvents.PRODUCT_DETAILS_REQUESTED (при клике на карточку товара, передает id товара)
 		
-3. **Модальное окно карточки товара**
+3. **Модальное окно карточки товара (ProductModal)**
 	- Слушает события:
-		- product:details_loaded (от API Service)
-		- cart:item_added (от Cart Service) - подтверждение добавления
-		- cart:item_add_error (от Cart Service) - ошибка добавления
+		- AppEvents.PRODUCT_DETAILS_LOADED (от ApiService) - данные товара для отображения
 	- Публикует события:
-		- modal:product:cart_item_added (при клике "Добавить в корзину")
-		- modal:closed (при закрытии окна)
+		- AppEvents.MODAL_PRODUCT_CART_ITEM_ADDED (при клике "Добавить в корзину")
+		- AppEvents.MODAL_CLOSED (при закрытии окна)
 
-4. **Модальное окно корзины**
+4. **Модальное окно корзины (CartModal)**
 	- Слушает события:
-		- cart:updated (от Cart Service)
-		- cart:item_removed (от Cart Service)
-		- cart:clear (от Cart Service)
+   		- AppEvents.MODAL_OPENED (от ModalService) - при открытии модального окна с типом 'cart'
+		- AppEvents.CART_UPDATED (от CartService) - при любом изменении состояния корзины
+		- AppEvents.CART_ITEM_ADDED (от CartService) - при успешном добавлении товара в корзину
+        - AppEvents.CART_ITEM_REMOVED (от CartService) - при удалении товара из корзины
+		- AppEvents.CART_CLEAR (от CartService) - при полной очистке корзины (после успешного оформления заказа)
 	- Публикует события:
-		- modal:cart:item_removed (при удалении товара)
-		- ui:order:button:start_clicked (при клике "Оформить заказ")
-		- modal:closed (при закрытии окна)
+		- AppEvents.MODAL_CART_ITEM_REMOVED (при клике на кнопку удаления товара) - передает ID товара
+		- AppEvents.UI_ORDER_BUTTON_START_CLICKED (при клике на кнопку "Оформить заказ")
+        - AppEvents.CART_UPDATED (при обновлении состояния корзины)
+        - AppEvents.MODAL_CLOSED (при закрытии окна)
 
-5. **Модальное окно оформления заказа (адрес+оплата)**
+5. **Модальное окно оформления заказа (OrderModal)**
 	- Слушает события:
-		- order:delivery_valid (от Validation Service)
-		- order:validation_error (от Validation Service)
-		- order:payment_valid (от Validation Service)
+		- AppEvents.ORDER_INITIATED (от OrderService) - инициализация формы заказа
+		- AppEvents.ORDER_DELIVERY_SET (сам публикует, слушает AppState) - при изменении адреса доставки
+		- AppEvents.ORDER_PAYMENT_SET (сам публикует, слушает AppState) - при изменении способа оплаты
 	- Публикует события:
-		- ui:order:input:delivery:changed (при изменении адреса)
-		- ui:order:select:payment:changed (при изменении способа оплаты)
-		- ui:order:button:next:clicked (при клике "Далее")
-		- modal:closed (при закрытии окна)
+		- AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED (при изменении поля адреса) → ValidationService.validateDelivery()
+		- AppEvents.ORDER_PAYMENT_SET (при выборе способа оплаты) → AppState
+        - AppEvents.ORDER_DELIVERY_SET (при успешном вводе адреса) → AppState
+		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (при клике "Далее") → OrderService.prepareOrder('delivery')
+		- AppEvents.MODAL_CLOSED (при закрытии окна)
 
-6. **Модальное окно контактных данных**
+6. **Модальное окно контактных данных (ContactsModal)**
 	- Слушает события:
-		- email:valid (от Validation Service)
-        - email:validation_error (от Validation Service)
-		- phone:valid (от Validation Service)
-		- phone:validation_error (от Validation Service)
+		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (от OrderModal - при переходе к шагу контактов)
+        - AppEvents.ORDER_EMAIL_VALID (от ValidationService - при успешной валидации email)
+		- AppEvents.ORDER_EMAIL_VALIDATION_ERROR (от ValidationService - при ошибке валидации email)
+		- AppEvents.ORDER_PHONE_VALID (от ValidationService - при успешной валидации телефона)
+        - AppEvents.ORDER_PHONE_VALIDATION_ERROR (от ValidationService - при ошибке валидации телефона)
 	- Публикует события:
-		- ui:order:input:mail:changed (при изменении email)
-		- ui:order:input:phone:changed (при изменении телефона)
-		- ui:order:button:payment:clicked (при клике "Оплатить")
-		- modal:closed (при закрытии окна)
+		- AppEvents.UI_ORDER_INPUT_MAIL_CHANGED (при изменении поля email)
+		- AppEvents.UI_ORDER_INPUT_PHONE_CHANGED (при изменении поля телефона)
+		- AppEvents.MODAL_OPENED с типом 'success' (при успешном подтверждении формы)
+		- AppEvents.ORDER_SUBMITTED (при отправке формы контактов - только после успешной валидации)
 
-7. **Модальное окно подтверждения заказа**
+7. **Модальное окно подтверждения заказа (SuccessModal)**
 	- Слушает события:
-		- order:submitted (от API Service)
+		- AppEvents.MODAL_OPENED (от ModalService) - с типом 'success' для активации
 	- Публикует события:
-		- modal:closed (при клике "За новыми покупками")
-		- page:main:loaded (при возврате на главную)
+		- AppEvents.MODAL_CLOSED (при закрытии окна - при клике на кнопку "За новыми покупками!", клике на крестик или клике вне окна)
 
 ## Модели данных
 
 ### Интерфейсы:
 
 ```typescript
-// Тип для способов оплаты
+/**
+ * Тип, представляющий доступные способы оплаты
+ * @typedef {'online' | 'cash'} PaymentMethod
+ */
 export type PaymentMethod = 'online' | 'cash';
 
-// Интерфейс товара
+/**
+ * Интерфейс товара, получаемого с сервера
+ * @interface IProduct
+ * @property {string} id - Уникальный идентификатор товара
+ * @property {string} title - Название товара
+ * @property {number|null} price - Цена товара (может быть null)
+ * @property {string} description - Описание товара
+ * @property {string} category - Категория товара
+ * @property {string} image - URL изображения товара
+ */
 export interface IProduct {
-  id: string; 
-  title: string;
-  price: number | null;
-  description: string;
-  category: string;
-  image: string;
+	id: string;
+	title: string;
+	price: number | null;
+	description: string;
+	category: string;
+	image: string;
 }
 
-// Интерфейс корзины
-export interface ICart {
-  items: string[];   // Массив id товаров
-  total: number;     // Общая стоимость
-}
-
-// Данные для оформления заказа
+/**
+ * Интерфейс данных для отправки заказа на сервер
+ * @interface IOrderRequest
+ * @property {PaymentMethod} payment - Выбранный способ оплаты
+ * @property {string} email - Email покупателя
+ * @property {string} phone - Телефон покупателя
+ * @property {string} address - Адрес доставки
+ * @property {number} total - Общая сумма заказа
+ * @property {string[]} items - Массив идентификаторов товаров в заказе
+ */
 export interface IOrderRequest {
-  payment: PaymentMethod;
-  email: string;
-  phone: string;
-  address: string;
-  total: number;
-  items: string[];   // Массив id товаров
+	payment: PaymentMethod;
+	email: string;
+	phone: string;
+	address: string;
+	total: number;
+	items: string[];
 }
 
-// Ответ сервера на заказ
+/**
+ * Интерфейс ответа сервера на оформление заказа
+ * @interface IOrderResponse
+ * @property {string} id - Идентификатор созданного заказа
+ * @property {number} total - Общая сумма заказа
+ */
 export interface IOrderResponse {
-  id: string;       // ID заказа
-  total: number;    // Сумма заказа
+	id: string;
+	total: number;
 }
 
-// Тип для данных формы
+/**
+ * Тип данных формы заказа (исключает поля total и items из IOrderRequest)
+ * @typedef {Omit<IOrderRequest, 'total' | 'items'>} OrderFormData
+ */
 export type OrderFormData = Omit<IOrderRequest, 'total' | 'items'>;
+
+/**
+ * Интерфейс ошибки валидации формы
+ * @interface IValidationError
+ * @property {'address' | 'email' | 'phone' | 'payment'} field - Поле, в котором обнаружена ошибка
+ * @property {string} message - Сообщение об ошибке
+ */
+export interface IValidationError {
+	field: 'address' | 'email' | 'phone' | 'payment';
+	message: string;
+}
+
+/**
+ * Интерфейс состояния API-запросов
+ * @interface IApiState
+ * @property {boolean} isLoading - Флаг выполнения запроса
+ * @property {number|null} lastUpdated - Время последнего обновления данных (timestamp)
+ */
+export interface IApiState {
+	isLoading: boolean;
+	lastUpdated: number | null;
+}
+
+/**
+ * Интерфейс состояния модальных окон
+ * @interface IModalState
+ * @property {boolean} isOpened - Флаг открытия модального окна
+ * @property {'product' | 'cart' | 'order' | 'contacts' | 'success' | null} type - Тип открытого модального окна
+ * @property {string|null} productId - Идентификатор товара (для модального окна товара)
+ */
+export interface IModalState {
+	isOpened: boolean;
+	type: 'product' | 'cart' | 'order' | 'contacts' | 'success' | null;
+	productId: string | null;
+}
+
+/**
+ * Интерфейс состояния формы заказа
+ * @interface IOrderFormState
+ * @property {PaymentMethod|null} payment - Выбранный способ оплаты
+ * @property {string} address - Введенный адрес доставки
+ * @property {string} email - Введенный email
+ * @property {string} phone - Введенный телефон
+ * @property {boolean} isValid - Флаг валидности всей формы
+ * @property {IValidationError[]} errors - Массив ошибок валидации
+ */
+export interface IOrderFormState {
+	payment: PaymentMethod | null;
+	address: string;
+	email: string;
+	phone: string;
+	isValid: boolean;
+	errors: IValidationError[];
+}
+
+/**
+ * Интерфейс общего состояния приложения
+ * @interface IAppState
+ * @property {IProduct[]} catalog - Список товаров в каталоге
+ * @property {string[]} basket - Идентификаторы товаров в корзине
+ * @property {IOrderFormState} order - Состояние формы заказа
+ * @property {string|null} preview - Идентификатор товара для предпросмотра
+ */
+export interface IAppState {
+	catalog: IProduct[];
+	basket: IProduct[];
+	basketTotal: number;
+	order: IOrderFormState;
+	preview: string | null;
+}
+
+/**
+ * Интерфейс сервиса корзины для SuccessModal
+ * @interface ICartServiceForSuccess
+ * @property {() => number} getTotalPrice - Получить сумму корзины
+ * @property {() => void} clearCart - Очистить корзину
+ */
+export interface ICartServiceForSuccess {
+	getTotalPrice(): number;
+	clearCart(): void;
+}
 ```
 
 ## Архитектурный подход
 
-Проект использует:
-- Компонентный подход для UI элементов
-- TypeScript для типизации данных
-- Webpack для сборки проекта
-- SCSS для стилей
-- API для взаимодействия с сервером
-
-Логика разделена на:
-- Компоненты представления
-- Модели данных
-- Утилиты и вспомогательные функции
+Проект использует событийно-ориентированную архитектуру с четким разделением ответственностей между компонентами. Основные принципы:
+1. Событийная модель:
+   - Центральный EventEmitter для управления всеми событиями приложения 
+   - Все взаимодействия между компонентами происходят через события 
+   - Четкая типизация событий в types/events.ts
+2. Слоистая структура:
+   - Базовый слой (EventEmitter, Api) - фундаментальные классы
+   - Сервисы (ApiService, CartService и др.) - бизнес-логика
+   - UI компоненты (Page, модальные окна) - представление
+   - Состояние (AppState) - централизованное управление данными
+3. Ключевые особенности:
+   - Одностраничное приложение (SPA) с динамическим рендерингом 
+   - Строгая типизация на TypeScript 
+   - Разделение данных (AppState) и представления (компоненты)
+   - Валидация данных через специализированный сервис 
+4. Потоки данных:
+   - Пользовательские действия → События → Сервисы → Обновление состояния → Рендеринг 
+   - API взаимодействия инкапсулированы в ApiService 
+   - Состояние корзины и заказов управляется через AppState
+5. Принципы проектирования:
+   - Единая точка истины (AppState для данных)
+   - Инверсия зависимостей (DI через конструкторы)
+   - Открытость/закрытость (расширяемость через события)
+   - Разделение интерфейсов (ICartServiceForSuccess и др.)
+6. Технологический стек:
+   - TypeScript для строгой типизации 
+   - SCSS для стилей 
+   - Webpack для сборки 
+   - Fetch API для работы с сервером
 
 ## Установка и запуск
 
@@ -323,69 +494,65 @@ yarn build
 ## Граф связей визуальных компонентов
 
 ```
-Главная страница
-├── Каталог товаров
+Главная страница (Page)
+├── Каталог товаров (рендерится внутри Page)
 │   └── Карточка товара (кнопка)
-├── Кнопка корзины
+├── Кнопка корзины (в хедере)
 │   └── Счётчик товаров
-└── Модальное окно 
-    ├── Модальное окно карточки товара
+└── Модальные окна (через ModalService)
+    ├── Модальное окно карточки товара (ProductModal)
     │    └── Кнопка "Добавить в корзину"
-    ├── Модальное окно корзины
+    ├── Модальное окно корзины (CartModal)
     │    ├── Список товаров
+    │    ├── Кнопка удаления товара
     │    └── Кнопка "Оформить заказ"
-    ├── Модальное окно оформления заказа
-    │    ├── Форма адреса
+    ├── Модальное окно оформления заказа (OrderModal)
+    │    ├── Форма заполнения адреса
+    │    ├── Выбор способа оплаты
     │    └── Кнопка "Далее"
-    ├── Модальное окно контактных данных
+    ├── Модальное окно контактных данных (ContactsModal)
+    │    ├── Форма заполнения email
+    │    ├── Форма заполнения телефона
     │    └── Кнопка "Оплатить"
-    └── Модальное окно подтверждения заказа
+    └── Модальное окно подтверждения заказа (SuccessModal)
         └── Кнопка "За новыми покупками!"               
 ```
 
 ## Граф событий
 
 1. **Инициализация приложения**:
-	- page:main:loaded → API Service.loadProducts() → сохраняет в AppState → state:catalog:updated → Главная страница (отрисовка)
+	- AppEvents.PAGE_MAIN_LOADED → ApiService.loadProducts() → сохраняет в AppState → StateEvents.CATALOG_UPDATED → Page (отрисовка каталога)
    
 2. **Просмотр товара**:
-	- Пользователь кликает на товар → product:details_requested → API Service.loadProductDetails() → product:details_loaded → Модальное окно товара
+	- Клик на товар → AppEvents.PRODUCT_DETAILS_REQUESTED → ApiService.loadProductDetails() → AppEvents.PRODUCT_DETAILS_LOADED → ProductModal (отображение)
 
 3. **Работа с корзиной**:
-    - modal:product:cart_item_added → Cart Service.addToCart() → [cart:item_added, cart:updated] → [Список товаров корзины, Счётчик]
-    - modal:cart:item_removed → Cart Service.removeFromCart() → [cart:item_removed, cart:updated] → [Список товаров корзины, Счётчик]
-    - ui:button:cart:clicked → Modal Service → modal:opened → Модальное окно корзины (открытие)
-
+   - AppEvents.MODAL_PRODUCT_CART_ITEM_ADDED → CartService.addToCart() → [AppEvents.CART_ITEM_ADDED, AppEvents.CART_UPDATED] → [CartModal, Page]    - modal:cart:item_removed → Cart Service.removeFromCart() → [cart:item_removed, cart:updated] → [Список товаров корзины, Счётчик]
+   - AppEvents.MODAL_CART_ITEM_REMOVED → CartService.removeFromCart() → [AppEvents.CART_ITEM_REMOVED, AppEvents.CART_UPDATED] → [CartModal, Page]
+   - AppEvents.UI_BUTTON_CART_CLICKED → ModalService.openCartModal() → AppEvents.MODAL_OPENED → CartModal (открытие)
 4. **Оформление заказа**:
-    - ui:order:button:start_clicked → Order Service.initOrder() → order:initiated → Модальное окно оформления заказа (открытие)
+   - AppEvents.UI_ORDER_BUTTON_START_CLICKED → OrderService.initOrder() → AppEvents.ORDER_INITIATED → OrderModal (открытие)
+   
+   **Шаги оформления**:
+   a) Ввод адреса и оплаты:
+      - AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED → ValidationService.validateDelivery()
+      - AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED → ValidationService.validatePayment()
+      - Успешная валидация → AppEvents.ORDER_DELIVERY_VALID/AppEvents.ORDER_PAYMENT_VALID → OrderModal (разблокировка кнопки)
+   b) Переход к контактам:
+      - AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED → ModalService.openContactsModal() → ContactsModal (открытие)
+   c) Ввод контактов:
+      - AppEvents.UI_ORDER_INPUT_MAIL_CHANGED → ValidationService.validateEmail()
+      - AppEvents.UI_ORDER_INPUT_PHONE_CHANGED → ValidationService.validatePhone()
+      - Успешная валидация → AppEvents.ORDER_EMAIL_VALID/AppEvents.ORDER_PHONE_VALID → ContactsModal (разблокировка кнопки)
 
-   Шаги оформления:
-   a) Ввод адреса:
-    - order:delivery_set → [API Service, Validation Service.validateDelivery()] → order:delivery_valid → Модальное окно оформления заказа (разблокировка кнопки)
-
-   b) Выбор оплаты:
-    - order:payment_set → [API Service, Validation Service.validatePayment()] → order:payment_valid → Модальное окно оформления заказа (разблокировка кнопки)
-
-   c) Контактные данные:
-    - [ui:order:input:mail:changed, ui:order:input:phone:changed] → Validation Service.validateContactForm() → [order:delivery_valid/order:payment_valid] → Модальное окно контактных данных (разблокировка кнопки)
-
-   d) Подтверждение:
-    - ui:order:button:payment:clicked → Cart Service.clearCart() → cart:clear → [Список товаров, Счётчик]
-    - ui:order:button:payment:clicked → Order Service.prepareOrder() → order:ready → API Service.submitOrder() → order:submitted → Modal Service → modal:closed → Модальное окно подтверждения заказа (открытие)
+   d) Отправка заказа:
+   - Submit формы → AppEvents.ORDER_SUBMITTED → ApiService.submitOrder() →
+     - AppEvents.ORDER_SENT (начало отправки)
+     - При успехе: AppEvents.ORDER_SUBMITTED с данными заказа → ModalService.openSuccessModal() → SuccessModal (открытие)
+     - CartService.clearCart() → AppEvents.CART_CLEAR
 
 5. **Закрытие модальных окон**:
-    - Любое закрытие → modal:closed → Обновление UI
-
-**Ключевые потоки событий**:
-
-A. Добавление товара в корзину:
-Карточка товара → modal:product:cart_item_added → Cart Service → cart:item_added → Корзина
-
-B. Оформление заказа:
-Корзина → ui:order:button:start_clicked → Order Service → Модальные окна оформления → order:ready → API Service → order:submitted → Подтверждение
-
-C. Валидация данных:
-Формы ввода → [order:delivery_set, order:payment_set, input:changed] → Validation Service → [valid/error] → UI feedback
+   - Любое закрытие → ModalService.closeModal() → AppEvents.MODAL_CLOSED → обновление UI
 
 ## Важные файлы:
 - src/pages/index.html — HTML-файл главной страницы
