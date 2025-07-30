@@ -2,7 +2,8 @@ import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
 import { AppEvents } from "../types/events";
-import { IOrderResponse } from "../types";
+import { ICartServiceForSuccess, IOrderResponse } from '../types';
+import { AppState } from './services/AppState';
 
 /**
  * Модальное окно успешного оформления заказа
@@ -12,10 +13,7 @@ import { IOrderResponse } from "../types";
 export class SuccessModal extends Modal {
 	constructor(
 		protected eventEmitter: EventEmitter,
-		private cartService: {
-			getTotalPrice: () => number;
-			clearCart: () => void;
-		}
+		private cartService: ICartServiceForSuccess
 	) {
 		super(eventEmitter);
 
@@ -45,8 +43,9 @@ export class SuccessModal extends Modal {
 		// Очищаем корзину после отображения суммы
 		this.cartService.clearCart();
 
+		// Добавляем обработчик закрытия модального окна
 		closeButton.addEventListener('click', () => {
-			this.close();
+			this.close(); // Закрываем модальное окно
 		});
 
 		this.render(success);

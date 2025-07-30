@@ -1,9 +1,9 @@
 import { EventEmitter } from "../base/events";
 import { AppEvents } from "../../types/events";
-import { IProduct } from "../../types";
+import { ICartServiceForSuccess, IProduct } from '../../types';
 import { AppState } from "./AppState";
 
-export class CartService {
+export class CartService implements ICartServiceForSuccess {
 	private eventEmitter: EventEmitter;
 	private appState: AppState;
 
@@ -53,7 +53,6 @@ export class CartService {
 	}
 
 	getTotalPrice(): number {
-		return this.appState.state.basket
-			.reduce((total, item) => total + (item.price || 0), 0);
+		return this.appState.basketTotal;
 	}
 }

@@ -11,6 +11,7 @@ export class AppState {
 	private _state: IAppState = {
 		catalog: [],
 		basket: [],
+		basketTotal: 0,
 		order: {
 			payment: null,
 			address: '',
@@ -40,11 +41,22 @@ export class AppState {
 	/** Обновление корзины */
 	set basket(items: IProduct[]) {
 		this._state.basket = items;
+		this.updateBasketTotal(); // Вызываем отдельный метод для обновления суммы
 		this.events.emit(StateEvents.BASKET_UPDATED, {
-			basket: this._state.basket
+			basket: this._state.basket,
+			basketTotal: this._state.basketTotal
 		});
-		// Эмитим событие обновления корзины
 		this.events.emit(AppEvents.CART_UPDATED);
+	}
+
+	/** Обновление суммы корзины */
+	private updateBasketTotal(): void {
+		this._state.basketTotal = this._state.basket.reduce((sum, item) => sum + (item.price || 0), 0);
+	}
+
+	/** Геттер для суммы корзины */
+	get basketTotal(): number {
+		return this._state.basketTotal;
 	}
 
 	/** Обновление состояния заказа */

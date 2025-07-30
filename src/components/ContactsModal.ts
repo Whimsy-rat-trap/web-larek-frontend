@@ -11,7 +11,9 @@ export class ContactsModal extends Modal {
 	private emailEntered = false;
 	private phoneEntered = false;
 
-	constructor(eventEmitter: EventEmitter) {
+	constructor(
+		eventEmitter: EventEmitter,
+	) {
 		super(eventEmitter);
 		eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () => this.renderContactsForm());
 	}
@@ -48,7 +50,6 @@ export class ContactsModal extends Modal {
 				// Только открываем модальное окно успеха
 				// Очистка корзины произойдет внутри SuccessModal
 				this.eventEmitter.emit(AppEvents.MODAL_OPENED, { type: 'success' });
-
 				// Позже, при подключении бэкенда, здесь будет:
 				// this.eventEmitter.emit(AppEvents.ORDER_SUBMITTED);
 			}
