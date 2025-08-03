@@ -9,14 +9,26 @@ import { AppState } from './services/AppState';
  * Модальное окно успешного оформления заказа
  * @class SuccessModal
  * @extends Modal
+ * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
+ * @property {ICartServiceForSuccess} cartService - Сервис корзины для получения данных
  */
 export class SuccessModal extends Modal {
+	/**
+	 * Создает экземпляр SuccessModal
+	 * @constructor
+	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
+	 * @param {ICartServiceForSuccess} cartService - Сервис корзины
+	 */
 	constructor(
 		protected eventEmitter: EventEmitter,
 		private cartService: ICartServiceForSuccess
 	) {
 		super(eventEmitter);
 
+		/**
+		 * Подписка на событие открытия модального окна
+		 * @listens AppEvents.MODAL_OPENED
+		 */
 		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
 			if (data.type === 'success') {
 				this.renderSuccess();
@@ -27,27 +39,32 @@ export class SuccessModal extends Modal {
 	/**
 	 * Рендерит сообщение об успешном заказе
 	 * @private
-	 * @param {IOrderResponse} order - Данные заказа
+	 * @emits AppEvents.CART_CLEAR - После очистки корзины
+	 * @emits AppEvents.MODAL_CLOSED - При закрытии модального окна
+	 * @returns {void}
 	 */
 	private renderSuccess(): void {
+		// Получаем шаблон и клонируем его
 		const template = ensureElement<HTMLTemplateElement>('#success');
 		const success = cloneTemplate(template);
 
+		// Находим элементы в DOM
 		const description = ensureElement<HTMLElement>('.order-success__description', success);
 		const closeButton = ensureElement<HTMLButtonElement>('.order-success__close', success);
 
-		// Получаем сумму перед очисткой корзины
+		// Устанавливаем сумму заказа
 		const total = this.cartService.getTotalPrice();
 		description.textContent = `Списано ${total} синапсов`;
 
-		// Очищаем корзину после отображения суммы
+		// Очищаем корзину
 		this.cartService.clearCart();
 
-		// Добавляем обработчик закрытия модального окна
+		// Настраиваем обработчик закрытия
 		closeButton.addEventListener('click', () => {
-			this.close(); // Закрываем модальное окно
+			this.close();
 		});
 
+		// Рендерим модальное окно
 		this.render(success);
 	}
 }

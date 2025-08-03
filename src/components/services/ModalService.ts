@@ -3,9 +3,12 @@ import { AppEvents } from "../../types/events";
 import { IModalState } from "../../types";
 
 /**
- * Сервис управления модальными окнами
+ * Сервис управления модальными окнами приложения
  * @class ModalService
  * @property {IModalState} state - Текущее состояние модальных окон
+ * @property {boolean} state.isOpened - Флаг открытого состояния модального окна
+ * @property {'product' | 'cart' | 'order' | 'contacts' | 'success' | null} state.type - Тип текущего модального окна
+ * @property {string | null} state.productId - ID товара для модального окна продукта
  */
 export class ModalService {
 	private state: IModalState = {
@@ -16,6 +19,7 @@ export class ModalService {
 
 	/**
 	 * Создает экземпляр ModalService
+	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
 	 */
 	constructor(private eventEmitter: EventEmitter) {
@@ -23,18 +27,20 @@ export class ModalService {
 	}
 
 	/**
-	 * Настраивает обработчики событий для сервиса модальных окон
+	 * Настраивает обработчики событий для управления модальными окнами
 	 * @private
-	 * @listens AppEvents.UI_BUTTON_CART_CLICKED При клике на кнопку корзины → вызывает openCartModal()
-	 * @listens AppEvents.PRODUCT_DETAILS_REQUESTED При запросе деталей товара → вызывает openProductModal()
-	 * @listens AppEvents.UI_ORDER_BUTTON_START_CLICKED При начале оформления заказа → вызывает openOrderModal()
-	 * @listens AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED При переходе к следующему шагу → вызывает openContactsModal()
-	 * @listens AppEvents.ORDER_SUBMITTED При успешном оформлении заказа → вызывает openSuccessModal()
+	 * @listens AppEvents.UI_BUTTON_BASKET_CLICKED - Открывает модальное окно корзины
+	 * @listens AppEvents.UI_PRODUCT_CLICKED - Открывает модальное окно товара
+	 * @listens AppEvents.UI_ORDER_BUTTON_START_CLICKED - Открывает модальное окно оформления заказа
+	 * @listens AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - Открывает модальное окно контактов
+	 * @listens AppEvents.ORDER_SUBMITTED - Открывает модальное окно успешного заказа
 	 */
 	private setupEventListeners(): void {
-		this.eventEmitter.on(AppEvents.UI_BUTTON_CART_CLICKED, () => this.openCartModal());
-		this.eventEmitter.on(AppEvents.PRODUCT_DETAILS_REQUESTED, (data: { id: string }) =>
-			this.openProductModal(data.id));
+		this.eventEmitter.on(AppEvents.UI_BUTTON_BASKET_CLICKED, () => this.openCartModal());
+		this.eventEmitter.on(AppEvents.UI_PRODUCT_CLICKED, (data: { id: string }) => {
+			this.eventEmitter.emit(AppEvents.PRODUCT_DETAILS_REQUESTED, data);
+			this.openProductModal(data.id);
+		});
 		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_START_CLICKED, () =>
 			this.openOrderModal());
 		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () =>
@@ -46,7 +52,8 @@ export class ModalService {
 	/**
 	 * Открывает модальное окно корзины
 	 * @private
-	 * @emits AppEvents.MODAL_OPENED С типом 'cart'
+	 * @emits AppEvents.MODAL_OPENED - С параметрами { type: 'cart' }
+	 * @returns {void}
 	 */
 	private openCartModal(): void {
 		this.state.isOpened = true;
@@ -57,8 +64,9 @@ export class ModalService {
 	/**
 	 * Открывает модальное окно товара
 	 * @private
-	 * @param {string} productId - ID товара
-	 * @emits AppEvents.MODAL_OPENED С типом 'product'
+	 * @param {string} productId - ID товара для отображения
+	 * @emits AppEvents.MODAL_OPENED - С параметрами { type: 'product', productId: string }
+	 * @returns {void}
 	 */
 	private openProductModal(productId: string): void {
 		this.state.isOpened = true;
@@ -70,7 +78,8 @@ export class ModalService {
 	/**
 	 * Открывает модальное окно оформления заказа
 	 * @private
-	 * @emits AppEvents.MODAL_OPENED С типом 'order'
+	 * @emits AppEvents.MODAL_OPENED - С параметрами { type: 'order' }
+	 * @returns {void}
 	 */
 	private openOrderModal(): void {
 		this.state.isOpened = true;
@@ -79,9 +88,10 @@ export class ModalService {
 	}
 
 	/**
-	 * Открывает модальное окно контактов
+	 * Открывает модальное окно ввода контактных данных
 	 * @private
-	 * @emits AppEvents.MODAL_OPENED С типом 'contacts'
+	 * @emits AppEvents.MODAL_OPENED - С параметрами { type: 'contacts' }
+	 * @returns {void}
 	 */
 	private openContactsModal(): void {
 		this.state.isOpened = true;
@@ -90,9 +100,10 @@ export class ModalService {
 	}
 
 	/**
-	 * Открывает модальное окно успешного заказа
+	 * Открывает модальное окно успешного оформления заказа
 	 * @private
-	 * @emits AppEvents.MODAL_OPENED С типом 'success'
+	 * @emits AppEvents.MODAL_OPENED - С параметрами { type: 'success' }
+	 * @returns {void}
 	 */
 	private openSuccessModal(): void {
 		this.state.isOpened = true;
@@ -103,11 +114,13 @@ export class ModalService {
 	/**
 	 * Закрывает текущее модальное окно и сбрасывает его состояние
 	 * @public
-	 * @emits AppEvents.MODAL_CLOSED
+	 * @emits AppEvents.MODAL_CLOSED - При закрытии модального окна
+	 * @returns {void}
 	 */
 	public closeModal(): void {
 		this.state.isOpened = false;
 		this.state.type = null;
 		this.state.productId = null;
+		this.eventEmitter.emit(AppEvents.MODAL_CLOSED);
 	}
 }

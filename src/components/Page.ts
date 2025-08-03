@@ -22,6 +22,7 @@ export class Page {
 	 * Создает экземпляр Page
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
+	 * @throws {Error} Если не удалось найти необходимые DOM-элементы
 	 */
 	constructor(eventEmitter: EventEmitter) {
 		this.eventEmitter = eventEmitter;
@@ -36,10 +37,10 @@ export class Page {
 	/**
 	 * Настраивает обработчики событий для главной страницы
 	 * @private
-	 * @listens StateEvents.CATALOG_UPDATED При загрузке списка товаров вызывает renderProducts()
-	 * @listens AppEvents.CART_UPDATED При обновлении корзины вызывает updateBasketCounter()
+	 * @listens StateEvents.CATALOG_UPDATED - При обновлении каталога товаров вызывает renderProducts()
+	 * @listens StateEvents.BASKET_UPDATED - При обновлении корзины вызывает updateBasketCounter()
 	 */
-	private setupEventListeners() {
+	private setupEventListeners(): void {
 		this.eventEmitter.on(StateEvents.CATALOG_UPDATED,
 			(data: { catalog: IProduct[] }) => this.renderProducts(data.catalog));
 		this.eventEmitter.on(StateEvents.BASKET_UPDATED,
@@ -49,20 +50,20 @@ export class Page {
 	/**
 	 * Настраивает обработчики UI событий
 	 * @private
-	 * @emits AppEvents.UI_BUTTON_CART_CLICKED При клике на кнопку корзины
+	 * @emits AppEvents.UI_BUTTON_BASKET_CLICKED - При клике на кнопку корзины
 	 */
-	private setupUIListeners() {
+	private setupUIListeners(): void {
 		this.basketButton.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.UI_BUTTON_CART_CLICKED);
+			this.eventEmitter.emit(AppEvents.UI_BUTTON_BASKET_CLICKED);
 		});
 	}
 
 	/**
-	 * Отображает список товаров
+	 * Отображает список товаров в галерее
 	 * @private
 	 * @param {IProduct[]} products - Массив товаров для отображения
 	 */
-	private renderProducts(products: IProduct[]) {
+	private renderProducts(products: IProduct[]): void {
 		this.gallery.innerHTML = '';
 		products.forEach(product => {
 			const productElement = this.createProductElement(product);
@@ -71,11 +72,11 @@ export class Page {
 	}
 
 	/**
-	 * Создает DOM-элемент товара
+	 * Создает DOM-элемент товара для каталога
 	 * @private
 	 * @param {IProduct} product - Данные товара
-	 * @returns {HTMLElement} Созданный элемент товара
-	 * @emits AppEvents.PRODUCT_DETAILS_REQUESTED При клике на товар
+	 * @returns {HTMLElement} Созданный DOM-элемент товара
+	 * @emits AppEvents.UI_PRODUCT_CLICKED - При клике на товар
 	 */
 	private createProductElement(product: IProduct): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#card-catalog');
@@ -86,20 +87,21 @@ export class Page {
 		const category = card.querySelector('.card__category') as HTMLElement;
 		const price = card.querySelector('.card__price') as HTMLElement;
 
+		// Заполняем данные товара
 		title.textContent = product.title;
 		image.src = `${CDN_URL}${product.image}`;
 		image.alt = product.title;
 		category.textContent = product.category;
 		price.textContent = product.price ? `${product.price} синапсов` : 'Бесценно';
 
-		// Добавляем класс для категории
+		// Настраиваем класс категории
 		const categoryName = product.category as CategoryType;
 		const categoryClass = `card__category_${settings.categories[categoryName]}`;
 		category.classList.add(categoryClass);
 
-		// Обработчик клика на товар
+		// Настраиваем обработчик клика
 		card.querySelector('.card')?.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.PRODUCT_DETAILS_REQUESTED, { id: product.id });
+			this.eventEmitter.emit(AppEvents.UI_PRODUCT_CLICKED, { id: product.id });
 		});
 
 		return card as HTMLElement;
@@ -110,7 +112,7 @@ export class Page {
 	 * @private
 	 * @param {number} count - Количество товаров в корзине
 	 */
-	private updateBasketCounter(count: number) {
+	private updateBasketCounter(count: number): void {
 		this.basketCounter.textContent = count.toString();
 	}
 }

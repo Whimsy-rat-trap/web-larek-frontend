@@ -4,22 +4,52 @@ import { ensureElement, cloneTemplate } from "../utils/utils";
 import { AppEvents } from "../types/events";
 import { IProduct } from "../types";
 
+/**
+ * Модальное окно корзины
+ * @class CartModal
+ * @extends Modal
+ * @property {HTMLButtonElement} checkoutButton - Кнопка оформления заказа
+ * @property {Object} cartService - Сервис корзины
+ * @property {Function} cartService.getCartItems - Получение товаров в корзине
+ * @property {Function} cartService.getTotalPrice - Получение общей суммы
+ */
 export class CartModal extends Modal {
 	private checkoutButton: HTMLButtonElement;
 
+	/**
+	 * Конструктор класса CartModal
+	 * @constructor
+	 * @param {EventEmitter} eventEmitter - Эмиттер событий
+	 * @param {Object} cartService - Сервис корзины
+	 * @param {Function} cartService.getCartItems - Получает товары в корзине
+	 * @param {Function} cartService.getTotalPrice - Получает общую сумму
+	 */
 	constructor(eventEmitter: EventEmitter, private cartService: {
 		getCartItems: () => IProduct[];
 		getTotalPrice: () => number;
 	}) {
 		super(eventEmitter);
 
+		/**
+		 * Подписка на открытие модального окна корзины
+		 * @listens AppEvents.MODAL_OPENED
+		 */
 		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
 			if (data.type === 'cart') this.renderCart();
 		});
 
-		eventEmitter.on(AppEvents.CART_UPDATED, () => this.renderCart());
+		/**
+		 * Подписка на обновление корзины
+		 * @listens AppEvents.BASKET_UPDATED
+		 */
+		eventEmitter.on(AppEvents.BASKET_UPDATED, () => this.renderCart());
 	}
 
+	/**
+	 * Рендерит содержимое корзины
+	 * @private
+	 * @emits AppEvents.UI_ORDER_BUTTON_START_CLICKED - При клике на оформление заказа
+	 */
 	private renderCart(): void {
 		const template = ensureElement<HTMLTemplateElement>('#basket');
 		const cartElement = cloneTemplate(template);
@@ -51,6 +81,14 @@ export class CartModal extends Modal {
 		super.render(cartElement);
 	}
 
+	/**
+	 * Рендерит отдельный элемент корзины
+	 * @private
+	 * @param {IProduct} item - Данные товара
+	 * @param {number} index - Порядковый номер товара
+	 * @param {HTMLElement} container - Контейнер для вставки элемента
+	 * @emits AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - При удалении товара из корзины
+	 */
 	private renderCartItem(item: IProduct, index: number, container: HTMLElement): void {
 		const itemTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 		const itemElement = cloneTemplate(itemTemplate);
@@ -65,7 +103,7 @@ export class CartModal extends Modal {
 		indexElement.textContent = index.toString();
 
 		deleteButton.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.MODAL_CART_ITEM_REMOVED, { id: item.id });
+			this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: item.id });
 		});
 
 		container.appendChild(itemElement);

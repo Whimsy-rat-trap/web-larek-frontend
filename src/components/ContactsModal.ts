@@ -2,7 +2,19 @@ import { Modal } from "./Modal";
 import { EventEmitter } from "./base/events";
 import { ensureElement, cloneTemplate } from "../utils/utils";
 import { AppEvents } from "../types/events";
+import { settings } from '../utils/constants';
 
+/**
+ * Модальное окно для ввода контактных данных
+ * @class ContactsModal
+ * @extends Modal
+ * @property {HTMLButtonElement} submitButton - Кнопка отправки формы
+ * @property {HTMLInputElement} emailInput - Поле ввода email
+ * @property {HTMLInputElement} phoneInput - Поле ввода телефона
+ * @property {HTMLElement} errorContainer - Контейнер для отображения ошибок
+ * @property {boolean} emailEntered - Флаг валидности email
+ * @property {boolean} phoneEntered - Флаг валидности телефона
+ */
 export class ContactsModal extends Modal {
 	private submitButton: HTMLButtonElement;
 	private emailInput: HTMLInputElement;
@@ -11,6 +23,11 @@ export class ContactsModal extends Modal {
 	private emailEntered = false;
 	private phoneEntered = false;
 
+	/**
+	 * Конструктор класса ContactsModal
+	 * @constructor
+	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
+	 */
 	constructor(
 		eventEmitter: EventEmitter,
 	) {
@@ -18,6 +35,15 @@ export class ContactsModal extends Modal {
 		eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () => this.renderContactsForm());
 	}
 
+	/**
+	 * Рендерит форму ввода контактных данных
+	 * @private
+	 * @emits AppEvents.ORDER_EMAIL_SET - При изменении email
+	 * @emits AppEvents.UI_ORDER_INPUT_PHONE_CHANGED - При изменении телефона
+	 * @emits AppEvents.ORDER_PHONE_SET - При изменении телефона
+	 * @emits AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - При клике на оплату
+	 * @emits AppEvents.ORDER_READY - При готовности заказа
+	 */
 	private renderContactsForm(): void {
 		const template = ensureElement<HTMLTemplateElement>('#contacts');
 		const form = cloneTemplate(template);
@@ -29,35 +55,51 @@ export class ContactsModal extends Modal {
 
 		// Обработчики событий
 		this.emailInput.addEventListener('input', () => {
-			this.emailEntered = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.emailInput.value.trim());
-			this.eventEmitter.emit(AppEvents.UI_ORDER_INPUT_MAIL_CHANGED, {
-				value: this.emailInput.value
-			});
+			const email = this.emailInput.value.trim();
+			this.emailEntered = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, { email });
 			this.updateValidationState();
 		});
 
 		this.phoneInput.addEventListener('input', () => {
-			this.phoneEntered = /^\+?\d[\d\s\-\(\)]{6,}\d$/.test(this.phoneInput.value.trim());
+			// Ограничиваем ввод только цифрами и +
+			let value = this.phoneInput.value.replace(/[^0-9+]/g, '');
+
+			// Обеспечиваем, чтобы + был только в начале
+			if (value.includes('+')) {
+				value = '+' + value.replace(/\+/g, '');
+			}
+
+			// Ограничиваем длину (1 символ + и 11 цифр)
+			if (value.length > 12) {
+				value = value.substring(0, 12);
+			}
+
+			this.phoneInput.value = value;
+
+			this.phoneEntered = /^\+[0-9]{11}$/.test(value);
 			this.eventEmitter.emit(AppEvents.UI_ORDER_INPUT_PHONE_CHANGED, {
 				value: this.phoneInput.value
 			});
+			this.eventEmitter.emit(AppEvents.ORDER_PHONE_SET, { phone: value });
 			this.updateValidationState();
 		});
 
 		form.addEventListener('submit', (event) => {
 			event.preventDefault();
 			if (this.isFormValid()) {
-				// Только открываем модальное окно успеха
-				// Очистка корзины произойдет внутри SuccessModal
-				this.eventEmitter.emit(AppEvents.MODAL_OPENED, { type: 'success' });
-				// Позже, при подключении бэкенда, здесь будет:
-				// this.eventEmitter.emit(AppEvents.ORDER_SUBMITTED);
+				this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED);
+				this.eventEmitter.emit(AppEvents.ORDER_READY);
 			}
 		});
 
 		super.render(form);
 	}
 
+	/**
+	 * Обновляет состояние валидации формы
+	 * @private
+	 */
 	private updateValidationState(): void {
 		this.errorContainer.innerHTML = '';
 
@@ -66,19 +108,29 @@ export class ContactsModal extends Modal {
 		} else if (this.phoneEntered && !this.emailEntered) {
 			this.showError('email', 'Необходимо ввести email');
 		} else if (!this.emailEntered && !this.phoneEntered) {
-			// Не показываем ошибки если ничего не введено
 			this.errorContainer.innerHTML = '';
 		}
 
 		this.submitButton.disabled = !this.isFormValid();
 	}
 
+	/**
+	 * Проверяет валидность формы
+	 * @private
+	 * @returns {boolean} Возвращает true если форма валидна
+	 */
 	private isFormValid(): boolean {
 		return this.emailEntered && this.phoneEntered;
 	}
 
+	/**
+	 * Отображает сообщение об ошибке
+	 * @private
+	 * @param {string} field - Поле с ошибкой
+	 * @param {string} message - Текст ошибки
+	 */
 	private showError(field: string, message: string): void {
-		this.errorContainer.innerHTML = ''; // Очищаем предыдущие ошибки
+		this.errorContainer.innerHTML = '';
 		const errorElement = document.createElement('div');
 		errorElement.className = `form__error`;
 		errorElement.textContent = message;
