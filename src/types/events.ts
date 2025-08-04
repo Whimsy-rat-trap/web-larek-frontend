@@ -96,7 +96,9 @@ export const AppEvents = {
 	/** Событие добавления товара в корзину */
 	MODAL_PRODUCT_BASKET_ITEM_ADDED: 'modal:product:basket_item_added',
 	/** Событие удаления товара из корзины */
-	MODAL_PRODUCT_BASKET_ITEM_REMOVED: 'modal:basket:item_removed'
+	MODAL_PRODUCT_BASKET_ITEM_REMOVED: 'modal:basket:item_removed',
+	/** Событие изменения состояния кнопки в модальном окне товара */
+	UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED: 'ui:modal:product:button_state_changed',
 };
 
 export const StateEvents = {

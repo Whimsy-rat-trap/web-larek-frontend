@@ -31,12 +31,26 @@ export class CartService implements ICartServiceForSuccess {
 	 * @private
 	 * @listens AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED - Добавление товара в корзину
 	 * @listens AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - Удаление товара из корзины
+	 * @listens AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - Запрос состояния товара в корзине
 	 */
 	private setupEventListeners() {
 		this.eventEmitter.on(AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED,
 			(data: { id: string }) => this.addToCart(data.id));
 		this.eventEmitter.on(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED,
 			(data: { id: string }) => this.removeFromCart(data.id));
+
+		/**
+		 * Обработчик запроса состояния товара в корзине
+		 * @listens AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED
+		 * @param {object} data - Данные запроса
+		 * @param {string} data.id - ID товара
+		 * @param {function} data.callback - Функция обратного вызова
+		 */
+		this.eventEmitter.on(AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED,
+			(data: { id: string, callback: (inCart: boolean) => void }) => {
+				const inCart = this.appState.state.basket.some(item => item.id === data.id);
+				data.callback(inCart);
+			});
 	}
 
 	/**
