@@ -1,19 +1,8 @@
 import { EventEmitter } from "../base/events";
-import { IAppState, IProduct, IOrderFormState, PaymentMethod } from '../../types';
+import { IAppState, IOrderFormState, IProduct, IValidationError, PaymentMethod } from '../../types';
 import { AppEvents, StateEvents } from '../../types/events';
 
-/**
- * Сервис управления состоянием приложения
- * @class AppState
- * @property {IAppState} _state - Текущее состояние приложения
- * @property {EventEmitter} events - Эмиттер событий приложения
-*/
 export class AppState {
-	/**
-	 * Текущее состояние приложения
-	 * @private
-	 * @type {IAppState}
-	 */
 	private _state: IAppState = {
 		catalog: [],
 		basket: [],
@@ -29,11 +18,6 @@ export class AppState {
 		preview: null
 	};
 
-	/**
-	 * Создает экземпляр AppState
-	 * @constructor
-	 * @param {EventEmitter} events - Эмиттер событий приложения
-	 */
 	constructor(private events: EventEmitter) {
 		events.on(AppEvents.ORDER_PAYMENT_SET, (data: { method: PaymentMethod }) => {
 			this.order = { payment: data.method };
@@ -44,30 +28,18 @@ export class AppState {
 		});
 
 		events.on(AppEvents.ORDER_PHONE_SET, (data: { phone: string }) => {
-			this.order = { phone: data.phone };
+			this.order = { phone: data.phone }; // Исправлено: было data.email
 		});
 
-		// Можно также добавить для адреса, если ещё нет
 		events.on(AppEvents.ORDER_DELIVERY_SET, (data: { address: string }) => {
 			this.order = { address: data.address };
 		});
 	}
 
-	/**
-	 * Геттер текущего состояния приложения
-	 * @public
-	 * @returns {IAppState} Текущее состояние
-	 */
 	get state(): IAppState {
 		return this._state;
 	}
 
-	/**
-	 * Обновление каталога товаров
-	 * @public
-	 * @param {IProduct[]} items - Массив товаров
-	 * @emits StateEvents.CATALOG_UPDATED - После обновления каталога
-	 */
 	set catalog(items: IProduct[]) {
 		this._state.catalog = items;
 		this.events.emit(StateEvents.CATALOG_UPDATED, {
@@ -75,16 +47,9 @@ export class AppState {
 		});
 	}
 
-	/**
-	 * Обновление корзины товаров
-	 * @public
-	 * @param {IProduct[]} items - Массив товаров в корзине
-	 * @emits StateEvents.BASKET_UPDATED - После обновления корзины
-	 * @emits AppEvents.CART_UPDATED - После обновления корзины
-	 */
 	set basket(items: IProduct[]) {
 		this._state.basket = items;
-		this.updateBasketTotal(); // Вызываем отдельный метод для обновления суммы
+		this.updateBasketTotal();
 		this.events.emit(StateEvents.BASKET_UPDATED, {
 			basket: this._state.basket,
 			basketTotal: this._state.basketTotal
@@ -92,57 +57,59 @@ export class AppState {
 		this.events.emit(AppEvents.BASKET_UPDATED);
 	}
 
-	/**
-	 * Обновление общей суммы корзины
-	 * @private
-	 */
 	private updateBasketTotal(): void {
-		this._state.basketTotal = this._state.basket.reduce((sum, item) => sum + (item.price || 0), 0);
+		this._state.basketTotal = this._state.basket.reduce(
+			(sum, item) => sum + (item.price || 0),
+			0
+		);
 	}
 
-	/**
-	 * Геттер общей суммы корзины
-	 * @public
-	 * @returns {number} Сумма товаров в корзине
-	 */
 	get basketTotal(): number {
 		return this._state.basketTotal;
 	}
 
-	/**
-	 * Обновление состояния заказа
-	 * @public
-	 * @param {Partial<IOrderFormState>} form - Частичные данные формы заказа
-	 * @emits StateEvents.ORDER_FORM_UPDATED - После обновления формы заказа
-	 */
 	set order(form: Partial<IOrderFormState>) {
 		this._state.order = {
 			...this._state.order,
 			...form,
-			isValid: this.validateOrder(form)
+			isValid: this.validateOrder(form),
+			errors: this.validateOrderFields(form)
 		};
+
 		this.events.emit(StateEvents.ORDER_FORM_UPDATED, {
 			order: this._state.order
 		});
 	}
 
-	/**
-	 * Валидация данных заказа
-	 * @private
-	 * @param {Partial<IOrderFormState>} form - Данные формы для валидации
-	 * @returns {boolean} Результат валидации
-	 */
 	private validateOrder(form: Partial<IOrderFormState>): boolean {
-		return !!form.address && !!form.payment &&
-			!!form.email && !!form.phone;
+		const newState = { ...this._state.order, ...form };
+		return !!newState.address && !!newState.payment &&
+			!!newState.email && !!newState.phone;
 	}
 
-	/**
-	 * Обновление превью товара
-	 * @public
-	 * @param {string | null} id - ID товара или null для сброса
-	 * @emits StateEvents.PREVIEW_UPDATED - После обновления превью
-	 */
+	private validateOrderFields(form: Partial<IOrderFormState>): IValidationError[] {
+		const errors: IValidationError[] = [];
+		const newState = { ...this._state.order, ...form };
+
+		if (!newState.address) {
+			errors.push({ field: 'address', message: 'Введите адрес доставки' });
+		}
+
+		if (!newState.payment) {
+			errors.push({ field: 'payment', message: 'Выберите способ оплаты' });
+		}
+
+		if (!newState.email) {
+			errors.push({ field: 'email', message: 'Введите email' });
+		}
+
+		if (!newState.phone) {
+			errors.push({ field: 'phone', message: 'Введите телефон' });
+		}
+
+		return errors;
+	}
+
 	set preview(id: string | null) {
 		this._state.preview = id;
 		this.events.emit(StateEvents.PREVIEW_UPDATED, {

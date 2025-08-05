@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const cartService = new CartService(eventEmitter, appState);
 	const apiService = new ApiService(api, eventEmitter, appState);
 	const modalService = new ModalService(eventEmitter);
-	const orderService = new OrderService(eventEmitter);
+	const orderService = new OrderService(eventEmitter, appState);
 	const validationService = new ValidationService(eventEmitter);
 
 	const page = new Page(eventEmitter);

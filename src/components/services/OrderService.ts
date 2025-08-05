@@ -1,34 +1,25 @@
 import { EventEmitter } from "../base/events";
 import { AppEvents } from "../../types/events";
-import { IOrderFormState, PaymentMethod, IValidationError, IOrderRequest } from '../../types';
+import { IOrderRequest, PaymentMethod } from '../../types';
+import { AppState } from './AppState';
 
 /**
  * Сервис оформления заказа
  * @class OrderService
- * @property {IOrderFormState} state - Текущее состояние формы заказа
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
+ * @property {AppState} appState - Состояние приложения
  */
 export class OrderService {
-	/**
-	 * Состояние формы заказа
-	 * @private
-	 * @type {IOrderFormState}
-	 */
-	private state: IOrderFormState = {
-		payment: null,
-		address: '',
-		email: '',
-		phone: '',
-		isValid: false,
-		errors: [] as IValidationError[]
-	};
-
 	/**
 	 * Создает экземпляр OrderService
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
+	 * @param {AppState} appState - Состояние приложения
 	 */
-	constructor(private eventEmitter: EventEmitter) {
+	constructor(
+		private eventEmitter: EventEmitter,
+		private appState: AppState
+	) {
 		this.setupEventListeners();
 	}
 
@@ -37,28 +28,23 @@ export class OrderService {
 	 * @private
 	 * @listens AppEvents.UI_ORDER_BUTTON_START_CLICKED - При начале оформления заказа
 	 * @listens AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - При переходе к следующему шагу
-	 * @listens AppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED - При подтверждении оплаты
-	 * @listens AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - При нажатии кнопки оплаты
+	 * @listens AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - При подтверждении оплаты
 	 */
 	private setupEventListeners(): void {
-		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_START_CLICKED, () => this.initOrder());
-		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () =>
-			this.prepareOrder('delivery'));
-		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_PAYMENT_CLICKED, () =>
-			this.prepareOrder('payment'));
-		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED, () => {
-			console.log('Pay button clicked - final validation');
-			this.validate();
+		// Инициализация заказа
+		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_START_CLICKED, () => {
+			this.eventEmitter.emit(AppEvents.ORDER_INITIATED);
 		});
-	}
 
-	/**
-	 * Инициализирует процесс оформления заказа
-	 * @private
-	 * @emits AppEvents.ORDER_INITIATED
-	 */
-	private initOrder(): void {
-		this.eventEmitter.emit(AppEvents.ORDER_INITIATED);
+		// Подготовка заказа при переходе к контактам
+		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () => {
+			this.prepareOrder('delivery');
+		});
+
+		// Финальная проверка перед оплатой
+		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED, () => {
+			this.prepareOrder('payment');
+		});
 	}
 
 	/**
@@ -70,135 +56,21 @@ export class OrderService {
 	 */
 	private prepareOrder(step: 'delivery' | 'payment'): void {
 		if (step === 'payment') {
-			const orderData: IOrderRequest = {
-				payment: this.state.payment,
-				address: this.state.address,
-				email: this.state.email,
-				phone: this.state.phone,
-				total: 0,
-				items: []
-			};
-
-			if (this.state.isValid) {
+			// Проверяем isValid перед отправкой
+			if (this.appState.state.order.isValid) {
+				const orderData: IOrderRequest = {
+					payment: this.appState.state.order.payment,
+					address: this.appState.state.order.address,
+					email: this.appState.state.order.email,
+					phone: this.appState.state.order.phone,
+					total: 0, // ApiService пересчитает
+					items: []  // ApiService добавит
+				};
 				this.eventEmitter.emit(AppEvents.ORDER_READY, orderData);
 			}
 		} else {
-			this.validate();
+			// Шаг delivery (переход к контактам)
 			this.eventEmitter.emit(AppEvents.ORDER_DELIVERY_COMPLETED);
 		}
-	}
-
-	/**
-	 * Обновляет данные о доставке и выполняет валидацию
-	 * @public
-	 * @param {string} address - Адрес доставки
-	 * @emits AppEvents.ORDER_DELIVERY_SET - При обновлении адреса
-	 */
-	public updateDelivery(address: string): void {
-		this.state.address = address;
-		this.validate();
-		this.eventEmitter.emit(AppEvents.ORDER_DELIVERY_SET, { address });
-	}
-
-	/**
-	 * Обновляет способ оплаты и выполняет валидацию
-	 * @public
-	 * @param {PaymentMethod} method - Выбранный способ оплаты
-	 * @emits AppEvents.ORDER_PAYMENT_SET - При обновлении способа оплаты
-	 */
-	public updatePayment(method: PaymentMethod): void {
-		this.state.payment = method;
-		this.validate();
-		this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, { method });
-	}
-
-	/**
-	 * Обновляет email и выполняет валидацию
-	 * @public
-	 * @param {string} email - Введенный email
-	 * @emits AppEvents.ORDER_EMAIL_SET - При обновлении email
-	 */
-	public updateEmail(email: string): void {
-		this.state.email = email;
-		this.validate();
-		this.eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, { email });
-	}
-
-	/**
-	 * Обновляет телефон и выполняет валидацию
-	 * @public
-	 * @param {string} phone - Введенный телефон
-	 * @emits AppEvents.ORDER_PHONE_SET - При обновлении телефона
-	 */
-	public updatePhone(phone: string): void {
-		this.state.phone = phone;
-		this.validate();
-		this.eventEmitter.emit(AppEvents.ORDER_PHONE_SET, { phone });
-	}
-
-	/**
-	 * Проверяет валидность данных формы заказа
-	 * @private
-	 * @emits AppEvents.ORDER_VALIDATION_ERROR - При наличии ошибок валидации
-	 */
-	private validate(): void {
-		const isDeliveryValid = !!this.state.address && !!this.state.payment;
-		const isContactsValid = !!this.state.email && !!this.state.phone;
-
-		this.state.isValid = isDeliveryValid && isContactsValid;
-		this.state.errors = [];
-
-		if (!this.state.address) {
-			this.state.errors.push({
-				field: 'address',
-				message: 'Введите адрес доставки'
-			});
-			this.eventEmitter.emit(AppEvents.ORDER_VALIDATION_ERROR, {
-				field: 'address',
-				message: 'Введите адрес доставки'
-			});
-		}
-
-		if (!this.state.payment) {
-			this.state.errors.push({
-				field: 'payment',
-				message: 'Выберите способ оплаты'
-			});
-			this.eventEmitter.emit(AppEvents.ORDER_VALIDATION_ERROR, {
-				field: 'payment',
-				message: 'Выберите способ оплаты'
-			});
-		}
-
-		if (!this.state.email) {
-			this.state.errors.push({
-				field: 'email',
-				message: 'Введите email'
-			});
-			this.eventEmitter.emit(AppEvents.ORDER_VALIDATION_ERROR, {
-				field: 'email',
-				message: 'Введите email'
-			});
-		}
-
-		if (!this.state.phone) {
-			this.state.errors.push({
-				field: 'phone',
-				message: 'Введите телефон'
-			});
-			this.eventEmitter.emit(AppEvents.ORDER_VALIDATION_ERROR, {
-				field: 'phone',
-				message: 'Введите телефон'
-			});
-		}
-	}
-
-	/**
-	 * Возвращает текущее состояние формы заказа
-	 * @public
-	 * @returns {IOrderFormState} Текущее состояние формы заказа
-	 */
-	public getState(): IOrderFormState {
-		return this.state;
 	}
 }

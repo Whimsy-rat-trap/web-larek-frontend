@@ -89,7 +89,6 @@ export class ContactsModal extends Modal {
 			event.preventDefault();
 			if (this.isFormValid()) {
 				this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED);
-				this.eventEmitter.emit(AppEvents.ORDER_READY);
 			}
 		});
 
