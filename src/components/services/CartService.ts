@@ -57,7 +57,7 @@ export class CartService implements ICartServiceForSuccess {
 	 * Добавляет товар в корзину
 	 * @param {string} productId - ID товара для добавления
 	 * @emits AppEvents.BASKET_ITEM_ADDED - При успешном добавлении
-	 * @emits AppEvents.BASKET_UPDATED - При изменении корзины
+	 * @emits AppEvents.BASKET_CONTENT_CHANGED - При изменении корзины
 	 * @emits AppEvents.BASKET_ITEM_ADD_ERROR - При ошибке добавления
 	 */
 	addToCart(productId: string): void {
@@ -67,7 +67,7 @@ export class CartService implements ICartServiceForSuccess {
 		if (!this.appState.state.basket.some(item => item.id === productId)) {
 			this.appState.basket = [...this.appState.state.basket, product];
 			this.eventEmitter.emit(AppEvents.BASKET_ITEM_ADDED, { id: productId });
-			this.eventEmitter.emit(AppEvents.BASKET_UPDATED);
+			this.eventEmitter.emit(AppEvents.BASKET_CONTENT_CHANGED);
 		} else {
 			this.eventEmitter.emit(AppEvents.BASKET_ITEM_ADD_ERROR, { id: productId });
 		}
@@ -77,24 +77,24 @@ export class CartService implements ICartServiceForSuccess {
 	 * Удаляет товар из корзины
 	 * @param {string} productId - ID товара для удаления
 	 * @emits AppEvents.BASKET_ITEM_REMOVED - При успешном удалении
-	 * @emits AppEvents.BASKET_UPDATED - При изменении корзины
+	 * @emits AppEvents.BASKET_CONTENT_CHANGED - При изменении корзины
 	 */
 	removeFromCart(productId: string): void {
 		this.appState.basket = this.appState.state.basket
 			.filter(item => item.id !== productId);
 		this.eventEmitter.emit(AppEvents.BASKET_ITEM_REMOVED, { id: productId });
-		this.eventEmitter.emit(AppEvents.BASKET_UPDATED);
+		this.eventEmitter.emit(AppEvents.BASKET_CONTENT_CHANGED);
 	}
 
 	/**
 	 * Очищает корзину полностью
 	 * @emits AppEvents.BASKET_CLEAR - При очистке корзины
-	 * @emits AppEvents.BASKET_UPDATED - При изменении корзины
+	 * @emits AppEvents.BASKET_CONTENT_CHANGED - При изменении корзины
 	 */
 	clearCart(): void {
 		this.appState.basket = [];
 		this.eventEmitter.emit(AppEvents.BASKET_CLEAR);
-		this.eventEmitter.emit(AppEvents.BASKET_UPDATED);
+		this.eventEmitter.emit(AppEvents.BASKET_CONTENT_CHANGED);
 	}
 
 	/**

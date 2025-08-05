@@ -35,7 +35,7 @@ export class ProductModal extends Modal {
 		 * Подписка на обновление корзины для изменения состояния кнопки
 		 * @listens AppEvents.BASKET_UPDATED
 		 */
-		eventEmitter.on(AppEvents.BASKET_UPDATED, () => {
+		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => {
 			if (this.currentProductId) {
 				this.updateButtonState(this.currentProductId);
 			}

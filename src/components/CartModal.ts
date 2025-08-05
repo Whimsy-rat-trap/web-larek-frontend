@@ -42,7 +42,7 @@ export class CartModal extends Modal {
 		 * Подписка на обновление корзины
 		 * @listens AppEvents.BASKET_UPDATED
 		 */
-		eventEmitter.on(AppEvents.BASKET_UPDATED, () => this.renderCart());
+		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => this.renderCart());
 	}
 
 	/**

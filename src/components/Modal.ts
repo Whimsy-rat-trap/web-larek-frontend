@@ -32,14 +32,10 @@ export class Modal {
 	protected closeButton: HTMLElement;
 
 	/**
-	 * Создает экземпляр модального окна
+	 * Создает экземпляр Modal
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @param {string} [containerId='modal-container'] - ID DOM-элемента контейнера модального окна
-	 *
-	 * @example
-	 * // Создание модального окна с кастомным ID контейнера
-	 * const modal = new Modal(eventEmitter, 'custom-modal-container');
+	 * @param {string} [containerId='modal-container'] - ID DOM-элемента контейнера
 	 */
 	constructor(protected eventEmitter: EventEmitter, containerId = 'modal-container') {
 		this.container = ensureElement<HTMLElement>(`#${containerId}`);

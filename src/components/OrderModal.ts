@@ -40,7 +40,7 @@ export class OrderModal extends Modal {
 	 * Рендерит форму оформления заказа
 	 * @private
 	 * @emits AppEvents.ORDER_DELIVERY_SET - При изменении адреса доставки
-	 * @emits AppEvents.ORDER_PAYMENT_SET - При изменении способа оплаты
+	 * @emits AppEvents.UI_ORDER_BUTTON_PAYMENT_SET - При изменении способа оплаты
 	 * @emits AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - При клике на кнопку "Далее"
 	 */
 	private renderOrderForm(): void {
@@ -65,7 +65,7 @@ export class OrderModal extends Modal {
 		this.onlinePaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'online';
 			this.updatePaymentButtons();
-			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, {
+			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, {
 				method: 'online'
 			});
 			this.updateValidationState();
@@ -74,7 +74,7 @@ export class OrderModal extends Modal {
 		this.cashPaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'cash';
 			this.updatePaymentButtons();
-			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, {
+			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, {
 				method: 'cash'
 			});
 			this.updateValidationState();
@@ -93,7 +93,7 @@ export class OrderModal extends Modal {
 	/**
 	 * Обновляет состояние кнопок выбора способа оплаты
 	 * @private
-	 * @emits AppEvents.ORDER_PAYMENT_SET - При изменении способа оплаты
+	 * @emits AppEvents.UI_ORDER_BUTTON_PAYMENT_SET - При изменении способа оплаты
 	 */
 	private updatePaymentButtons(): void {
 		this.onlinePaymentButton.classList.remove('button_alt-active');
@@ -101,10 +101,8 @@ export class OrderModal extends Modal {
 
 		if (this.paymentSelected === 'online') {
 			this.onlinePaymentButton.classList.add('button_alt-active');
-			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, { method: 'online' });
 		} else if (this.paymentSelected === 'cash') {
 			this.cashPaymentButton.classList.add('button_alt-active');
-			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_SET, { method: 'cash' });
 		}
 	}
 

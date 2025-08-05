@@ -4,7 +4,7 @@ import { IOrderRequest, PaymentMethod } from '../../types';
 import { AppState } from './AppState';
 
 /**
- * Сервис оформления заказа
+ * Сервис для обработки логики оформления заказа
  * @class OrderService
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  * @property {AppState} appState - Состояние приложения

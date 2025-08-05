@@ -22,7 +22,6 @@ export class Page {
 	 * Создает экземпляр Page
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @throws {Error} Если не удалось найти необходимые DOM-элементы
 	 */
 	constructor(eventEmitter: EventEmitter) {
 		this.eventEmitter = eventEmitter;
@@ -38,12 +37,12 @@ export class Page {
 	 * Настраивает обработчики событий для главной страницы
 	 * @private
 	 * @listens StateEvents.CATALOG_UPDATED - При обновлении каталога товаров вызывает renderProducts()
-	 * @listens StateEvents.BASKET_UPDATED - При обновлении корзины вызывает updateBasketCounter()
+	 * @listens StateEvents.BASKET_STATE_CHANGED - При обновлении корзины вызывает updateBasketCounter()
 	 */
 	private setupEventListeners(): void {
-		this.eventEmitter.on(StateEvents.CATALOG_UPDATED,
+		this.eventEmitter.on(StateEvents.CATALOG_STATE_UPDATED,
 			(data: { catalog: IProduct[] }) => this.renderProducts(data.catalog));
-		this.eventEmitter.on(StateEvents.BASKET_UPDATED,
+		this.eventEmitter.on(StateEvents.BASKET_STATE_CHANGED,
 			(data: { basket: IProduct[] }) => this.updateBasketCounter(data.basket.length));
 	}
 

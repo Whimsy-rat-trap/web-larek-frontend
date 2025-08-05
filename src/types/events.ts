@@ -22,7 +22,7 @@ export const AppEvents = {
 	/** Событие успешного удаления товара из корзины */
 	BASKET_ITEM_REMOVED: 'basket:item_removed',
 	/** Событие обновления состояния корзины */
-	BASKET_UPDATED: 'basket:updated',
+	BASKET_CONTENT_CHANGED: 'basket:content_updated',
 	/** Событие очистки корзины */
 	BASKET_CLEAR: 'basket:clear',
 
@@ -31,8 +31,6 @@ export const AppEvents = {
 	ORDER_INITIATED: 'order:initiated',
 	/** Событие введения адреса доставки */
 	ORDER_DELIVERY_SET: 'order:delivery_set',
-	/** Событие выбора способа оплаты */
-	ORDER_PAYMENT_SET: 'order:payment_set',
 	/** Событие добавления почты */
 	ORDER_EMAIL_SET: 'order:email:set',
 	/** Событие номера телефона */
@@ -73,6 +71,8 @@ export const AppEvents = {
 	UI_BUTTON_BASKET_CLICKED: 'ui:button:basket:clicked',
 	/** Событие клика по кнопке "Оформить заказ" */
 	UI_ORDER_BUTTON_START_CLICKED: 'ui:order:button:start_clicked',
+	/** Событие выбора способа оплаты */
+	UI_ORDER_BUTTON_PAYMENT_SET: 'ui:order:button:payment_set',
 	/** Событие клика по кнопке "Далее" */
 	UI_ORDER_BUTTON_NEXT_CLICKED: 'ui:order:button:next:clicked',
 	/** Событие клика по кнопке выбора способа оплаты */
@@ -87,6 +87,8 @@ export const AppEvents = {
 	UI_ORDER_INPUT_MAIL_CHANGED: 'ui:order:input:mail:changed',
 	/** Событие изменения формы телефона доставки заказа */
 	UI_ORDER_INPUT_PHONE_CHANGED: 'ui:order:input:phone:changed',
+	/** Событие изменения состояния кнопки в модальном окне товара */
+	UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED: 'ui:modal:product:button_state_changed',
 
 	// Модальные окна
 	/** Событие открытия модального окна */
@@ -96,18 +98,16 @@ export const AppEvents = {
 	/** Событие добавления товара в корзину */
 	MODAL_PRODUCT_BASKET_ITEM_ADDED: 'modal:product:basket_item_added',
 	/** Событие удаления товара из корзины */
-	MODAL_PRODUCT_BASKET_ITEM_REMOVED: 'modal:basket:item_removed',
-	/** Событие изменения состояния кнопки в модальном окне товара */
-	UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED: 'ui:modal:product:button_state_changed',
+	MODAL_PRODUCT_BASKET_ITEM_REMOVED: 'modal:product:basket:item_removed',
 };
 
 export const StateEvents = {
-	/** Событие обновления каталога товаров */
-	CATALOG_UPDATED: 'state:catalog:updated',
+	/** Событие обновления (загрузки) каталога товаров */
+	CATALOG_STATE_UPDATED: 'state:catalog:updated',
 	/** Событие обновления корзины */
-	BASKET_UPDATED: 'state:basket:updated',
+	BASKET_STATE_CHANGED: 'state:basket:updated',
 	/** Событие обновления формы заказа */
-	ORDER_FORM_UPDATED: 'state:order:updated',
+	ORDER_STATE_FORM_UPDATED: 'state:order:updated',
 	/** Событие обновления превью товара */
-	PREVIEW_UPDATED: 'state:preview:updated'
+	PREVIEW_STATE_UPDATED: 'state:preview:updated'
 } as const;

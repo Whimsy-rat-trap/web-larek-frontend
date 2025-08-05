@@ -3,12 +3,9 @@ import { AppEvents } from "../../types/events";
 import { IModalState } from "../../types";
 
 /**
- * Сервис управления модальными окнами приложения
+ * Сервис для управления модальными окнами приложения
  * @class ModalService
  * @property {IModalState} state - Текущее состояние модальных окон
- * @property {boolean} state.isOpened - Флаг открытого состояния модального окна
- * @property {'product' | 'cart' | 'order' | 'contacts' | 'success' | null} state.type - Тип текущего модального окна
- * @property {string | null} state.productId - ID товара для модального окна продукта
  */
 export class ModalService {
 	private state: IModalState = {

@@ -73,6 +73,9 @@ export class ValidationService {
 			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_VALID, {
 				method: method as 'online' | 'cash'
 			});
+			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, {
+				method: method as 'online' | 'cash'
+			});
 		} else {
 			this.eventEmitter.emit(AppEvents.ORDER_PAYMENT_VALIDATION_ERROR, {
 				field: 'payment',
@@ -92,6 +95,9 @@ export class ValidationService {
 
 		if (isValid) {
 			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_VALID, {
+				email: email.trim()
+			});
+			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, {
 				email: email.trim()
 			});
 		} else {

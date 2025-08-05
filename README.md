@@ -12,9 +12,12 @@
   - Выбор способа оплаты и адреса доставки 
   - Ввод контактных данных (email и телефон)
 - Выбора способа оплаты
+- Валидация всех полей формы
+- Отправка заказа на сервер
+- Отображение подтверждения заказа
 
 ## Структура проекта
-
+```
 src/
 ├── components/
 │   ├── base/				# Базовые классы
@@ -44,6 +47,7 @@ src/
 │   └── utils.ts			# Вспомогательные утилиты
 ├── index.ts				# Точка входа приложения
 └── scss/					# Стили проекта
+```
 
 ## API и компоненты
 
@@ -83,6 +87,7 @@ src/
     - Слушает события:
 		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED - добавление товара в корзину
 		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - удаление товара из корзины
+        - AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - запрос состояния товара в корзине (для обновления кнопки в модальном окне товара)
 	- **Команды**:
 		- addToCart(productId)
 			- Добавляет товар в корзину через AppState
@@ -90,16 +95,18 @@ src/
 			- Публикует:
 				- AppEvents.BASKET_ITEM_ADDED (при успехе)
 				- AppEvents.BASKET_ITEM_ADD_ERROR (при ошибке)
-				- AppEvents.BASKET_UPDATED
+				- AppEvents.BASKET_CONTENT_CHANGED
 		- removeFromCart(productId)
 			- Удаляет товар из корзины
             - Вызывается по событию: AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED
 			- Публикует:
 				- AppEvents.BASKET_ITEM_REMOVED
-				- AppEvents.BASKET_UPDATED
+				- AppEvents.BASKET_CONTENT_CHANGED
 		- clearCart()
 			- Вызывается по событию: AppEvents.ORDER_SUBMITTED
-			- Публикует: AppEvents.BASKET_CLEAR (после успешного оформления заказа)
+			- Публикует: 
+              - AppEvents.BASKET_CLEAR (после успешного оформления заказа)
+              - BASKET_CONTENT_CHANGED
         - getCartItems()
           - Возвращает текущие товары в корзине
           - Используется CartModal для отображения содержимого корзины
