@@ -3,15 +3,18 @@
 
 .modal {
   @include mixins.sublayer;
-  // height: max-content;
-  position: absolute;
+  position: fixed; // Изменено с absolute на fixed
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: none;
   justify-content: center;
+  align-items: center; // Добавлено для вертикального центрирования
   background-color: $overlayBackground;
-  z-index: 100;
-  padding-top: 5vh;
-  padding-bottom: 5vh;
-  box-sizing: border-box;
+  z-index: 1000; // Увеличено значение z-index
+  overflow-y: auto; // Добавлено для прокрутки если контент не помещается
+  padding: 20px; // Добавлен отступ для маленьких экранов
 
   &_active {
     display: flex;
@@ -22,14 +25,17 @@
     @include mixins.flex(column);
     gap: $defaultPadding;
     background-color: $background;
-    // min-height: 90vmin;
     border-radius: 3rem;
     box-sizing: border-box;
     position: relative;
+    max-height: 90vh; // Ограничение максимальной высоты
+    overflow-y: auto; // Прокрутка внутри контейнера
+    margin: auto; // Центрирование
   }
 
   &__content {
     flex-grow: 1;
+    overflow-y: auto; // Прокрутка контента если не помещается
   }
 
   &__title {
@@ -50,6 +56,7 @@
     right: calc(#{$defaultPadding} / 2);
     @include mixins.icon(2rem, 'close');
     @include mixins.link(white, $hover);
+    z-index: 1; // Чтобы кнопка была над контентом
   }
 
   &__footer {
@@ -59,7 +66,7 @@
   }
 
   &__message {
-    white-space:nowrap;
+    white-space: nowrap;
     max-width: 60%;
     text-overflow: ellipsis;
     overflow: hidden;
