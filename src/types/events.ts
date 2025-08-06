@@ -71,12 +71,10 @@ export const AppEvents = {
 	UI_BUTTON_BASKET_CLICKED: 'ui:button:basket:clicked',
 	/** Событие клика по кнопке "Оформить заказ" */
 	UI_ORDER_BUTTON_START_CLICKED: 'ui:order:button:start_clicked',
-	/** Событие выбора способа оплаты */
-	UI_ORDER_BUTTON_PAYMENT_SET: 'ui:order:button:payment_set',
 	/** Событие клика по кнопке "Далее" */
 	UI_ORDER_BUTTON_NEXT_CLICKED: 'ui:order:button:next:clicked',
 	/** Событие клика по кнопке выбора способа оплаты */
-	UI_ORDER_BUTTON_PAYMENT_CLICKED: 'ui:order:button:payment:clicked',
+	UI_ORDER_BUTTON_PAYMENT_SET: 'ui:order:button:payment_set',
 	/** Событие клика по кнопке "Оплатить" */
 	UI_ORDER_BUTTON_PAY_CLICKED: 'ui:order:button:pay:clicked',
 	/** Событие изменения формы адреса доставки заказа */
