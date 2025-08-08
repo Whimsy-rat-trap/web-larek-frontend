@@ -3,7 +3,7 @@ import { EventEmitter } from "../base/events";
 import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { AppEvents } from "../../types/events";
 import { ICartServiceForSuccess, IOrderResponse } from '../../types';
-import { AppStateModal } from '../models/AppStateModal';
+import { AppStateModel } from '../models/AppStateModel';
 
 /**
  * Модальное окно успешного оформления заказа

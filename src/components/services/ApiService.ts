@@ -2,7 +2,7 @@ import { Api } from "../base/api";
 import { IProduct, IOrderRequest, IOrderResponse } from "../../types";
 import { AppEvents } from "../../types/events";
 import { EventEmitter } from "../base/events";
-import { AppStateModal } from '../models/AppStateModal';
+import { AppStateModel } from '../models/AppStateModel';
 
 /**
  * Интерфейс ответа API для списка товаров
@@ -20,19 +20,19 @@ interface IProductListResponse {
  * @class ApiService
  * @property {Api} api - Экземпляр API клиента
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
- * @property {AppStateModal} appState - Состояние приложения
+ * @property {AppStateModel} appState - Состояние приложения
  */
 export class ApiService {
 	/**
 	 * Создает экземпляр ApiService
 	 * @param {Api} api - Экземпляр API клиента
 	 * @param {EventEmitter} events - Эмиттер событий
-	 * @param {AppStateModal} appState - Состояние приложения
+	 * @param {AppStateModel} appState - Состояние приложения
 	 */
 	constructor(
 		private api: Api,
 		private events: EventEmitter,
-		private appState: AppStateModal // Инжектим сервис состояния
+		private appState: AppStateModel // Инжектим сервис состояния
 	) {
 		this.setupEventListeners();
 	}

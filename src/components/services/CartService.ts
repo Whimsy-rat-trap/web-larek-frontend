@@ -1,26 +1,26 @@
 import { EventEmitter } from "../base/events";
 import { AppEvents } from "../../types/events";
 import { ICartServiceForSuccess, IProduct } from '../../types';
-import { AppStateModal } from "../models/AppStateModal";
+import { AppStateModel } from "../models/AppStateModel";
 
 /**
  * Сервис корзины товаров
  * @class CartService
  * @implements {ICartServiceForSuccess}
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
- * @property {AppStateModal} appState - Состояние приложения
+ * @property {AppStateModel} appState - Состояние приложения
  */
 export class CartService implements ICartServiceForSuccess {
 	private eventEmitter: EventEmitter;
-	private appState: AppStateModal;
+	private appState: AppStateModel;
 
 	/**
 	 * Создает экземпляр CartService
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @param {AppStateModal} appState - Состояние приложения
+	 * @param {AppStateModel} appState - Состояние приложения
 	 */
-	constructor(eventEmitter: EventEmitter, appState: AppStateModal) {
+	constructor(eventEmitter: EventEmitter, appState: AppStateModel) {
 		this.eventEmitter = eventEmitter;
 		this.appState = appState;
 		this.setupEventListeners();
