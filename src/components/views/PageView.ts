@@ -1,18 +1,18 @@
-import { EventEmitter } from "./base/events";
-import { ensureElement } from "../utils/utils";
-import { AppEvents, StateEvents } from '../types/events';
-import { IProduct } from "../types";
-import { CategoryType, CDN_URL, settings } from '../utils/constants';
+import { EventEmitter } from "../base/events";
+import { ensureElement } from "../../utils/utils";
+import { AppEvents, StateEvents } from '../../types/events';
+import { IProduct } from "../../types";
+import { CategoryType, CDN_URL, settings } from '../../utils/constants';
 
 /**
  * Класс главной страницы приложения
- * @class Page
+ * @class PageView
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  * @property {HTMLElement} gallery - Контейнер для отображения товаров
  * @property {HTMLElement} basketCounter - Элемент отображения количества товаров в корзине
  * @property {HTMLElement} basketButton - Кнопка открытия корзины
  */
-export class Page {
+export class PageView {
 	private eventEmitter: EventEmitter;
 	private gallery: HTMLElement;
 	private basketCounter: HTMLElement;

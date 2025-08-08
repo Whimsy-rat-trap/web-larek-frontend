@@ -1,13 +1,13 @@
-import { Modal } from "./Modal";
-import { EventEmitter } from "./base/events";
-import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../types/events";
-import { settings } from '../utils/constants';
+import { ModalView } from "./ModalView";
+import { EventEmitter } from "../base/events";
+import { ensureElement, cloneTemplate } from "../../utils/utils";
+import { AppEvents } from "../../types/events";
+import { settings } from '../../utils/constants';
 
 /**
  * Модальное окно для ввода контактных данных
- * @class ContactsModal
- * @extends Modal
+ * @class ContactsModalView
+ * @extends ModalView
  * @property {HTMLButtonElement} submitButton - Кнопка отправки формы
  * @property {HTMLInputElement} emailInput - Поле ввода email
  * @property {HTMLInputElement} phoneInput - Поле ввода телефона
@@ -15,7 +15,7 @@ import { settings } from '../utils/constants';
  * @property {boolean} emailEntered - Флаг валидности email
  * @property {boolean} phoneEntered - Флаг валидности телефона
  */
-export class ContactsModal extends Modal {
+export class ContactsModalView extends ModalView {
 	private submitButton: HTMLButtonElement;
 	private emailInput: HTMLInputElement;
 	private phoneInput: HTMLInputElement;

@@ -1,15 +1,15 @@
-import { EventEmitter } from "./base/events";
-import { ensureElement } from "../utils/utils";
+import { EventEmitter } from "../base/events";
+import { ensureElement } from "../../utils/utils";
 
 /**
  * Базовый класс модального окна
- * @class Modal
+ * @class ModalView
  * @property {HTMLElement} container - Основной контейнер модального окна
  * @property {HTMLElement} content - Контейнер для содержимого модального окна
  * @property {HTMLElement} closeButton - Кнопка закрытия модального окна
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  */
-export class Modal {
+export class ModalView {
 	/**
 	 * Контейнер модального окна
 	 * @protected

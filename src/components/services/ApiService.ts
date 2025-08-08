@@ -2,7 +2,7 @@ import { Api } from "../base/api";
 import { IProduct, IOrderRequest, IOrderResponse } from "../../types";
 import { AppEvents } from "../../types/events";
 import { EventEmitter } from "../base/events";
-import { AppState } from './AppState';
+import { AppStateModal } from '../models/AppStateModal';
 
 /**
  * Интерфейс ответа API для списка товаров
@@ -20,19 +20,19 @@ interface IProductListResponse {
  * @class ApiService
  * @property {Api} api - Экземпляр API клиента
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
- * @property {AppState} appState - Состояние приложения
+ * @property {AppStateModal} appState - Состояние приложения
  */
 export class ApiService {
 	/**
 	 * Создает экземпляр ApiService
 	 * @param {Api} api - Экземпляр API клиента
 	 * @param {EventEmitter} events - Эмиттер событий
-	 * @param {AppState} appState - Состояние приложения
+	 * @param {AppStateModal} appState - Состояние приложения
 	 */
 	constructor(
 		private api: Api,
 		private events: EventEmitter,
-		private appState: AppState // Инжектим сервис состояния
+		private appState: AppStateModal // Инжектим сервис состояния
 	) {
 		this.setupEventListeners();
 	}
@@ -77,7 +77,7 @@ export class ApiService {
 		} catch (error) {
 			console.error('Failed to load products:', error);
 			this.appState.catalog = []; // Очищаем при ошибке
-			// AppState сам отправит CATALOG_UPDATED с пустым массивом
+			// AppStateModal сам отправит CATALOG_UPDATED с пустым массивом
 		}
 	}
 

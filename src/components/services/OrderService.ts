@@ -1,24 +1,24 @@
 import { EventEmitter } from "../base/events";
 import { AppEvents } from "../../types/events";
 import { IOrderRequest, PaymentMethod } from '../../types';
-import { AppState } from './AppState';
+import { AppStateModal } from '../models/AppStateModal';
 
 /**
  * Сервис для обработки логики оформления заказа
  * @class OrderService
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
- * @property {AppState} appState - Состояние приложения
+ * @property {AppStateModal} appState - Состояние приложения
  */
 export class OrderService {
 	/**
 	 * Создает экземпляр OrderService
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @param {AppState} appState - Состояние приложения
+	 * @param {AppStateModal} appState - Состояние приложения
 	 */
 	constructor(
 		private eventEmitter: EventEmitter,
-		private appState: AppState
+		private appState: AppStateModal
 	) {
 		this.setupEventListeners();
 	}

@@ -6,15 +6,15 @@ import { CartService } from "./components/services/CartService";
 import { ModalService } from "./components/services/ModalService";
 import { OrderService } from "./components/services/OrderService";
 import { ValidationService } from "./components/services/ValidationService";
-import { Page } from "./components/Page";
-import { ProductModal } from "./components/ProductModal";
-import { CartModal } from "./components/CartModal";
-import { OrderModal } from "./components/OrderModal";
-import { ContactsModal } from "./components/ContactsModal";
-import { SuccessModal } from "./components/SuccessModal";
+import { PageView } from "./components/views/PageView";
+import { ProductModalView } from "./components/views/ProductModalView";
+import { CartModalView } from "./components/views/CartModalView";
+import { OrderModalView } from "./components/views/OrderModalView";
+import { ContactsModalView } from "./components/views/ContactsModalView";
+import { SuccessModalView } from "./components/views/SuccessModalView";
 import { API_URL } from "./utils/constants";
 import { AppEvents } from "./types/events";
-import { AppState } from "./components/services/AppState";
+import { AppStateModal } from "./components/models/AppStateModal";
 
 /**
  * Инициализация приложения после загрузки страницы
@@ -23,19 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
 	const eventEmitter = new EventEmitter();
 	const api = new Api(API_URL);
 
-	const appState = new AppState(eventEmitter);
+	const appState = new AppStateModal(eventEmitter);
 	const cartService = new CartService(eventEmitter, appState);
 	const apiService = new ApiService(api, eventEmitter, appState);
 	const modalService = new ModalService(eventEmitter);
 	const orderService = new OrderService(eventEmitter, appState);
 	const validationService = new ValidationService(eventEmitter);
 
-	const page = new Page(eventEmitter);
-	const productModal = new ProductModal(eventEmitter);
-	const cartModal = new CartModal(eventEmitter, cartService);
-	const orderModal = new OrderModal(eventEmitter);
-	const successModal = new SuccessModal(eventEmitter, cartService); // CartService реализует ICartServiceForSuccess
-	const contactsModal = new ContactsModal(eventEmitter); // CartService реализует ICartServiceForContacts
+	const page = new PageView(eventEmitter);
+	const productModal = new ProductModalView(eventEmitter);
+	const cartModal = new CartModalView(eventEmitter, cartService);
+	const orderModal = new OrderModalView(eventEmitter);
+	const successModal = new SuccessModalView(eventEmitter, cartService); // CartService реализует ICartServiceForSuccess
+	const contactsModal = new ContactsModalView(eventEmitter); // CartService реализует ICartServiceForContacts
 
 	// Публикация события загрузки страницы
 	eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);

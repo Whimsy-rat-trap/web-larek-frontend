@@ -1,13 +1,13 @@
-import { Modal } from "./Modal";
-import { EventEmitter } from "./base/events";
-import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../types/events";
-import { PaymentMethod } from "../types";
+import { ModalView } from "./ModalView";
+import { EventEmitter } from "../base/events";
+import { ensureElement, cloneTemplate } from "../../utils/utils";
+import { AppEvents } from "../../types/events";
+import { PaymentMethod } from "../../types";
 
 /**
  * Модальное окно оформления заказа
- * @class OrderModal
- * @extends Modal
+ * @class OrderModalView
+ * @extends ModalView
  * @property {HTMLButtonElement} nextButton - Кнопка перехода к следующему шагу
  * @property {HTMLInputElement} addressInput - Поле ввода адреса
  * @property {HTMLElement} errorContainer - Контейнер для отображения ошибок
@@ -16,7 +16,7 @@ import { PaymentMethod } from "../types";
  * @property {PaymentMethod|null} paymentSelected - Выбранный способ оплаты
  * @property {boolean} addressEntered - Флаг заполнения адреса
  */
-export class OrderModal extends Modal {
+export class OrderModalView extends ModalView {
 	private nextButton: HTMLButtonElement;
 	private addressInput: HTMLInputElement;
 	private errorContainer: HTMLElement;

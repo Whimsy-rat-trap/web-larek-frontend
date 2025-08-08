@@ -1,18 +1,18 @@
-import { Modal } from "./Modal";
-import { EventEmitter } from "./base/events";
-import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../types/events";
-import { ICartServiceForSuccess, IOrderResponse } from '../types';
-import { AppState } from './services/AppState';
+import { ModalView } from "./ModalView";
+import { EventEmitter } from "../base/events";
+import { ensureElement, cloneTemplate } from "../../utils/utils";
+import { AppEvents } from "../../types/events";
+import { ICartServiceForSuccess, IOrderResponse } from '../../types';
+import { AppStateModal } from '../models/AppStateModal';
 
 /**
  * Модальное окно успешного оформления заказа
- * @class SuccessModal
- * @extends Modal
+ * @class SuccessModalView
+ * @extends ModalView
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  * @property {ICartServiceForSuccess} cartService - Сервис корзины для получения данных
  */
-export class SuccessModal extends Modal {
+export class SuccessModalView extends ModalView {
 	/**
 	 * Создает экземпляр SuccessModal
 	 * @constructor

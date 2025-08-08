@@ -4,11 +4,11 @@ import { AppEvents, StateEvents } from '../../types/events';
 
 /**
  * Класс для управления состоянием приложения
- * @class AppState
+ * @class AppStateModal
  * @property {IAppState} _state - Текущее состояние приложения
  * @property {EventEmitter} events - Эмиттер событий для уведомлений об изменениях состояния
  */
-export class AppState {
+export class AppStateModal {
 	/**
 	 * Текущее состояние приложения
 	 * @private
@@ -30,7 +30,7 @@ export class AppState {
 	};
 
 	/**
-	 * Создает экземпляр AppState
+	 * Создает экземпляр AppStateModal
 	 * @constructor
 	 * @param {EventEmitter} events - Эмиттер событий для уведомлений
 	 */

@@ -25,7 +25,7 @@ src/
 │   │   └── events.ts		# EventEmitter для управления событиями
 │   ├── services/			# Сервисы приложения
 │   │   ├── ApiService.ts	# Работа с API магазина
-│   │   ├── AppState.ts			# Централизованное состояние приложения
+│   │   ├── AppStateModal.ts			# Централизованное состояние приложения
 │   │   ├── CartService.ts 		# Управление корзиной
 │   │   ├── ModalService.ts		# Управление модальными окнами
 │   │   ├── OrderService.ts		# Оформление заказов
@@ -60,7 +60,7 @@ src/
 
 1. **API Service**:
 	- Работает с API магазина
-	- Интегрирован с AppState для хранения данных
+	- Интегрирован с AppStateModal для хранения данных
 	- Слушает события:
 		- AppEvents.PAGE_MAIN_LOADED - загрузка главной страницы
 		- AppEvents.PRODUCT_DETAILS_REQUESTED - запрос деталей товара
@@ -68,29 +68,29 @@ src/
 	- **Команды**:
 		- loadProducts()
 			- Загружает список товаров через API
-			- Сохраняет в AppState.catalog
+			- Сохраняет в AppStateModal.catalog
 			- Публикует: StateEvents.CATALOG_UPDATED
 		- loadProductDetails(productId)
-			- Загружает детали товара по ID (сначала проверяет кэш в AppState)
+			- Загружает детали товара по ID (сначала проверяет кэш в AppStateModal)
             - При отсутствии - запрашивает с сервера
 			- Публикует: AppEvents.PRODUCT_DETAILS_LOADED
 		- submitOrder(orderData)
 			- Формирует и отправляет заказ на сервер
-            - Использует данные из AppState (корзина и форма заказа)
+            - Использует данные из AppStateModal (корзина и форма заказа)
 			- Публикует:
 				- AppEvents.ORDER_SENT (при отправке)
 				- AppEvents.ORDER_SUBMITTED (при успехе)
                 - AppEvents.ORDER_SUBMIT_ERROR (при ошибке)
 
 2. **Cart Service**:
-    - Управляет состоянием корзины через AppState
+    - Управляет состоянием корзины через AppStateModal
     - Слушает события:
 		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED - добавление товара в корзину
 		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - удаление товара из корзины
         - AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - запрос состояния товара в корзине (для обновления кнопки в модальном окне товара)
 	- **Команды**:
 		- addToCart(productId)
-			- Добавляет товар в корзину через AppState
+			- Добавляет товар в корзину через AppStateModal
             - Вызывается по событию: AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED
 			- Публикует:
 				- AppEvents.BASKET_ITEM_ADDED (при успехе)
@@ -150,7 +150,7 @@ src/
 
 4. **Order Service**:
 	- Управляет процессом оформления заказа
-    - Интегрирован с AppState для хранения данных заказа
+    - Интегрирован с AppStateModal для хранения данных заказа
 	- Слушает события:
 		- AppEvents.UI_ORDER_BUTTON_START_CLICKED - начало оформления
 		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - переход к контактам
@@ -166,7 +166,7 @@ src/
             - Для шага 'delivery':
               - Публикует: AppEvents.ORDER_DELIVERY_COMPLETED (переход к контактам)
             - Для шага 'payment':
-              - Проверяет валидность данных через AppState
+              - Проверяет валидность данных через AppStateModal
               - Публикует: AppEvents.ORDER_READY (если данные валидны)
               - Не публикует событий при невалидных данных
 		- validate()
@@ -237,7 +237,7 @@ src/
               - AppEvents.ORDER_PHONE_VALID (при успехе)
               - AppEvents.ORDER_PHONE_VALIDATION_ERROR (при ошибке)
 
-6. **AppState (Service)**:
+6. **AppStateModal (Service)**:
 	- Централизованное хранилище состояния приложения
     - Слушает события:
       - AppEvents.ORDER_PAYMENT_SET - обновление способа оплаты 
@@ -284,8 +284,8 @@ src/
 1. **Главная страница(Page)**
 	- Рендерит главную страницу приложения, включая каталог товаров и кнопку корзины
     - Слушает события:
-		- StateEvents.CATALOG_STATE_UPDATED (от AppState) - для отрисовки каталога
-		- StateEvents.BASKET_STATE_CHANGED (от AppState) - при изменении состояния корзины
+		- StateEvents.CATALOG_STATE_UPDATED (от AppStateModal) - для отрисовки каталога
+		- StateEvents.BASKET_STATE_CHANGED (от AppStateModal) - при изменении состояния корзины
 	- Публикует события:
 		- AppEvents.PAGE_MAIN_LOADED - при инициализации страницы (один раз при загрузке)
 		- AppEvents.UI_BUTTON_BASKET_CLICKED - при клике на кнопку корзины в хедере
@@ -528,18 +528,18 @@ export interface ICartServiceForSuccess {
    - Базовый слой (EventEmitter, Api) - фундаментальные классы
    - Сервисы (ApiService, CartService и др.) - бизнес-логика
    - UI компоненты (Page, модальные окна) - представление
-   - Состояние (AppState) - централизованное управление данными
+   - Состояние (AppStateModal) - централизованное управление данными
 3. Ключевые особенности:
    - Одностраничное приложение (SPA) с динамическим рендерингом 
    - Строгая типизация на TypeScript 
-   - Разделение данных (AppState) и представления (компоненты)
+   - Разделение данных (AppStateModal) и представления (компоненты)
    - Валидация данных через специализированный сервис 
 4. Потоки данных:
    - Пользовательские действия → События → Сервисы → Обновление состояния → Рендеринг 
    - API взаимодействия инкапсулированы в ApiService 
-   - Состояние корзины и заказов управляется через AppState
+   - Состояние корзины и заказов управляется через AppStateModal
 5. Принципы проектирования:
-   - Единая точка истины (AppState для данных)
+   - Единая точка истины (AppStateModal для данных)
    - Инверсия зависимостей (DI через конструкторы)
    - Открытость/закрытость (расширяемость через события)
    - Разделение интерфейсов (ICartServiceForSuccess и др.)
@@ -623,20 +623,20 @@ yarn build
 1. **Инициализация приложения**:
 	- DOMContentLoaded → index.ts инициализация
 	- AppEvents.PAGE_MAIN_LOADED → ApiService.loadProducts()
-      - Успех: сохраняет в AppState.catalog → StateEvents.CATALOG_UPDATED → Page.renderProducts() 
-      - Ошибка: очищает каталог (AppState.catalog = [])
+      - Успех: сохраняет в AppStateModal.catalog → StateEvents.CATALOG_UPDATED → Page.renderProducts() 
+      - Ошибка: очищает каталог (AppStateModal.catalog = [])
    
 2. **Просмотр товара**:
    - Клик на товар → AppEvents.UI_PRODUCT_CLICKED → ModalService.openProductModal()
      - AppEvents.MODAL_OPENED (type: 'product') + AppEvents.PRODUCT_DETAILS_REQUESTED
      - ApiService.loadProductDetails():
-       - Найден в кэше (AppState.state.catalog): AppEvents.PRODUCT_DETAILS_LOADED → ProductModal.renderProduct()
+       - Найден в кэше (AppStateModal.state.catalog): AppEvents.PRODUCT_DETAILS_LOADED → ProductModal.renderProduct()
        - Не найден: запрос на сервер → AppEvents.PRODUCT_DETAILS_LOADED → ProductModal.renderProduct()
 
 3. **Работа с корзиной**:
 	- Добавление товара:
 	  - AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED → CartService.addToCart()
-        - Проверка наличия → Обновление AppState.basket 
+        - Проверка наличия → Обновление AppStateModal.basket 
           - StateEvents.BASKET_STATE_CHANGED → Page.updateBasketCounter()
             - AppEvents.BASKET_ITEM_ADDED (успех)
             - AppEvents.BASKET_ITEM_ADD_ERROR (ошибка)
@@ -644,7 +644,7 @@ yarn build
 
    - Удаление товара:
      - AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED → CartService.removeFromCart()
-     - Обновление AppState.basket 
+     - Обновление AppStateModal.basket 
      - StateEvents.BASKET_STATE_CHANGED → Page.updateBasketCounter()
      - AppEvents.BASKET_ITEM_REMOVED
      - AppEvents.BASKET_UPDATED → CartModal.renderCart()
@@ -662,13 +662,13 @@ yarn build
      - Изменение адреса:
        - AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED → ValidationService.validateDelivery()
          - Успех: AppEvents.ORDER_DELIVERY_VALID → OrderService.updateDelivery()
-           - AppEvents.ORDER_DELIVERY_SET → Обновление AppState.order  
+           - AppEvents.ORDER_DELIVERY_SET → Обновление AppStateModal.order  
          - Ошибка: AppEvents.ORDER_VALIDATION_ERROR → OrderModal.showError()
    
      - Выбор оплаты:
        - AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED → ValidationService.validatePayment()
          - Успех: AppEvents.ORDER_PAYMENT_VALID → OrderService.updatePayment()
-           - AppEvents.ORDER_PAYMENT_SET → Обновление AppState.order
+           - AppEvents.ORDER_PAYMENT_SET → Обновление AppStateModal.order
          - Ошибка: AppEvents.ORDER_PAYMENT_VALIDATION_ERROR → OrderModal.showError()
      
      - Кнопка "Далее":
@@ -681,7 +681,7 @@ yarn build
        - AppEvents.UI_ORDER_INPUT_MAIL_CHANGED → ValidationService.validateEmail()
          - Успех: 
            - AppEvents.ORDER_EMAIL_VALID → OrderService.updateEmail()
-           - AppEvents.ORDER_EMAIL_SET → Обновление AppState.order  
+           - AppEvents.ORDER_EMAIL_SET → Обновление AppStateModal.order  
            - StateEvents.ORDER_STATE_FORM_UPDATED 
          - Ошибка: AppEvents.ORDER_EMAIL_VALIDATION_ERROR → ContactsModal.showError()
      
@@ -689,7 +689,7 @@ yarn build
        - AppEvents.UI_ORDER_INPUT_PHONE_CHANGED → ValidationService.validatePhone()
          - Успех: 
            - AppEvents.ORDER_PHONE_VALID → OrderService.updatePhone()
-           - AppEvents.ORDER_PHONE_SET → Обновление AppState.order
+           - AppEvents.ORDER_PHONE_SET → Обновление AppStateModal.order
            - StateEvents.ORDER_STATE_FORM_UPDATED
          - Ошибка: AppEvents.ORDER_PHONE_VALIDATION_ERROR → ContactsModal.showError()
      

@@ -1,18 +1,18 @@
-import { Modal } from "./Modal";
-import { EventEmitter } from "./base/events";
-import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../types/events";
-import { IProduct } from "../types";
-import { CDN_URL, settings } from '../utils/constants';
+import { ModalView } from "./ModalView";
+import { EventEmitter } from "../base/events";
+import { ensureElement, cloneTemplate } from "../../utils/utils";
+import { AppEvents } from "../../types/events";
+import { IProduct } from "../../types";
+import { CDN_URL, settings } from '../../utils/constants';
 
 /**
  * Модальное окно просмотра товара с возможностью добавления/удаления из корзины
- * @class ProductModal
- * @extends Modal
+ * @class ProductModalView
+ * @extends ModalView
  * @property {HTMLButtonElement} addToCartButton - Кнопка добавления/удаления товара
  * @property {string|null} currentProductId - ID текущего отображаемого товара
  */
-export class ProductModal extends Modal {
+export class ProductModalView extends ModalView {
 	private addToCartButton: HTMLButtonElement;
 	private currentProductId: string | null = null;
 

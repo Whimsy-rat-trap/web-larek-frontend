@@ -1,19 +1,19 @@
-import { Modal } from "./Modal";
-import { EventEmitter } from "./base/events";
-import { ensureElement, cloneTemplate } from "../utils/utils";
-import { AppEvents } from "../types/events";
-import { IProduct } from "../types";
+import { ModalView } from "./ModalView";
+import { EventEmitter } from "../base/events";
+import { ensureElement, cloneTemplate } from "../../utils/utils";
+import { AppEvents } from "../../types/events";
+import { IProduct } from "../../types";
 
 /**
  * Модальное окно корзины
- * @class CartModal
- * @extends Modal
+ * @class CartModalView
+ * @extends ModalView
  * @property {HTMLButtonElement} checkoutButton - Кнопка оформления заказа
  * @property {Object} cartService - Сервис корзины
  * @property {Function} cartService.getCartItems - Получение товаров в корзине
  * @property {Function} cartService.getTotalPrice - Получение общей суммы
  */
-export class CartModal extends Modal {
+export class CartModalView extends ModalView {
 	private checkoutButton: HTMLButtonElement;
 
 	/**
