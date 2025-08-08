@@ -26,11 +26,20 @@ import { SuccessPresenter } from "./components/presenters/SuccessPresenter";
 
 import { ModalView } from './components/views/ModalView';
 
+const eventEmitter = new EventEmitter();
+
+function basketButtonClick () {
+	eventEmitter.emit(AppEvents.UI_BUTTON_BASKET_CLICKED);
+}
+
+function cardButtonClick(id: number) {
+	eventEmitter.emit(AppEvents.UI_PRODUCT_CLICKED, { id: id });
+}
+
 /**
  * Инициализация приложения после загрузки страницы
  */
 document.addEventListener('DOMContentLoaded', () => {
-	const eventEmitter = new EventEmitter();
 	const api = new Api(API_URL);
 
 	const appState = new AppStateModel(eventEmitter);
@@ -40,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const orderService = new OrderService(eventEmitter, appState);
 	const validationService = new ValidationService(eventEmitter);
 
-	const page = new PageView(eventEmitter);
+	const page = new PageView(basketButtonClick, cardButtonClick);
 	const productModal = new ProductModalView(eventEmitter);
 	const cartModal = new CartModalView(eventEmitter, cartService);
 	const orderModal = new OrderModalView(eventEmitter);
@@ -52,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const contactsPresenter = new ContactsPresenter(contactsModal, appState);
 	const modalPresenter = new ModalPresenter(modal, appState);
 	const orderPresenter = new OrderPresenter(orderModal, appState);
-	const pagePresenter = new PagePresenter(page, appState);
+	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
 	const productPresenter = new ProductPresenter(productModal, appState);
 	const successPresenter = new SuccessPresenter(successModal, appState);
 

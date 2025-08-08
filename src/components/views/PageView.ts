@@ -7,13 +7,11 @@ import { CategoryType, CDN_URL, settings } from '../../utils/constants';
 /**
  * Класс главной страницы приложения
  * @class PageView
- * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  * @property {HTMLElement} gallery - Контейнер для отображения товаров
  * @property {HTMLElement} basketCounter - Элемент отображения количества товаров в корзине
  * @property {HTMLElement} basketButton - Кнопка открытия корзины
  */
 export class PageView {
-	private eventEmitter: EventEmitter;
 	private gallery: HTMLElement;
 	private basketCounter: HTMLElement;
 	private basketButton: HTMLElement;
@@ -21,29 +19,13 @@ export class PageView {
 	/**
 	 * Создает экземпляр Page
 	 * @constructor
-	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
 	 */
-	constructor(eventEmitter: EventEmitter) {
-		this.eventEmitter = eventEmitter;
+	constructor(private basketButtonClick: Function, private cardButtonClick: Function) {
 		this.gallery = ensureElement<HTMLElement>('.gallery');
 		this.basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
 		this.basketButton = ensureElement<HTMLElement>('.header__basket');
 
-		this.setupEventListeners();
 		this.setupUIListeners();
-	}
-
-	/**
-	 * Настраивает обработчики событий для главной страницы
-	 * @private
-	 * @listens StateEvents.CATALOG_UPDATED - При обновлении каталога товаров вызывает renderProducts()
-	 * @listens StateEvents.BASKET_STATE_CHANGED - При обновлении корзины вызывает updateBasketCounter()
-	 */
-	private setupEventListeners(): void {
-		this.eventEmitter.on(StateEvents.CATALOG_STATE_UPDATED,
-			(data: { catalog: IProduct[] }) => this.renderProducts(data.catalog));
-		this.eventEmitter.on(StateEvents.BASKET_STATE_CHANGED,
-			(data: { basket: IProduct[] }) => this.updateBasketCounter(data.basket.length));
 	}
 
 	/**
@@ -53,7 +35,7 @@ export class PageView {
 	 */
 	private setupUIListeners(): void {
 		this.basketButton.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.UI_BUTTON_BASKET_CLICKED);
+			this.basketButtonClick();
 		});
 	}
 
@@ -62,7 +44,7 @@ export class PageView {
 	 * @private
 	 * @param {IProduct[]} products - Массив товаров для отображения
 	 */
-	private renderProducts(products: IProduct[]): void {
+	public renderProducts(products: IProduct[]): void {
 		this.gallery.innerHTML = '';
 		products.forEach(product => {
 			const productElement = this.createProductElement(product);
@@ -100,7 +82,7 @@ export class PageView {
 
 		// Настраиваем обработчик клика
 		card.querySelector('.card')?.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.UI_PRODUCT_CLICKED, { id: product.id });
+			this.cardButtonClick(product.id);
 		});
 
 		return card as HTMLElement;
@@ -111,7 +93,7 @@ export class PageView {
 	 * @private
 	 * @param {number} count - Количество товаров в корзине
 	 */
-	private updateBasketCounter(count: number): void {
+	public updateBasketCounter(count: number): void {
 		this.basketCounter.textContent = count.toString();
 	}
 }
