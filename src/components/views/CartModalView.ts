@@ -1,5 +1,4 @@
 import { ModalView } from "./ModalView";
-import { EventEmitter } from "../base/events";
 import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { AppEvents } from "../../types/events";
 import { IProduct } from "../../types";
@@ -13,7 +12,7 @@ import { IProduct } from "../../types";
  * @property {Function} cartService.getCartItems - Получение товаров в корзине
  * @property {Function} cartService.getTotalPrice - Получение общей суммы
  */
-export class CartModalView extends ModalView {
+export class CartModalView {
 	private checkoutButton: HTMLButtonElement;
 
 	/**
@@ -24,25 +23,10 @@ export class CartModalView extends ModalView {
 	 * @param {Function} cartService.getCartItems - Получает товары в корзине
 	 * @param {Function} cartService.getTotalPrice - Получает общую сумму
 	 */
-	constructor(eventEmitter: EventEmitter, private cartService: {
+	constructor(private checkoutButtonClick: Function, private deleteButtonClick: Function, private cartService: {
 		getCartItems: () => IProduct[];
 		getTotalPrice: () => number;
 	}) {
-		super(eventEmitter);
-
-		/**
-		 * Подписка на открытие модального окна корзины
-		 * @listens AppEvents.MODAL_OPENED
-		 */
-		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
-			if (data.type === 'cart') this.renderCart();
-		});
-
-		/**
-		 * Подписка на обновление корзины
-		 * @listens AppEvents.BASKET_UPDATED
-		 */
-		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => this.renderCart());
 	}
 
 	/**
@@ -50,7 +34,7 @@ export class CartModalView extends ModalView {
 	 * @private
 	 * @emits AppEvents.UI_ORDER_BUTTON_START_CLICKED - При клике на оформление заказа
 	 */
-	private renderCart(): void {
+	renderCart(): void {
 		const template = ensureElement<HTMLTemplateElement>('#basket');
 		const cartElement = cloneTemplate(template);
 		const itemsList = ensureElement<HTMLElement>('.basket__list', cartElement);
@@ -75,10 +59,8 @@ export class CartModalView extends ModalView {
 		}
 
 		checkoutButton.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_START_CLICKED);
+			this.checkoutButtonClick();
 		});
-
-		super.render(cartElement);
 	}
 
 	/**
@@ -103,7 +85,7 @@ export class CartModalView extends ModalView {
 		indexElement.textContent = index.toString();
 
 		deleteButton.addEventListener('click', () => {
-			this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: item.id });
+			this.deleteButtonClick();
 		});
 
 		container.appendChild(itemElement);

@@ -36,6 +36,14 @@ function cardButtonClick(id: number) {
 	eventEmitter.emit(AppEvents.UI_PRODUCT_CLICKED, { id: id });
 }
 
+function checkoutButtonClick() {
+	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_START_CLICKED);
+}
+
+function deleteButtonClick(id: number) {
+	this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: id });
+}
+
 /**
  * Инициализация приложения после загрузки страницы
  */
@@ -51,13 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const page = new PageView(basketButtonClick, cardButtonClick);
 	const productModal = new ProductModalView(eventEmitter);
-	const cartModal = new CartModalView(eventEmitter, cartService);
+	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
 	const orderModal = new OrderModalView(eventEmitter);
 	const successModal = new SuccessModalView(eventEmitter, cartService);
 	const contactsModal = new ContactsModalView(eventEmitter);
 	const modal = new ModalView(eventEmitter);
 
-	const basketPresenter = new BasketPresenter(cartModal, appState);
+	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter);
 	const contactsPresenter = new ContactsPresenter(contactsModal, appState);
 	const modalPresenter = new ModalPresenter(modal, appState);
 	const orderPresenter = new OrderPresenter(orderModal, appState);

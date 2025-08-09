@@ -26,6 +26,4 @@ export class PagePresenter {
 		this.eventEmitter.on(StateEvents.BASKET_STATE_CHANGED,
 			(data: { basket: IProduct[] }) => this.view.updateBasketCounter(data.basket.length));
 	}
-
-
 }
