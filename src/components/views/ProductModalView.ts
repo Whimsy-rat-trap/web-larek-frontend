@@ -1,46 +1,27 @@
-import { ModalView } from "./ModalView";
-import { EventEmitter } from "../base/events";
 import { ensureElement, cloneTemplate } from "../../utils/utils";
-import { AppEvents } from "../../types/events";
 import { IProduct } from "../../types";
 import { CDN_URL, settings } from '../../utils/constants';
 
 /**
  * Модальное окно просмотра товара с возможностью добавления/удаления из корзины
  * @class ProductModalView
- * @extends ModalView
  * @property {HTMLButtonElement} addToCartButton - Кнопка добавления/удаления товара
  * @property {string|null} currentProductId - ID текущего отображаемого товара
  */
-export class ProductModalView extends ModalView {
+export class ProductModalView {
 	private addToCartButton: HTMLButtonElement;
-	private currentProductId: string | null = null;
+	currentProductId: string | null = null;
 
 	/**
 	 * Создает экземпляр ProductModal
 	 * @constructor
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
 	 */
-	constructor(eventEmitter: EventEmitter) {
-		super(eventEmitter);
-
-		/**
-		 * Подписка на загрузку данных товара
-		 * @listens AppEvents.PRODUCT_DETAILS_LOADED
-		 */
-		eventEmitter.on(AppEvents.PRODUCT_DETAILS_LOADED, (data: IProduct) =>
-			this.renderProduct(data));
-
-		/**
-		 * Подписка на обновление корзины для изменения состояния кнопки
-		 * @listens AppEvents.BASKET_UPDATED
-		 */
-		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => {
-			if (this.currentProductId) {
-				this.updateButtonState(this.currentProductId);
-			}
-		});
-	}
+	constructor(
+		private requestButtonState: Function,
+		private addToCartClick: Function,
+		private removeFromCartClick: Function
+	) {}
 
 	/**
 	 * Рендерит информацию о товаре в модальном окне
@@ -48,7 +29,7 @@ export class ProductModalView extends ModalView {
 	 * @param {IProduct} product - Данные товара для отображения
 	 * @emits AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - Для проверки состояния товара в корзине
 	 */
-	private renderProduct(product: IProduct): void {
+	renderProduct(product: IProduct): void {
 		this.currentProductId = product.id;
 		const template = ensureElement<HTMLTemplateElement>('#card-preview');
 		const card = cloneTemplate(template);
@@ -78,7 +59,6 @@ export class ProductModalView extends ModalView {
 		const categorySlug = settings.categories[product.category] || 'other';
 		category.className = `card__category card__category_${categorySlug}`;
 
-		super.render(card);
 	}
 
 	/**
@@ -87,27 +67,22 @@ export class ProductModalView extends ModalView {
 	 * @param {string} productId - ID товара для проверки
 	 * @emits AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - Запрашивает состояние товара в корзине
 	 */
-	private updateButtonState(productId: string): void {
+	updateButtonState(productId: string): void {
 		if (!this.addToCartButton) return;
 
-		this.eventEmitter.emit(AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED, {
-			id: productId,
-			callback: (inCart: boolean) => {
+		this.requestButtonState(productId, (inCart: boolean) => {
 				if (inCart) {
 					this.addToCartButton.textContent = 'Удалить из корзины';
 					this.addToCartButton.onclick = () => {
-						this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: productId });
-						this.close();
+						this.removeFromCartClick(productId);
 					};
 				} else {
 					this.addToCartButton.textContent = 'Купить';
 					this.addToCartButton.onclick = () => {
-						this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED, { id: productId });
-						this.close();
+						this.addToCartClick(productId);
 					};
 				}
 				this.addToCartButton.disabled = false;
-			}
 		});
 	}
 }

@@ -44,6 +44,18 @@ function deleteButtonClick(id: number) {
 	this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: id });
 }
 
+function addToCartClick(id: string) {
+	eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED, { id: id });
+}
+
+function removeFromCartClick(id: string) {
+	eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: id });
+}
+
+function requestButtonState(id: string, callback: (inCart: boolean) => void) {
+	eventEmitter.emit(AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED, { id, callback });
+}
+
 /**
  * Инициализация приложения после загрузки страницы
  */
@@ -58,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const validationService = new ValidationService(eventEmitter);
 
 	const page = new PageView(basketButtonClick, cardButtonClick);
-	const productModal = new ProductModalView(eventEmitter);
+	const productModal = new ProductModalView(addToCartClick, removeFromCartClick, requestButtonState);
 	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
 	const orderModal = new OrderModalView(eventEmitter);
 	const successModal = new SuccessModalView(eventEmitter, cartService);
@@ -70,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const modalPresenter = new ModalPresenter(modal, appState);
 	const orderPresenter = new OrderPresenter(orderModal, appState);
 	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
-	const productPresenter = new ProductPresenter(productModal, appState);
+	const productPresenter = new ProductPresenter(productModal, appState, eventEmitter);
 	const successPresenter = new SuccessPresenter(successModal, appState);
 
 	// Публикация события загрузки страницы
