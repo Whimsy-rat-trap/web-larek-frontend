@@ -1,5 +1,3 @@
-import { ModalView } from "./ModalView";
-import { EventEmitter } from "../base/events";
 import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { AppEvents } from "../../types/events";
 import { settings } from '../../utils/constants';
@@ -15,7 +13,7 @@ import { settings } from '../../utils/constants';
  * @property {boolean} emailEntered - Флаг валидности email
  * @property {boolean} phoneEntered - Флаг валидности телефона
  */
-export class ContactsModalView extends ModalView {
+export class ContactsModalView {
 	private submitButton: HTMLButtonElement;
 	private emailInput: HTMLInputElement;
 	private phoneInput: HTMLInputElement;
@@ -26,13 +24,9 @@ export class ContactsModalView extends ModalView {
 	/**
 	 * Конструктор класса ContactsModal
 	 * @constructor
-	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
 	 */
-	constructor(
-		eventEmitter: EventEmitter,
-	) {
-		super(eventEmitter);
-		eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () => this.renderContactsForm());
+	constructor(private contactsEmailSet: Function, private contactsPhoneSet: Function, private contactsInputPhoneChanged: Function, private contactsButtonClicked: Function) {
+	///
 	}
 
 	/**
@@ -44,7 +38,7 @@ export class ContactsModalView extends ModalView {
 	 * @emits AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - При клике на оплату
 	 * @emits AppEvents.ORDER_READY - При готовности заказа
 	 */
-	private renderContactsForm(): void {
+	renderContactsForm(): void {
 		const template = ensureElement<HTMLTemplateElement>('#contacts');
 		const form = cloneTemplate(template);
 
@@ -57,7 +51,7 @@ export class ContactsModalView extends ModalView {
 		this.emailInput.addEventListener('input', () => {
 			const email = this.emailInput.value.trim();
 			this.emailEntered = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, { email });
+			this.contactsEmailSet(email);
 			this.updateValidationState();
 		});
 
@@ -78,21 +72,17 @@ export class ContactsModalView extends ModalView {
 			this.phoneInput.value = value;
 
 			this.phoneEntered = /^\+[0-9]{11}$/.test(value);
-			this.eventEmitter.emit(AppEvents.UI_ORDER_INPUT_PHONE_CHANGED, {
-				value: this.phoneInput.value
-			});
-			this.eventEmitter.emit(AppEvents.ORDER_PHONE_SET, { phone: value });
+			this.contactsInputPhoneChanged(value);
+			this.contactsPhoneSet(value);
 			this.updateValidationState();
 		});
 
 		form.addEventListener('submit', (event) => {
 			event.preventDefault();
 			if (this.isFormValid()) {
-				this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED);
+				this.contactsButtonClicked();
 			}
 		});
-
-		super.render(form);
 	}
 
 	/**

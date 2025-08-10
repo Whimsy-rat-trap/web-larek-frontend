@@ -72,6 +72,22 @@ function successCloseClick() {
 	eventEmitter.emit(AppEvents.MODAL_CLOSED);
 }
 
+function contactsEmailSet(email: string) {
+	eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, { email });
+}
+
+function contactsInputPhoneChanged(value: string) {
+	eventEmitter.emit(AppEvents.UI_ORDER_INPUT_PHONE_CHANGED, { value });
+}
+
+function contactsPhoneSet(phone: string) {
+	eventEmitter.emit(AppEvents.ORDER_PHONE_SET, { phone });
+}
+
+function contactsButtonClicked() {
+	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED);
+}
+
 /**
  * Инициализация приложения после загрузки страницы
  */
@@ -90,11 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
 	const orderModal = new OrderModalView(orderAddressInput, orderPaymentMethodSet, orderNextButtonClick);
 	const successModal = new SuccessModalView(successCloseClick, cartService);
-	const contactsModal = new ContactsModalView(eventEmitter);
+	const contactsModal = new ContactsModalView(contactsEmailSet, contactsInputPhoneChanged, contactsPhoneSet, contactsButtonClicked);
 	const modal = new ModalView(eventEmitter);
 
 	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter);
-	const contactsPresenter = new ContactsPresenter(contactsModal, appState);
+	const contactsPresenter = new ContactsPresenter(contactsModal, appState, eventEmitter);
 	const modalPresenter = new ModalPresenter(modal, appState);
 	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);
 	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
