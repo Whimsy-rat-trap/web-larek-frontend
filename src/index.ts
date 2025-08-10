@@ -56,6 +56,18 @@ function requestButtonState(id: string, callback: (inCart: boolean) => void) {
 	eventEmitter.emit(AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED, { id, callback });
 }
 
+function orderAddressInput(address: string) {
+	eventEmitter.emit(AppEvents.ORDER_DELIVERY_SET, { address });
+}
+
+function orderPaymentMethodSet(method: 'online' | 'cash') {
+	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, { method });
+}
+
+function orderNextButtonClick() {
+	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED);
+}
+
 /**
  * Инициализация приложения после загрузки страницы
  */
@@ -72,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const page = new PageView(basketButtonClick, cardButtonClick);
 	const productModal = new ProductModalView(addToCartClick, removeFromCartClick, requestButtonState);
 	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
-	const orderModal = new OrderModalView(eventEmitter);
+	const orderModal = new OrderModalView(orderAddressInput, orderPaymentMethodSet, orderNextButtonClick);
 	const successModal = new SuccessModalView(eventEmitter, cartService);
 	const contactsModal = new ContactsModalView(eventEmitter);
 	const modal = new ModalView(eventEmitter);
@@ -80,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter);
 	const contactsPresenter = new ContactsPresenter(contactsModal, appState);
 	const modalPresenter = new ModalPresenter(modal, appState);
-	const orderPresenter = new OrderPresenter(orderModal, appState);
+	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);
 	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
 	const productPresenter = new ProductPresenter(productModal, appState, eventEmitter);
 	const successPresenter = new SuccessPresenter(successModal, appState);

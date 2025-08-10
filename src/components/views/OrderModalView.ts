@@ -1,5 +1,3 @@
-import { ModalView } from "./ModalView";
-import { EventEmitter } from "../base/events";
 import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { AppEvents } from "../../types/events";
 import { PaymentMethod } from "../../types";
@@ -16,7 +14,7 @@ import { PaymentMethod } from "../../types";
  * @property {PaymentMethod|null} paymentSelected - Выбранный способ оплаты
  * @property {boolean} addressEntered - Флаг заполнения адреса
  */
-export class OrderModalView extends ModalView {
+export class OrderModalView {
 	private nextButton: HTMLButtonElement;
 	private addressInput: HTMLInputElement;
 	private errorContainer: HTMLElement;
@@ -31,9 +29,8 @@ export class OrderModalView extends ModalView {
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
 	 * @listens AppEvents.ORDER_INITIATED - Событие инициализации заказа
 	 */
-	constructor(eventEmitter: EventEmitter) {
-		super(eventEmitter);
-		eventEmitter.on(AppEvents.ORDER_INITIATED, () => this.renderOrderForm());
+	constructor(private orderAddressInput: Function, private orderPaymentMethodSet: Function, private orderNextButtonClick: Function) {
+	///
 	}
 
 	/**
@@ -43,7 +40,7 @@ export class OrderModalView extends ModalView {
 	 * @emits AppEvents.UI_ORDER_BUTTON_PAYMENT_SET - При изменении способа оплаты
 	 * @emits AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - При клике на кнопку "Далее"
 	 */
-	private renderOrderForm(): void {
+	renderOrderForm(): void {
 		const template = ensureElement<HTMLTemplateElement>('#order');
 		const form = cloneTemplate(template);
 
@@ -56,38 +53,30 @@ export class OrderModalView extends ModalView {
 		// Обработчики событий
 		this.addressInput.addEventListener('input', () => {
 			this.addressEntered = this.addressInput.value.trim().length > 0;
-			this.eventEmitter.emit(AppEvents.ORDER_DELIVERY_SET, {
-				address: this.addressInput.value
-			});
+			this.orderAddressInput(this.addressInput.value);
 			this.updateValidationState();
 		});
 
 		this.onlinePaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'online';
 			this.updatePaymentButtons();
-			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, {
-				method: 'online'
-			});
+			this.orderPaymentMethodSet('online');
 			this.updateValidationState();
 		});
 
 		this.cashPaymentButton.addEventListener('click', () => {
 			this.paymentSelected = 'cash';
 			this.updatePaymentButtons();
-			this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, {
-				method: 'cash'
-			});
+			this.orderPaymentMethodSet('cash');
 			this.updateValidationState();
 		});
 
 		this.nextButton.addEventListener('click', (event) => {
 			event.preventDefault();
 			if (this.isFormValid()) {
-				this.eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED);
+				this.orderNextButtonClick();
 			}
 		});
-
-		super.render(form);
 	}
 
 	/**
