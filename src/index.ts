@@ -68,6 +68,10 @@ function orderNextButtonClick() {
 	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED);
 }
 
+function successCloseClick() {
+	eventEmitter.emit(AppEvents.MODAL_CLOSED);
+}
+
 /**
  * Инициализация приложения после загрузки страницы
  */
@@ -85,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const productModal = new ProductModalView(addToCartClick, removeFromCartClick, requestButtonState);
 	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
 	const orderModal = new OrderModalView(orderAddressInput, orderPaymentMethodSet, orderNextButtonClick);
-	const successModal = new SuccessModalView(eventEmitter, cartService);
+	const successModal = new SuccessModalView(successCloseClick, cartService);
 	const contactsModal = new ContactsModalView(eventEmitter);
 	const modal = new ModalView(eventEmitter);
 
@@ -95,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);
 	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
 	const productPresenter = new ProductPresenter(productModal, appState, eventEmitter);
-	const successPresenter = new SuccessPresenter(successModal, appState);
+	const successPresenter = new SuccessPresenter(successModal, appState, eventEmitter);
 
 	// Публикация события загрузки страницы
 	eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);
