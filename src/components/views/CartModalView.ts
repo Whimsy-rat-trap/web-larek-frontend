@@ -2,6 +2,7 @@ import { ModalView } from "./ModalView";
 import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { AppEvents } from "../../types/events";
 import { IProduct } from "../../types";
+import { CartItemView } from "./CartItemView";
 
 /**
  * Модальное окно корзины
@@ -53,7 +54,8 @@ export class CartModalView {
 			checkoutButton.disabled = true;
 		} else {
 			items.forEach((item: IProduct, index: number) => {
-				this.renderCartItem(item, index + 1, itemsList);
+				const cartItemView = new CartItemView(item, index + 1, () => this.deleteButtonClick(item));
+				itemsList.appendChild(cartItemView.element);
 			});
 			checkoutButton.disabled = false;
 		}
@@ -63,33 +65,5 @@ export class CartModalView {
 		});
 
 		return cartElement;
-	}
-
-	/**
-	 * Рендерит отдельный элемент корзины
-	 * @private
-	 * @param {IProduct} item - Данные товара
-	 * @param {number} index - Порядковый номер товара
-	 * @param {HTMLElement} container - Контейнер для вставки элемента
-	 * @emits AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - При удалении товара из корзины
-	 */
-	private renderCartItem(item: IProduct, index: number, container: HTMLElement): void {
-		const itemTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
-		const itemElement = cloneTemplate(itemTemplate);
-
-		const title = ensureElement<HTMLElement>('.card__title', itemElement);
-		const price = ensureElement<HTMLElement>('.card__price', itemElement);
-		const indexElement = ensureElement<HTMLElement>('.basket__item-index', itemElement);
-		const deleteButton = ensureElement<HTMLButtonElement>('.basket__item-delete', itemElement);
-
-		title.textContent = item.title;
-		price.textContent = `${item.price} синапсов`;
-		indexElement.textContent = index.toString();
-
-		deleteButton.addEventListener('click', () => {
-			this.deleteButtonClick();
-		});
-
-		container.appendChild(itemElement);
 	}
 }
