@@ -16,7 +16,6 @@ export class BasketPresenter {
 		 */
 		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => this.view.renderCart());
 
-
 		/**
 		 * Подписка на клик по кнопке оформления заказа
 		 */

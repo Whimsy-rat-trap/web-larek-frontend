@@ -38,7 +38,7 @@ export class ContactsModalView {
 	 * @emits AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - При клике на оплату
 	 * @emits AppEvents.ORDER_READY - При готовности заказа
 	 */
-	renderContactsForm(): void {
+	renderContactsForm(): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#contacts');
 		const form = cloneTemplate(template);
 
@@ -83,6 +83,8 @@ export class ContactsModalView {
 				this.contactsButtonClicked();
 			}
 		});
+
+		return form;
 	}
 
 	/**
