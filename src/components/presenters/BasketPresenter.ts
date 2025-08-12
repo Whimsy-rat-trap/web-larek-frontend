@@ -15,5 +15,13 @@ export class BasketPresenter {
 		 * @listens AppEvents.BASKET_UPDATED
 		 */
 		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => this.view.renderCart());
+
+
+		/**
+		 * Подписка на клик по кнопке оформления заказа
+		 */
+		eventEmitter.on(AppEvents.UI_ORDER_BUTTON_START_CLICKED, () => {
+			eventEmitter.emit(AppEvents.MODAL_OPENED, { type: 'order' });
+		});
 	}
 }

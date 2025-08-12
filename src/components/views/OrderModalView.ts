@@ -40,7 +40,7 @@ export class OrderModalView {
 	 * @emits AppEvents.UI_ORDER_BUTTON_PAYMENT_SET - При изменении способа оплаты
 	 * @emits AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - При клике на кнопку "Далее"
 	 */
-	renderOrderForm(): void {
+	renderOrderForm(): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#order');
 		const form = cloneTemplate(template);
 
@@ -77,6 +77,8 @@ export class OrderModalView {
 				this.orderNextButtonClick();
 			}
 		});
+
+		return form;
 	}
 
 	/**
