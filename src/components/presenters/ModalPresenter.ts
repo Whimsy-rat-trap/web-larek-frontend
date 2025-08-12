@@ -3,6 +3,7 @@ import { AppStateModel } from '../models/AppStateModel';
 import { ModalView } from '../views/ModalView';
 import { CartModalView } from '../views/CartModalView';
 import { EventEmitter } from '../base/events';
+import { ProductModalView } from '../views/ProductModalView';
 
 export class ModalPresenter {
 	constructor(
@@ -10,15 +11,21 @@ export class ModalPresenter {
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter,
 		private basketView: CartModalView,
+		private productView: ProductModalView,
 	){
 
 		/**
 		 * Подписка на открытие модального окна корзины
 		 * @listens AppEvents.MODAL_OPENED
 		 */
-		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
+		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string, productId?: string }) => {
 			if (data.type === 'cart') {
 				const content =  this.basketView.renderCart();
+				modalView.render(content);
+			}
+			if (data.type === 'product') {
+				const product = model.state.catalog.find(p => p.id === data.productId);
+				const content = this.productView.renderProduct(product);
 				modalView.render(content);
 			}
 		});

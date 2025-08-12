@@ -29,7 +29,7 @@ export class ProductModalView {
 	 * @param {IProduct} product - Данные товара для отображения
 	 * @emits AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - Для проверки состояния товара в корзине
 	 */
-	renderProduct(product: IProduct): void {
+	renderProduct(product: IProduct): HTMLElement {
 		this.currentProductId = product.id;
 		const template = ensureElement<HTMLTemplateElement>('#card-preview');
 		const card = cloneTemplate(template);
@@ -59,6 +59,7 @@ export class ProductModalView {
 		const categorySlug = settings.categories[product.category] || 'other';
 		category.className = `card__category card__category_${categorySlug}`;
 
+		return card;
 	}
 
 	/**
