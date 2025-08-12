@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter);
 	const contactsPresenter = new ContactsPresenter(contactsModal, appState, eventEmitter);
-	const modalPresenter = new ModalPresenter(modal, appState);
+	const modalPresenter = new ModalPresenter(modal, appState, eventEmitter, cartModal);
 	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);
 	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
 	const productPresenter = new ProductPresenter(productModal, appState, eventEmitter);

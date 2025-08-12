@@ -34,7 +34,7 @@ export class CartModalView {
 	 * @private
 	 * @emits AppEvents.UI_ORDER_BUTTON_START_CLICKED - При клике на оформление заказа
 	 */
-	renderCart(): void {
+	renderCart(): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#basket');
 		const cartElement = cloneTemplate(template);
 		const itemsList = ensureElement<HTMLElement>('.basket__list', cartElement);
@@ -61,6 +61,8 @@ export class CartModalView {
 		checkoutButton.addEventListener('click', () => {
 			this.checkoutButtonClick();
 		});
+
+		return cartElement;
 	}
 
 	/**

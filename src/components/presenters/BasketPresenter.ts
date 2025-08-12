@@ -11,14 +11,6 @@ export class BasketPresenter {
 	) {
 
 		/**
-		 * Подписка на открытие модального окна корзины
-		 * @listens AppEvents.MODAL_OPENED
-		 */
-		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
-			if (data.type === 'cart') this.view.renderCart();
-		});
-
-		/**
 		 * Подписка на обновление корзины
 		 * @listens AppEvents.BASKET_UPDATED
 		 */
