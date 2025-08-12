@@ -26,7 +26,7 @@ export class SuccessModalView {
 	 * @emits AppEvents.MODAL_CLOSED - При закрытии модального окна
 	 * @returns {void}
 	 */
-	renderSuccess(): void {
+	renderSuccess(): HTMLElement {
 		// Получаем шаблон и клонируем его
 		const template = ensureElement<HTMLTemplateElement>('#success');
 		const success = cloneTemplate(template);
@@ -46,5 +46,7 @@ export class SuccessModalView {
 		closeButton.addEventListener('click', () => {
 			this.onCloseClick();
 		});
+
+		return success;
 	}
 }

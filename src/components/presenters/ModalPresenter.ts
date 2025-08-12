@@ -6,6 +6,7 @@ import { EventEmitter } from '../base/events';
 import { ProductModalView } from '../views/ProductModalView';
 import { OrderModalView } from '../views/OrderModalView';
 import { ContactsModalView } from '../views/ContactsModalView';
+import { SuccessModalView } from '../views/SuccessModalView';
 
 export class ModalPresenter {
 	constructor(
@@ -15,31 +16,42 @@ export class ModalPresenter {
 		private basketView: CartModalView,
 		private productView: ProductModalView,
 		private orderView: OrderModalView,
-		private contactsView: ContactsModalView
+		private contactsView: ContactsModalView,
+		private successView: SuccessModalView
 	){
 
 		/**
 		 * Подписка на открытие модального окна
 		 * @listens AppEvents.MODAL_OPENED
 		 */
-		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string, productId?: string }) => {
-			if (data.type === 'cart') {
-				const content =  this.basketView.renderCart();
+		eventEmitter.on(
+			AppEvents.MODAL_OPENED,
+			(data: { type: string; productId?: string }) => {
+				if (data.type === 'cart') {
+					const content = this.basketView.renderCart();
+					modalView.render(content);
+				}
+				if (data.type === 'product') {
+					const product = model.state.catalog.find(
+						(p) => p.id === data.productId
+					);
+					const content = this.productView.renderProduct(product);
+					modalView.render(content);
+				}
+				if (data.type === 'order') {
+					const content = this.orderView.renderOrderForm();
+					modalView.render(content);
+				}
+				if (data.type === 'contacts') {
+					const content = this.contactsView.renderContactsForm();
+					modalView.render(content);
+				}
+				if (data.type !== 'success') {
+					return;
+				}
+				const content = this.successView.renderSuccess();
 				modalView.render(content);
 			}
-			if (data.type === 'product') {
-				const product = model.state.catalog.find(p => p.id === data.productId);
-				const content = this.productView.renderProduct(product);
-				modalView.render(content);
-			}
-			if (data.type === 'order') {
-				const content = this.orderView.renderOrderForm();
-				modalView.render(content);
-			}
-			if (data.type === 'contacts') {
-				const content = this.contactsView.renderContactsForm();
-				modalView.render(content);
-			}
-		});
+		);
 	}
 }

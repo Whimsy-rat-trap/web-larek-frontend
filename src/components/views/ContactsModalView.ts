@@ -2,42 +2,21 @@ import { ensureElement, cloneTemplate } from "../../utils/utils";
 import { AppEvents } from "../../types/events";
 import { settings } from '../../utils/constants';
 
-/**
- * Модальное окно для ввода контактных данных
- * @class ContactsModalView
- * @extends ModalView
- * @property {HTMLButtonElement} submitButton - Кнопка отправки формы
- * @property {HTMLInputElement} emailInput - Поле ввода email
- * @property {HTMLInputElement} phoneInput - Поле ввода телефона
- * @property {HTMLElement} errorContainer - Контейнер для отображения ошибок
- * @property {boolean} emailEntered - Флаг валидности email
- * @property {boolean} phoneEntered - Флаг валидности телефона
- */
 export class ContactsModalView {
 	private submitButton: HTMLButtonElement;
 	private emailInput: HTMLInputElement;
 	private phoneInput: HTMLInputElement;
 	private errorContainer: HTMLElement;
-	private emailEntered = false;
-	private phoneEntered = false;
+	// private emailEntered = false;
+	// private phoneEntered = false;
 
-	/**
-	 * Конструктор класса ContactsModal
-	 * @constructor
-	 */
-	constructor(private contactsEmailSet: Function, private contactsPhoneSet: Function, private contactsInputPhoneChanged: Function, private contactsButtonClicked: Function) {
-	///
-	}
+	constructor(
+		private contactsEmailSet: Function,
+		private contactsPhoneSet: Function,
+		private contactsInputPhoneChanged: Function,
+		private contactsButtonClicked: Function
+	) {}
 
-	/**
-	 * Рендерит форму ввода контактных данных
-	 * @private
-	 * @emits AppEvents.ORDER_EMAIL_SET - При изменении email
-	 * @emits AppEvents.UI_ORDER_INPUT_PHONE_CHANGED - При изменении телефона
-	 * @emits AppEvents.ORDER_PHONE_SET - При изменении телефона
-	 * @emits AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - При клике на оплату
-	 * @emits AppEvents.ORDER_READY - При готовности заказа
-	 */
 	renderContactsForm(): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#contacts');
 		const form = cloneTemplate(template);
@@ -47,50 +26,50 @@ export class ContactsModalView {
 		this.submitButton = ensureElement<HTMLButtonElement>('button[type="submit"]', form);
 		this.errorContainer = ensureElement<HTMLElement>('.form__errors', form);
 
-		// Обработчики событий
+		// Делаем кнопку сразу активной
+		this.submitButton.disabled = false;
+
+		// Обработчики событий (оставляем только эмиты событий без валидации)
 		this.emailInput.addEventListener('input', () => {
 			const email = this.emailInput.value.trim();
-			this.emailEntered = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+			// this.emailEntered = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 			this.contactsEmailSet(email);
-			this.updateValidationState();
+			// this.updateValidationState();
 		});
 
 		this.phoneInput.addEventListener('input', () => {
-			// Ограничиваем ввод только цифрами и +
-			let value = this.phoneInput.value.replace(/[^0-9+]/g, '');
+			let value = this.phoneInput.value;
+			// Оставляем только цифры и +
+			value = value.replace(/[^0-9+]/g, '');
 
 			// Обеспечиваем, чтобы + был только в начале
 			if (value.includes('+')) {
 				value = '+' + value.replace(/\+/g, '');
 			}
 
-			// Ограничиваем длину (1 символ + и 11 цифр)
+			// Ограничиваем длину
 			if (value.length > 12) {
 				value = value.substring(0, 12);
 			}
 
 			this.phoneInput.value = value;
-
-			this.phoneEntered = /^\+[0-9]{11}$/.test(value);
+			// this.phoneEntered = /^\+[0-9]{11}$/.test(value);
 			this.contactsInputPhoneChanged(value);
 			this.contactsPhoneSet(value);
-			this.updateValidationState();
+			// this.updateValidationState();
 		});
 
 		form.addEventListener('submit', (event) => {
 			event.preventDefault();
-			if (this.isFormValid()) {
-				this.contactsButtonClicked();
-			}
+			// if (this.isFormValid()) {
+			this.contactsButtonClicked();
+			// }
 		});
 
 		return form;
 	}
 
-	/**
-	 * Обновляет состояние валидации формы
-	 * @private
-	 */
+	/*
 	private updateValidationState(): void {
 		this.errorContainer.innerHTML = '';
 
@@ -105,21 +84,10 @@ export class ContactsModalView {
 		this.submitButton.disabled = !this.isFormValid();
 	}
 
-	/**
-	 * Проверяет валидность формы
-	 * @private
-	 * @returns {boolean} Возвращает true если форма валидна
-	 */
 	private isFormValid(): boolean {
 		return this.emailEntered && this.phoneEntered;
 	}
 
-	/**
-	 * Отображает сообщение об ошибке
-	 * @private
-	 * @param {string} field - Поле с ошибкой
-	 * @param {string} message - Текст ошибки
-	 */
 	private showError(field: string, message: string): void {
 		this.errorContainer.innerHTML = '';
 		const errorElement = document.createElement('div');
@@ -127,4 +95,5 @@ export class ContactsModalView {
 		errorElement.textContent = message;
 		this.errorContainer.appendChild(errorElement);
 	}
+	*/
 }

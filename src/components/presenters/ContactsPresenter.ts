@@ -9,7 +9,8 @@ export class ContactsPresenter {
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter,
 	){
-		eventEmitter.on(AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED, () =>
-			this.view.renderContactsForm());
+		eventEmitter.on(AppEvents.UI_ORDER_BUTTON_PAY_CLICKED, () => {
+			eventEmitter.emit(AppEvents.MODAL_OPENED, { type: 'success' });
+		});
 	}
 }
