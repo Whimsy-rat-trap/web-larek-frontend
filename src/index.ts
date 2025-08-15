@@ -52,10 +52,6 @@ function removeFromCartClick(id: string) {
 	eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: id });
 }
 
-function requestButtonState(id: string, callback: (inCart: boolean) => void) {
-	eventEmitter.emit(AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED, { id, callback });
-}
-
 function orderAddressInput(address: string) {
 	eventEmitter.emit(AppEvents.ORDER_DELIVERY_SET, { address });
 }
@@ -102,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const validationService = new ValidationService(eventEmitter);
 
 	const page = new PageView(basketButtonClick, cardButtonClick);
-	const productModal = new ProductModalView(addToCartClick, removeFromCartClick, requestButtonState);
+	const productModal = new ProductModalView(addToCartClick, removeFromCartClick);
 	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
 	const orderModal = new OrderModalView(orderAddressInput, orderPaymentMethodSet, orderNextButtonClick);
 	const successModal = new SuccessModalView(successCloseClick, cartService);

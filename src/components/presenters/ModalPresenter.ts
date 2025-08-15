@@ -35,7 +35,8 @@ export class ModalPresenter {
 					const product = model.state.catalog.find(
 						(p) => p.id === data.productId
 					);
-					const content = this.productView.renderProduct(product);
+					const inCart = this.model.state.basket.some(p => p.id === product.id)
+					const content = this.productView.renderProduct(product, inCart);
 					modalView.render(content);
 				}
 				if (data.type === 'order') {

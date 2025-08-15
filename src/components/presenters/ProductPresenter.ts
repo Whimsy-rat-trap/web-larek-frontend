@@ -14,16 +14,24 @@ export class ProductPresenter {
 		 * Подписка на загрузку данных товара
 		 * @listens AppEvents.PRODUCT_DETAILS_LOADED
 		 */
-		eventEmitter.on(AppEvents.PRODUCT_DETAILS_LOADED, (data: IProduct) =>
-			this.view.renderProduct(data));
+		eventEmitter.on(AppEvents.PRODUCT_DETAILS_LOADED, (data: IProduct) => {
+			const inCart = this.model.state.basket.some(p => p.id === data.id);
+			this.view.renderProduct(data, inCart);
+		});
+
+		eventEmitter.on(AppEvents.BASKET_ITEM_ADDED, (productInfo: {id: string}) => {
+			if (this.view.currentProductId === productInfo.id) {
+				this.view.updateButtonState(this.view.currentProductId, true);
+			}
+		})
 
 		/**
 		 * Подписка на обновление корзины для изменения состояния кнопки
-		 * @listens AppEvents.BASKET_UPDATED
+		 * @listens AppEvents.BASKET_ITEM_REMOVED
 		 */
-		eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => {
-			if (this.view.currentProductId) {
-				this.view.updateButtonState(this.view.currentProductId);
+		eventEmitter.on(AppEvents.BASKET_ITEM_REMOVED, (productInfo: {id: string}) => {
+			if (this.view.currentProductId === productInfo.id) {
+				this.view.updateButtonState(this.view.currentProductId, false);
 			}
 		});
 	}

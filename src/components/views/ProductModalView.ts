@@ -18,7 +18,6 @@ export class ProductModalView {
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
 	 */
 	constructor(
-		private requestButtonState: Function,
 		private addToCartClick: Function,
 		private removeFromCartClick: Function
 	) {}
@@ -27,9 +26,9 @@ export class ProductModalView {
 	 * Рендерит информацию о товаре в модальном окне
 	 * @private
 	 * @param {IProduct} product - Данные товара для отображения
-	 * @emits AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - Для проверки состояния товара в корзине
+	 * @param inCart - Флаг того, что товар в корзине
 	 */
-	renderProduct(product: IProduct): HTMLElement {
+	renderProduct(product: IProduct, inCart: boolean): HTMLElement {
 		this.currentProductId = product.id;
 		const template = ensureElement<HTMLTemplateElement>('#card-preview');
 		const card = cloneTemplate(template);
@@ -49,7 +48,7 @@ export class ProductModalView {
 
 		if (product.price) {
 			price.textContent = `${product.price} синапсов`;
-			this.updateButtonState(product.id);
+			this.updateButtonState(product.id, inCart);
 		} else {
 			price.textContent = 'Бесценно';
 			this.addToCartButton.disabled = true;
@@ -68,22 +67,20 @@ export class ProductModalView {
 	 * @param {string} productId - ID товара для проверки
 	 * @emits AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - Запрашивает состояние товара в корзине
 	 */
-	updateButtonState(productId: string): void {
+	updateButtonState(productId: string, inCart: boolean): void {
 		if (!this.addToCartButton) return;
 
-		this.requestButtonState(productId, (inCart: boolean) => {
-				if (inCart) {
-					this.addToCartButton.textContent = 'Удалить из корзины';
-					this.addToCartButton.onclick = () => {
-						this.removeFromCartClick(productId);
-					};
-				} else {
-					this.addToCartButton.textContent = 'Купить';
-					this.addToCartButton.onclick = () => {
-						this.addToCartClick(productId);
-					};
-				}
-				this.addToCartButton.disabled = false;
-		});
+		if (inCart) {
+			this.addToCartButton.textContent = 'Удалить из корзины';
+			this.addToCartButton.onclick = () => {
+				this.removeFromCartClick(productId);
+			};
+		} else {
+			this.addToCartButton.textContent = 'Купить';
+			this.addToCartButton.onclick = () => {
+				this.addToCartClick(productId);
+			};
+		}
+		this.addToCartButton.disabled = false;
 	}
 }
