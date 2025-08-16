@@ -71,6 +71,7 @@ function successCloseClick() {
 }
 
 function contactsEmailSet(email: string) {
+	eventEmitter.emit(AppEvents.UI_ORDER_INPUT_MAIL_CHANGED, { value: email });
 	eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, { email });
 }
 
