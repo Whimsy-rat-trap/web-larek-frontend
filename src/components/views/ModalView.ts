@@ -15,7 +15,7 @@ export class ModalView {
 	 * @protected
 	 * @type {HTMLElement}
 	 */
-	protected container: HTMLElement;
+	container: HTMLElement;
 
 	/**
 	 * Контейнер для содержимого модального окна

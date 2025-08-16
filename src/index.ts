@@ -26,6 +26,8 @@ import { SuccessPresenter } from "./components/presenters/SuccessPresenter";
 
 import { ModalView } from './components/views/ModalView';
 
+import { IProduct } from './types';
+
 const eventEmitter = new EventEmitter();
 
 function basketButtonClick () {
@@ -40,8 +42,8 @@ function checkoutButtonClick() {
 	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_START_CLICKED);
 }
 
-function deleteButtonClick(id: number) {
-	this.eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id: id });
+function deleteButtonClick(id: string) {
+	eventEmitter.emit(AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED, { id });
 }
 
 function addToCartClick(id: string) {
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const contactsModal = new ContactsModalView(contactsEmailSet, contactsInputPhoneChanged, contactsPhoneSet, contactsButtonClicked);
 	const modal = new ModalView(eventEmitter);
 
-	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter);
+	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter, modal);
 	const contactsPresenter = new ContactsPresenter(contactsModal, appState, eventEmitter);
 	const modalPresenter = new ModalPresenter(modal, appState, eventEmitter, cartModal, productModal, orderModal, contactsModal, successModal);
 	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);

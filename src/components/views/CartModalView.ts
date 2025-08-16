@@ -24,10 +24,14 @@ export class CartModalView {
 	 * @param {Function} cartService.getCartItems - Получает товары в корзине
 	 * @param {Function} cartService.getTotalPrice - Получает общую сумму
 	 */
-	constructor(private checkoutButtonClick: Function, private deleteButtonClick: Function, private cartService: {
-		getCartItems: () => IProduct[];
-		getTotalPrice: () => number;
-	}) {
+	constructor(
+		private checkoutButtonClick: Function,
+		private deleteButtonClick: Function,
+		private cartService: {
+			getCartItems: () => IProduct[];
+			getTotalPrice: () => number;
+		}
+	) {
 	}
 
 	/**
@@ -54,7 +58,7 @@ export class CartModalView {
 			checkoutButton.disabled = true;
 		} else {
 			items.forEach((item: IProduct, index: number) => {
-				const cartItemView = new CartItemView(item, index + 1, () => this.deleteButtonClick(item));
+				const cartItemView = new CartItemView(item, index + 1, () => this.deleteButtonClick(item.id));
 				itemsList.appendChild(cartItemView.element);
 			});
 			checkoutButton.disabled = false;
