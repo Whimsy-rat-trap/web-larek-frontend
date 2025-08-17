@@ -26,7 +26,7 @@ export class SuccessModalView {
 	 * @emits AppEvents.MODAL_CLOSED - При закрытии модального окна
 	 * @returns {void}
 	 */
-	renderSuccess(): HTMLElement {
+	renderSuccess(total: number): HTMLElement {
 		// Получаем шаблон и клонируем его
 		const template = ensureElement<HTMLTemplateElement>('#success');
 		const success = cloneTemplate(template);
@@ -35,8 +35,6 @@ export class SuccessModalView {
 		const description = ensureElement<HTMLElement>('.order-success__description', success);
 		const closeButton = ensureElement<HTMLButtonElement>('.order-success__close', success);
 
-		// Устанавливаем сумму заказа
-		const total = this.cartService.getTotalPrice();
 		description.textContent = `Списано ${total} синапсов`;
 
 		// Очищаем корзину

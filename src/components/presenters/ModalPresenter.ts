@@ -47,11 +47,11 @@ export class ModalPresenter {
 					const content = this.contactsView.renderContactsForm();
 					modalView.render(content);
 				}
-				if (data.type !== 'success') {
-					return;
+				if (data.type === 'success') {
+					const total = this.model.state.basketTotal;
+					const content = this.successView.renderSuccess(total);
+					modalView.render(content);
 				}
-				const content = this.successView.renderSuccess();
-				modalView.render(content);
 			}
 		);
 	}

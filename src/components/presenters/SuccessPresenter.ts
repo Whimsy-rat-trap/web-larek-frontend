@@ -15,7 +15,8 @@ export class SuccessPresenter {
 		 */
 		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
 			if (data.type === 'success') {
-				this.view.renderSuccess();
+				const total = model.basketTotal;
+				this.view.renderSuccess(total);
 			}
 		});
 	}
