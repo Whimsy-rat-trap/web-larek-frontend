@@ -1,5 +1,5 @@
-import { EventEmitter } from "../base/events";
-import { AppEvents } from "../../types/events";
+import { EventEmitter } from '../base/events';
+import { AppEvents } from '../../types/events';
 import { IOrderRequest, PaymentMethod } from '../../types';
 import { AppStateModel } from '../models/AppStateModel';
 
@@ -33,6 +33,12 @@ export class OrderService {
 	private setupEventListeners(): void {
 		// Инициализация заказа
 		this.eventEmitter.on(AppEvents.UI_ORDER_BUTTON_START_CLICKED, () => {
+			this.appState.order = {
+				payment: null,
+				address: null,
+				email: null,
+				phone: null,
+			};
 			this.eventEmitter.emit(AppEvents.ORDER_INITIATED);
 		});
 
@@ -64,7 +70,7 @@ export class OrderService {
 					email: this.appState.state.order.email,
 					phone: this.appState.state.order.phone,
 					total: 0, // ApiService пересчитает
-					items: []  // ApiService добавит
+					items: [], // ApiService добавит
 				};
 				this.eventEmitter.emit(AppEvents.ORDER_READY, orderData);
 			}

@@ -1,10 +1,10 @@
-import {AppEvents} from '../../types/events';
+import { AppEvents, StateEvents } from '../../types/events';
 import { AppStateModel } from '../models/AppStateModel';
 import { ModalView } from '../views/ModalView';
 import { BasketView } from '../views/BasketView';
 import { EventEmitter } from '../base/events';
 import { ProductView } from '../views/ProductView';
-import { OrderModalView } from '../views/OrderModalView';
+import { OrderView } from '../views/OrderView';
 import { ContactsModalView } from '../views/ContactsModalView';
 import { SuccessView } from '../views/SuccessView';
 
@@ -15,11 +15,10 @@ export class ModalPresenter {
 		private eventEmitter: EventEmitter,
 		private basketView: BasketView,
 		private productView: ProductView,
-		private orderView: OrderModalView,
+		private orderView: OrderView,
 		private contactsView: ContactsModalView,
 		private successView: SuccessView
-	){
-
+	) {
 		/**
 		 * Подписка на открытие модального окна
 		 * @listens AppEvents.MODAL_OPENED
@@ -28,19 +27,30 @@ export class ModalPresenter {
 			AppEvents.MODAL_OPENED,
 			(data: { type: string; productId?: string }) => {
 				if (data.type === 'cart') {
-					const content = this.basketView.render(this.model.state.basket, this.model.state.basketTotal);
+					const content = this.basketView.render(
+						this.model.state.basket,
+						this.model.state.basketTotal
+					);
 					modalView.render(content);
 				}
 				if (data.type === 'product') {
 					const product = model.state.catalog.find(
 						(p) => p.id === data.productId
 					);
-					const inCart = this.model.state.basket.some(p => p.id === product.id)
+					const inCart = this.model.state.basket.some(
+						(p) => p.id === product.id
+					);
 					const content = this.productView.render(product, inCart);
 					modalView.render(content);
 				}
 				if (data.type === 'order') {
-					const content = this.orderView.renderOrderForm();
+					const content = this.orderView.render(
+						this.model.state.order.payment,
+						this.model.state.order.address,
+						this.model.state.order.errors.filter(
+							(error) => error.field === 'payment' || error.field === 'address'
+						)
+					);
 					modalView.render(content);
 				}
 				if (data.type === 'contacts') {
@@ -54,5 +64,15 @@ export class ModalPresenter {
 				}
 			}
 		);
+		this.eventEmitter.on(StateEvents.ORDER_STATE_FORM_UPDATED, () => {
+			const content = this.orderView.render(
+				this.model.state.order.payment,
+				this.model.state.order.address,
+				this.model.state.order.errors.filter(
+					(error) => error.field === 'payment' || error.field === 'address'
+				)
+			);
+			modalView.render(content);
+		});
 	}
 }

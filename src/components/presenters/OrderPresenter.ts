@@ -1,14 +1,22 @@
 import { AppStateModel } from '../models/AppStateModel';
-import { OrderModalView } from '../views/OrderModalView';
+import { OrderView } from '../views/OrderView';
 import { AppEvents } from '../../types/events';
 import { EventEmitter } from '../base/events';
 
 export class OrderPresenter {
 	constructor(
-		private view: OrderModalView,
+		private view: OrderView,
 		private model: AppStateModel,
-		private eventEmitter: EventEmitter,
-	){
-		eventEmitter.on(AppEvents.ORDER_INITIATED, () => this.view.renderOrderForm());
+		private eventEmitter: EventEmitter
+	) {
+		eventEmitter.on(AppEvents.ORDER_INITIATED, () =>
+			this.view.render(
+				this.model.state.order.payment,
+				this.model.state.order.address,
+				this.model.state.order.errors.filter(
+					(error) => error.field === 'payment' || error.field === 'address'
+				)
+			)
+		);
 	}
 }

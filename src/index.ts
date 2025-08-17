@@ -9,7 +9,7 @@ import { ValidationService } from './components/services/ValidationService';
 import { PageView } from './components/views/PageView';
 import { ProductView } from './components/views/ProductView';
 import { BasketView } from './components/views/BasketView';
-import { OrderModalView } from './components/views/OrderModalView';
+import { OrderView } from './components/views/OrderView';
 import { ContactsModalView } from './components/views/ContactsModalView';
 import { SuccessView } from './components/views/SuccessView';
 import { API_URL } from './utils/constants';
@@ -23,6 +23,7 @@ import { PagePresenter } from './components/presenters/PagePresenter';
 import { ProductPresenter } from './components/presenters/ProductPresenter';
 import { SuccessPresenter } from './components/presenters/SuccessPresenter';
 import { ModalView } from './components/views/ModalView';
+import { PaymentMethod } from './types';
 
 const eventEmitter = new EventEmitter();
 
@@ -58,7 +59,7 @@ function orderAddressInput(address: string) {
 	eventEmitter.emit(AppEvents.ORDER_DELIVERY_SET, { address });
 }
 
-function orderPaymentMethodSet(method: 'online' | 'cash') {
+function orderPaymentMethodSet(method: PaymentMethod) {
 	eventEmitter.emit(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, { method });
 }
 
@@ -98,22 +99,22 @@ document.addEventListener('DOMContentLoaded', () => {
 	const orderService = new OrderService(eventEmitter, appState);
 	const validationService = new ValidationService(eventEmitter);
 
-	const page = new PageView(basketButtonClick, cardButtonClick);
-	const productModal = new ProductView(addToBasketClick, removeFromBasketClick);
+	const pageView = new PageView(basketButtonClick, cardButtonClick);
+	const productView = new ProductView(addToBasketClick, removeFromBasketClick);
 	const basketView = new BasketView(checkoutButtonClick, deleteButtonClick);
-	const orderModal = new OrderModalView(
+	const orderView = new OrderView(
 		orderAddressInput,
 		orderPaymentMethodSet,
 		orderNextButtonClick
 	);
-	const successModal = new SuccessView(successCloseClick);
 	const contactsModal = new ContactsModalView(
 		contactsEmailSet,
 		contactsInputPhoneChanged,
 		contactsPhoneSet,
 		contactsButtonClicked
 	);
-	const modal = new ModalView(eventEmitter);
+	const successView = new SuccessView(successCloseClick);
+	const modalView = new ModalView(eventEmitter);
 
 	const basketPresenter = new BasketPresenter(
 		basketView,
@@ -126,24 +127,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		eventEmitter
 	);
 	const modalPresenter = new ModalPresenter(
-		modal,
+		modalView,
 		appState,
 		eventEmitter,
 		basketView,
-		productModal,
-		orderModal,
+		productView,
+		orderView,
 		contactsModal,
-		successModal
+		successView
 	);
-	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);
-	const pagePresenter = new PagePresenter(page, appState, eventEmitter);
+	const orderPresenter = new OrderPresenter(orderView, appState, eventEmitter);
+	const pagePresenter = new PagePresenter(pageView, appState, eventEmitter);
 	const productPresenter = new ProductPresenter(
-		productModal,
+		productView,
 		appState,
 		eventEmitter
 	);
 	const successPresenter = new SuccessPresenter(
-		successModal,
+		successView,
 		appState,
 		eventEmitter
 	);
