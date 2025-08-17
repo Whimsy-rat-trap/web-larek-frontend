@@ -1,7 +1,7 @@
 import {AppEvents} from '../../types/events';
 import { AppStateModel } from '../models/AppStateModel';
 import { ModalView } from '../views/ModalView';
-import { CartModalView } from '../views/CartModalView';
+import { BasketView } from '../views/BasketView';
 import { EventEmitter } from '../base/events';
 import { ProductModalView } from '../views/ProductModalView';
 import { OrderModalView } from '../views/OrderModalView';
@@ -13,7 +13,7 @@ export class ModalPresenter {
 		private modalView: ModalView,
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter,
-		private basketView: CartModalView,
+		private basketView: BasketView,
 		private productView: ProductModalView,
 		private orderView: OrderModalView,
 		private contactsView: ContactsModalView,
@@ -28,7 +28,7 @@ export class ModalPresenter {
 			AppEvents.MODAL_OPENED,
 			(data: { type: string; productId?: string }) => {
 				if (data.type === 'cart') {
-					const content = this.basketView.renderCart();
+					const content = this.basketView.render(this.model.state.basket, this.model.state.basketTotal);
 					modalView.render(content);
 				}
 				if (data.type === 'product') {

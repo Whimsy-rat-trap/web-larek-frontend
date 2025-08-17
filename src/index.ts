@@ -8,7 +8,7 @@ import { OrderService } from "./components/services/OrderService";
 import { ValidationService } from "./components/services/ValidationService";
 import { PageView } from "./components/views/PageView";
 import { ProductModalView } from "./components/views/ProductModalView";
-import { CartModalView } from "./components/views/CartModalView";
+import { BasketView } from "./components/views/BasketView";
 import { OrderModalView } from "./components/views/OrderModalView";
 import { ContactsModalView } from "./components/views/ContactsModalView";
 import { SuccessModalView } from "./components/views/SuccessModalView";
@@ -102,13 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const page = new PageView(basketButtonClick, cardButtonClick);
 	const productModal = new ProductModalView(addToCartClick, removeFromCartClick);
-	const cartModal = new CartModalView(checkoutButtonClick, deleteButtonClick, cartService);
+	const cartModal = new BasketView(checkoutButtonClick, deleteButtonClick);
 	const orderModal = new OrderModalView(orderAddressInput, orderPaymentMethodSet, orderNextButtonClick);
 	const successModal = new SuccessModalView(successCloseClick, cartService);
 	const contactsModal = new ContactsModalView(contactsEmailSet, contactsInputPhoneChanged, contactsPhoneSet, contactsButtonClicked);
 	const modal = new ModalView(eventEmitter);
 
-	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter, modal);
+	const basketPresenter = new BasketPresenter(cartModal, appState, eventEmitter);
 	const contactsPresenter = new ContactsPresenter(contactsModal, appState, eventEmitter);
 	const modalPresenter = new ModalPresenter(modal, appState, eventEmitter, cartModal, productModal, orderModal, contactsModal, successModal);
 	const orderPresenter = new OrderPresenter(orderModal, appState, eventEmitter);
