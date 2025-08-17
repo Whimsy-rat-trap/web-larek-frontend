@@ -1,7 +1,5 @@
-import { EventEmitter } from "../base/events";
-import { ensureElement } from "../../utils/utils";
-import { AppEvents, StateEvents } from '../../types/events';
-import { IProduct } from "../../types";
+import { ensureElement } from '../../utils/utils';
+import { IProduct } from '../../types';
 import { CategoryType, CDN_URL, settings } from '../../utils/constants';
 
 /**
@@ -20,7 +18,10 @@ export class PageView {
 	 * Создает экземпляр Page
 	 * @constructor
 	 */
-	constructor(private basketButtonClick: Function, private cardButtonClick: Function) {
+	constructor(
+		private basketButtonClick: () => void,
+		private cardButtonClick: (productId: string) => void
+	) {
 		this.gallery = ensureElement<HTMLElement>('.gallery');
 		this.basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
 		this.basketButton = ensureElement<HTMLElement>('.header__basket');
@@ -30,8 +31,6 @@ export class PageView {
 
 	/**
 	 * Настраивает обработчики UI событий
-	 * @private
-	 * @emits AppEvents.UI_BUTTON_BASKET_CLICKED - При клике на кнопку корзины
 	 */
 	private setupUIListeners(): void {
 		this.basketButton.addEventListener('click', () => {
@@ -44,9 +43,9 @@ export class PageView {
 	 * @private
 	 * @param {IProduct[]} products - Массив товаров для отображения
 	 */
-	public renderProducts(products: IProduct[]): void {
+	public render(products: IProduct[]): void {
 		this.gallery.innerHTML = '';
-		products.forEach(product => {
+		products.forEach((product) => {
 			const productElement = this.createProductElement(product);
 			this.gallery.appendChild(productElement);
 		});
@@ -57,7 +56,6 @@ export class PageView {
 	 * @private
 	 * @param {IProduct} product - Данные товара
 	 * @returns {HTMLElement} Созданный DOM-элемент товара
-	 * @emits AppEvents.UI_PRODUCT_CLICKED - При клике на товар
 	 */
 	private createProductElement(product: IProduct): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#card-catalog');
@@ -73,7 +71,9 @@ export class PageView {
 		image.src = `${CDN_URL}${product.image}`;
 		image.alt = product.title;
 		category.textContent = product.category;
-		price.textContent = product.price ? `${product.price} синапсов` : 'Бесценно';
+		price.textContent = product.price
+			? `${product.price} синапсов`
+			: 'Бесценно';
 
 		// Настраиваем класс категории
 		const categoryName = product.category as CategoryType;

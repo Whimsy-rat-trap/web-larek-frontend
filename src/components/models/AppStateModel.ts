@@ -1,5 +1,11 @@
-import { EventEmitter } from "../base/events";
-import { IAppState, IOrderFormState, IProduct, IValidationError, PaymentMethod } from '../../types';
+import { EventEmitter } from '../base/events';
+import {
+	IAppState,
+	IOrderFormState,
+	IProduct,
+	IValidationError,
+	PaymentMethod,
+} from '../../types';
 import { AppEvents, StateEvents } from '../../types/events';
 
 /**
@@ -24,9 +30,9 @@ export class AppStateModel {
 			email: '',
 			phone: '',
 			isValid: false,
-			errors: []
+			errors: [],
 		},
-		preview: null
+		preview: null,
 	};
 
 	/**
@@ -35,9 +41,12 @@ export class AppStateModel {
 	 * @param {EventEmitter} events - Эмиттер событий для уведомлений
 	 */
 	constructor(private events: EventEmitter) {
-		events.on(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, (data: { method: PaymentMethod }) => {
-			this.order = { payment: data.method };
-		});
+		events.on(
+			AppEvents.UI_ORDER_BUTTON_PAYMENT_SET,
+			(data: { method: PaymentMethod }) => {
+				this.order = { payment: data.method };
+			}
+		);
 
 		events.on(AppEvents.ORDER_EMAIL_SET, (data: { email: string }) => {
 			this.order = { email: data.email };
@@ -67,9 +76,7 @@ export class AppStateModel {
 	 */
 	set catalog(items: IProduct[]) {
 		this._state.catalog = items;
-		this.events.emit(StateEvents.CATALOG_STATE_UPDATED, {
-			catalog: this._state.catalog
-		});
+		this.events.emit(StateEvents.CATALOG_STATE_UPDATED);
 	}
 
 	/**
@@ -79,10 +86,7 @@ export class AppStateModel {
 	set basket(items: IProduct[]) {
 		this._state.basket = items;
 		this.updateBasketTotal();
-		this.events.emit(StateEvents.BASKET_STATE_CHANGED, {
-			basket: this._state.basket,
-			basketTotal: this._state.basketTotal
-		});
+		this.events.emit(StateEvents.BASKET_STATE_CHANGED);
 	}
 
 	/**
@@ -115,11 +119,11 @@ export class AppStateModel {
 			...this._state.order,
 			...form,
 			isValid: this.validateOrder(form),
-			errors: this.validateOrderFields(form)
+			errors: this.validateOrderFields(form),
 		};
 
 		this.events.emit(StateEvents.ORDER_STATE_FORM_UPDATED, {
-			order: this._state.order
+			order: this._state.order,
 		});
 	}
 
@@ -131,8 +135,12 @@ export class AppStateModel {
 	 */
 	private validateOrder(form: Partial<IOrderFormState>): boolean {
 		const newState = { ...this._state.order, ...form };
-		return !!newState.address && !!newState.payment &&
-			!!newState.email && !!newState.phone;
+		return (
+			!!newState.address &&
+			!!newState.payment &&
+			!!newState.email &&
+			!!newState.phone
+		);
 	}
 
 	/**
@@ -141,7 +149,9 @@ export class AppStateModel {
 	 * @param {Partial<IOrderFormState>} form - Объект с обновляемыми полями формы
 	 * @returns {IValidationError[]} Массив ошибок валидации
 	 */
-	private validateOrderFields(form: Partial<IOrderFormState>): IValidationError[] {
+	private validateOrderFields(
+		form: Partial<IOrderFormState>
+	): IValidationError[] {
 		const errors: IValidationError[] = [];
 		const newState = { ...this._state.order, ...form };
 
@@ -172,7 +182,7 @@ export class AppStateModel {
 	set preview(id: string | null) {
 		this._state.preview = id;
 		this.events.emit(StateEvents.PREVIEW_STATE_UPDATED, {
-			preview: this._state.preview
+			preview: this._state.preview,
 		});
 	}
 }

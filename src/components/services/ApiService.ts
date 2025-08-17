@@ -1,7 +1,7 @@
-import { Api } from "../base/api";
-import { IProduct, IOrderRequest, IOrderResponse } from "../../types";
-import { AppEvents } from "../../types/events";
-import { EventEmitter } from "../base/events";
+import { Api } from '../base/api';
+import { IProduct, IOrderRequest, IOrderResponse } from '../../types';
+import { AppEvents } from '../../types/events';
+import { EventEmitter } from '../base/events';
 import { AppStateModel } from '../models/AppStateModel';
 
 /**
@@ -45,19 +45,27 @@ export class ApiService {
 	 * @listens AppEvents.ORDER_READY - Готовность заказа к отправке
 	 */
 	private setupEventListeners(): void {
-		this.events.on(AppEvents.PAGE_MAIN_LOADED, () => this.loadProducts());
-		this.events.on(AppEvents.PRODUCT_DETAILS_REQUESTED, (data: { id: string }) =>
-			this.loadProductDetails(data.id));
+		this.events.on(
+			AppEvents.PAGE_MAIN_LOADED,
+			async () => await this.loadProducts()
+		);
+		this.events.on(
+			AppEvents.PRODUCT_DETAILS_REQUESTED,
+			(data: { id: string }) => this.loadProductDetails(data.id)
+		);
 
 		this.events.on(AppEvents.ORDER_READY, () => {
 			const orderData = this.appState.state.order;
-			const items = this.appState.state.basket.map(item => item.id);
-			const total = this.appState.state.basket.reduce((sum, item) => sum + (item.price || 0), 0);
+			const items = this.appState.state.basket.map((item) => item.id);
+			const total = this.appState.state.basket.reduce(
+				(sum, item) => sum + (item.price || 0),
+				0
+			);
 
 			this.submitOrder({
 				...orderData,
 				items,
-				total
+				total,
 			} as IOrderRequest);
 		});
 	}
@@ -67,17 +75,15 @@ export class ApiService {
 	 * @private
 	 * @async
 	 * @returns {Promise<void>}
-	 * @emits AppEvents.PRODUCTS_LIST_LOADED - При успешной загрузке товаров
 	 * @throws {Error} - При ошибке загрузки
 	 */
 	private async loadProducts(): Promise<void> {
 		try {
-			const response = await this.api.get('/product') as IProductListResponse;
+			const response = (await this.api.get('/product')) as IProductListResponse;
 			this.appState.catalog = response.items; // Сохраняем в состояние
 		} catch (error) {
 			console.error('Failed to load products:', error);
 			this.appState.catalog = []; // Очищаем при ошибке
-			// AppStateModal сам отправит CATALOG_UPDATED с пустым массивом
 		}
 	}
 
@@ -93,14 +99,18 @@ export class ApiService {
 	private async loadProductDetails(productId: string): Promise<void> {
 		try {
 			// Пытаемся найти в сохраненном каталоге
-			const product = this.appState.state.catalog.find(p => p.id === productId);
+			const product = this.appState.state.catalog.find(
+				(p) => p.id === productId
+			);
 			if (product) {
 				this.events.emit(AppEvents.PRODUCT_DETAILS_LOADED, product);
 				return;
 			}
 
 			// Если нет в каталоге - загружаем с сервера
-			const response = await this.api.get(`/product/${productId}`) as IProduct;
+			const response = (await this.api.get(
+				`/product/${productId}`
+			)) as IProduct;
 			this.events.emit(AppEvents.PRODUCT_DETAILS_LOADED, response);
 		} catch (error) {
 			console.error('Failed to load product details:', error);
@@ -123,15 +133,19 @@ export class ApiService {
 
 		try {
 			console.log('Submitting order:', orderData);
-			const response = await this.api.post('/order', orderData) as IOrderResponse;
+			const response = (await this.api.post(
+				'/order',
+				orderData
+			)) as IOrderResponse;
 			this.events.emit(AppEvents.ORDER_SUBMITTED, response);
 		} catch (error) {
 			console.error('Failed to submit order:', error);
 
 			// Публикуем событие об ошибке с деталями
-			const errorMessage = error instanceof Error ? error.message : 'Ошибка при отправке заказа';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Ошибка при отправке заказа';
 			this.events.emit(AppEvents.ORDER_SUBMIT_ERROR, {
-				message: errorMessage
+				message: errorMessage,
 			});
 		}
 	}
