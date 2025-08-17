@@ -1,8 +1,6 @@
-import { ModalView } from "./ModalView";
-import { ensureElement, cloneTemplate } from "../../utils/utils";
-import { AppEvents } from "../../types/events";
-import { IProduct } from "../../types";
-import { CartItemView } from "./CartItemView";
+import { ensureElement, cloneTemplate } from '../../utils/utils';
+import { IProduct } from '../../types';
+import { BasketItemView } from './BasketItemView';
 
 /**
  * Модальное окно корзины
@@ -31,8 +29,7 @@ export class CartModalView {
 			getCartItems: () => IProduct[];
 			getTotalPrice: () => number;
 		}
-	) {
-	}
+	) {}
 
 	/**
 	 * Рендерит содержимое корзины
@@ -43,8 +40,14 @@ export class CartModalView {
 		const template = ensureElement<HTMLTemplateElement>('#basket');
 		const cartElement = cloneTemplate(template);
 		const itemsList = ensureElement<HTMLElement>('.basket__list', cartElement);
-		const totalPrice = ensureElement<HTMLElement>('.basket__price', cartElement);
-		const checkoutButton = ensureElement<HTMLButtonElement>('.basket__button', cartElement);
+		const totalPrice = ensureElement<HTMLElement>(
+			'.basket__price',
+			cartElement
+		);
+		const checkoutButton = ensureElement<HTMLButtonElement>(
+			'.basket__button',
+			cartElement
+		);
 
 		itemsList.innerHTML = '';
 		const items = this.cartService.getCartItems();
@@ -58,7 +61,9 @@ export class CartModalView {
 			checkoutButton.disabled = true;
 		} else {
 			items.forEach((item: IProduct, index: number) => {
-				const cartItemView = new CartItemView(item, index + 1, () => this.deleteButtonClick(item.id));
+				const cartItemView = new BasketItemView(item, index + 1, () =>
+					this.deleteButtonClick(item.id)
+				);
 				itemsList.appendChild(cartItemView.element);
 			});
 			checkoutButton.disabled = false;
