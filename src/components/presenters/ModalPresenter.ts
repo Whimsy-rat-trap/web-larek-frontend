@@ -3,10 +3,10 @@ import { AppStateModel } from '../models/AppStateModel';
 import { ModalView } from '../views/ModalView';
 import { BasketView } from '../views/BasketView';
 import { EventEmitter } from '../base/events';
-import { ProductModalView } from '../views/ProductModalView';
+import { ProductView } from '../views/ProductView';
 import { OrderModalView } from '../views/OrderModalView';
 import { ContactsModalView } from '../views/ContactsModalView';
-import { SuccessModalView } from '../views/SuccessModalView';
+import { SuccessView } from '../views/SuccessView';
 
 export class ModalPresenter {
 	constructor(
@@ -14,10 +14,10 @@ export class ModalPresenter {
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter,
 		private basketView: BasketView,
-		private productView: ProductModalView,
+		private productView: ProductView,
 		private orderView: OrderModalView,
 		private contactsView: ContactsModalView,
-		private successView: SuccessModalView
+		private successView: SuccessView
 	){
 
 		/**
@@ -36,7 +36,7 @@ export class ModalPresenter {
 						(p) => p.id === data.productId
 					);
 					const inCart = this.model.state.basket.some(p => p.id === product.id)
-					const content = this.productView.renderProduct(product, inCart);
+					const content = this.productView.render(product, inCart);
 					modalView.render(content);
 				}
 				if (data.type === 'order') {
@@ -49,7 +49,7 @@ export class ModalPresenter {
 				}
 				if (data.type === 'success') {
 					const total = this.model.state.basketTotal;
-					const content = this.successView.renderSuccess(total);
+					const content = this.successView.render(total);
 					modalView.render(content);
 				}
 			}

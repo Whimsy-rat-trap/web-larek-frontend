@@ -128,14 +128,3 @@ export interface IAppState {
 	order: IOrderFormState;
 	preview: string | null;
 }
-
-/**
- * Интерфейс сервиса корзины для SuccessModal
- * @interface ICartServiceForSuccess
- * @property {() => number} getTotalPrice - Получить сумму корзины
- * @property {() => void} clearCart - Очистить корзину
- */
-export interface ICartServiceForSuccess {
-	getTotalPrice(): number;
-	clearCart(): void;
-}

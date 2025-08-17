@@ -1,11 +1,11 @@
 import { AppStateModel } from '../models/AppStateModel';
-import { SuccessModalView } from '../views/SuccessModalView';
+import { SuccessView } from '../views/SuccessView';
 import { AppEvents } from '../../types/events';
 import { EventEmitter } from '../base/events';
 
 export class SuccessPresenter {
 	constructor(
-		private view: SuccessModalView,
+		private view: SuccessView,
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter,
 	){
@@ -16,7 +16,7 @@ export class SuccessPresenter {
 		eventEmitter.on(AppEvents.MODAL_OPENED, (data: { type: string }) => {
 			if (data.type === 'success') {
 				const total = model.basketTotal;
-				this.view.renderSuccess(total);
+				this.view.render(total);
 			}
 		});
 	}
