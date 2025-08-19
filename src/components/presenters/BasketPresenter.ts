@@ -9,6 +9,8 @@ export class BasketPresenter {
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter
 	) {
+		this.view.render(this.model.state.basket, this.model.state.basketTotal);
+
 		/**
 		 * Подписка на обновление корзины
 		 * @listens AppEvents.BASKET_CONTENT_CHANGED

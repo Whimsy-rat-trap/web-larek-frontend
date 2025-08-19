@@ -11,13 +11,6 @@ import { ensureElement } from "../../utils/utils";
  */
 export class ModalView {
 	/**
-	 * Контейнер модального окна
-	 * @protected
-	 * @type {HTMLElement}
-	 */
-	container: HTMLElement;
-
-	/**
 	 * Контейнер для содержимого модального окна
 	 * @protected
 	 * @type {HTMLElement}
@@ -34,11 +27,10 @@ export class ModalView {
 	/**
 	 * Создает экземпляр Modal
 	 * @constructor
+	 * @param container - Контейнер модального окна
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @param {string} [containerId='modal-container'] - ID DOM-элемента контейнера
 	 */
-	constructor(protected eventEmitter: EventEmitter, containerId = 'modal-container') {
-		this.container = ensureElement<HTMLElement>(`#${containerId}`);
+	constructor(private container: HTMLElement, protected eventEmitter: EventEmitter) {
 		this.content = ensureElement<HTMLElement>('.modal__content', this.container);
 		this.closeButton = ensureElement<HTMLElement>('.modal__close', this.container);
 

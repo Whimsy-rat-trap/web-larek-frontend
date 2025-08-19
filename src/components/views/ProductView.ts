@@ -15,10 +15,12 @@ export class ProductView {
 	/**
 	 * Создает экземпляр ProductModal
 	 * @constructor
+	 * @param container - контейнер для отрисовки содержимого
 	 * @param addToCartClick - обработчик кнопки добавления товара в корзину
 	 * @param removeFromCartClick
 	 */
 	constructor(
+		private container: HTMLElement,
 		private addToCartClick: (productId: string) => void,
 		private removeFromCartClick: (productId: string) => void
 	) {}
@@ -60,6 +62,8 @@ export class ProductView {
 
 		const categorySlug = settings.categories[product.category] || 'other';
 		category.className = `card__category card__category_${categorySlug}`;
+
+		this.container.replaceChildren(card);
 
 		return card;
 	}

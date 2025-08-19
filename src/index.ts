@@ -17,13 +17,17 @@ import { AppEvents } from './types/events';
 import { AppStateModel } from './components/models/AppStateModel';
 import { BasketPresenter } from './components/presenters/BasketPresenter';
 import { ContactsPresenter } from './components/presenters/ContactsPresenter';
-import { ModalPresenter } from './components/presenters/ModalPresenter';
+import {
+	ModalPresenter,
+	ModalViewList,
+} from './components/presenters/ModalPresenter';
 import { OrderPresenter } from './components/presenters/OrderPresenter';
 import { PagePresenter } from './components/presenters/PagePresenter';
 import { ProductPresenter } from './components/presenters/ProductPresenter';
 import { SuccessPresenter } from './components/presenters/SuccessPresenter';
 import { ModalView } from './components/views/ModalView';
 import { PaymentMethod } from './types';
+import { ensureElement } from './utils/utils';
 
 const eventEmitter = new EventEmitter();
 
@@ -100,13 +104,37 @@ document.addEventListener('DOMContentLoaded', () => {
 	const validationService = new ValidationService(eventEmitter);
 
 	const pageView = new PageView(basketButtonClick, cardButtonClick);
-	const productView = new ProductView(addToBasketClick, removeFromBasketClick);
-	const basketView = new BasketView(checkoutButtonClick, deleteButtonClick);
+
+	const productModalContainer = ensureElement<HTMLElement>('#modal-product');
+	const productModalView = new ModalView(productModalContainer, eventEmitter);
+	const productViewContainer = ensureElement<HTMLElement>(
+		'.modal__content',
+		productModalContainer
+	);
+	const productView = new ProductView(
+		productViewContainer,
+		addToBasketClick,
+		removeFromBasketClick
+	);
+
+	const basketModalContainer = ensureElement<HTMLElement>('#modal-basket');
+	const basketModalView = new ModalView(basketModalContainer, eventEmitter);
+	const basketViewContainer = ensureElement<HTMLElement>(
+		'.modal__content',
+		basketModalContainer
+	);
+	const basketView = new BasketView(
+		basketViewContainer,
+		checkoutButtonClick,
+		deleteButtonClick
+	);
+
 	const orderView = new OrderView(
 		orderAddressInput,
 		orderPaymentMethodSet,
 		orderNextButtonClick
 	);
+
 	const contactsModal = new ContactsModalView(
 		contactsEmailSet,
 		contactsInputPhoneChanged,
@@ -114,7 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		contactsButtonClicked
 	);
 	const successView = new SuccessView(successCloseClick);
-	const modalView = new ModalView(eventEmitter);
+
+	const modalView = new ModalView(basketModalContainer, eventEmitter);
 
 	const basketPresenter = new BasketPresenter(
 		basketView,
@@ -125,16 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		contactsModal,
 		appState,
 		eventEmitter
-	);
-	const modalPresenter = new ModalPresenter(
-		modalView,
-		appState,
-		eventEmitter,
-		basketView,
-		productView,
-		orderView,
-		contactsModal,
-		successView
 	);
 	const orderPresenter = new OrderPresenter(orderView, appState, eventEmitter);
 	const pagePresenter = new PagePresenter(pageView, appState, eventEmitter);
@@ -148,6 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		appState,
 		eventEmitter
 	);
+
+	const views: ModalViewList = {
+		basketModalView: basketModalView,
+		productModalView: productModalView,
+	};
+	const modalPresenter = new ModalPresenter(views, appState, eventEmitter);
 
 	// Публикация события загрузки страницы
 	eventEmitter.emit(AppEvents.PAGE_MAIN_LOADED);
