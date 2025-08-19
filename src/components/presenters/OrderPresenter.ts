@@ -17,7 +17,7 @@ export class OrderPresenter {
 			)
 		);
 
-		eventEmitter.on(AppEvents.ORDER_INITIATED, () =>
+		this.eventEmitter.on(AppEvents.ORDER_INITIATED, () =>
 			this.view.render(
 				this.model.state.order.payment,
 				this.model.state.order.address,

@@ -10,7 +10,7 @@ import { PageView } from './components/views/PageView';
 import { ProductView } from './components/views/ProductView';
 import { BasketView } from './components/views/BasketView';
 import { OrderView } from './components/views/OrderView';
-import { ContactsModalView } from './components/views/ContactsModalView';
+import { ContactsView } from './components/views/ContactsView';
 import { SuccessView } from './components/views/SuccessView';
 import { API_URL } from './utils/constants';
 import { AppEvents } from './types/events';
@@ -80,8 +80,8 @@ function contactsEmailSet(email: string) {
 	eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, { email });
 }
 
-function contactsInputPhoneChanged(value: string) {
-	eventEmitter.emit(AppEvents.UI_ORDER_INPUT_PHONE_CHANGED, { value });
+function contactsInputPhoneChanged(phone: string) {
+	eventEmitter.emit(AppEvents.UI_ORDER_INPUT_PHONE_CHANGED, { value: phone });
 }
 
 function contactsPhoneSet(phone: string) {
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const orderViewContainer = ensureElement<HTMLElement>(
 		'.modal__content',
 		orderModalContainer
-	)
+	);
 	const orderView = new OrderView(
 		orderViewContainer,
 		orderAddressInput,
@@ -142,13 +142,27 @@ document.addEventListener('DOMContentLoaded', () => {
 		orderNextButtonClick
 	);
 
-	const contactsModal = new ContactsModalView(
+	const contactsModalContainer = ensureElement<HTMLElement>('#modal-contacts');
+	const contactsModalView = new ModalView(contactsModalContainer, eventEmitter);
+	const contactsViewContainer = ensureElement<HTMLElement>(
+		'.modal__content',
+		contactsModalContainer
+	);
+	const contactsView = new ContactsView(
+		contactsViewContainer,
 		contactsEmailSet,
 		contactsInputPhoneChanged,
 		contactsPhoneSet,
 		contactsButtonClicked
 	);
-	const successView = new SuccessView(successCloseClick);
+
+	const successModalContainer = ensureElement<HTMLElement>('#modal-success');
+	const successModalView = new ModalView(successModalContainer, eventEmitter);
+	const successViewContainer = ensureElement<HTMLElement>(
+		'.modal__content',
+		successModalContainer
+	);
+	const successView = new SuccessView(successViewContainer, successCloseClick);
 
 	const modalView = new ModalView(basketModalContainer, eventEmitter);
 
@@ -158,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		eventEmitter
 	);
 	const contactsPresenter = new ContactsPresenter(
-		contactsModal,
+		contactsView,
 		appState,
 		eventEmitter
 	);
@@ -178,7 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	const views: ModalViewList = {
 		basketModalView: basketModalView,
 		productModalView: productModalView,
-		orderModalView: orderModalView
+		orderModalView: orderModalView,
+		contactsModalView: contactsModalView,
+		successModalView: successModalView,
 	};
 	const modalPresenter = new ModalPresenter(views, appState, eventEmitter);
 

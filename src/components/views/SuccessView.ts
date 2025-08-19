@@ -9,9 +9,12 @@ export class SuccessView {
 	/**
 	 * Создает экземпляр SuccessView
 	 * @constructor
+	 * @param container - контейнер для отрисовки содержимого
 	 * @param onCloseClick
 	 */
-	constructor(private onCloseClick: () => void) {}
+	constructor(
+		private container: HTMLElement,
+		private onCloseClick: () => void) {}
 
 	/**
 	 * Рендерит сообщение об успешном заказе
@@ -40,6 +43,8 @@ export class SuccessView {
 		closeButton.addEventListener('click', () => {
 			this.onCloseClick();
 		});
+
+		this.container.replaceChildren(success);
 
 		return success;
 	}

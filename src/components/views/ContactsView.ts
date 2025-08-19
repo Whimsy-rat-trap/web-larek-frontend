@@ -1,30 +1,44 @@
-// ContactsModalView.ts
-import { ensureElement, cloneTemplate } from "../../utils/utils";
-import { AppEvents } from "../../types/events";
-import { settings } from '../../utils/constants';
+import { ensureElement, cloneTemplate } from '../../utils/utils';
+import { IValidationError } from '../../types';
 
-export class ContactsModalView {
+export class ContactsView {
 	private submitButton: HTMLButtonElement;
 	private emailInput: HTMLInputElement;
 	private phoneInput: HTMLInputElement;
 	private errorContainer: HTMLElement;
 
 	constructor(
-		private contactsEmailSet: Function,
-		private contactsInputPhoneChanged: Function,
-		private contactsPhoneSet: Function,
-		private contactsButtonClicked: Function
+		private container: HTMLElement,
+		private contactsEmailSet: (email: string) => void,
+		private contactsInputPhoneChanged: (phone: string) => void,
+		private contactsPhoneSet: (phone: string) => void,
+		private contactsButtonClicked: () => void
 	) {}
 
-	renderContactsForm(): HTMLElement {
+	render(
+		email: string,
+		phone: string,
+		errors: IValidationError[]
+	): HTMLElement {
 		const template = ensureElement<HTMLTemplateElement>('#contacts');
 		const form = cloneTemplate(template);
 
-		this.emailInput = ensureElement<HTMLInputElement>('input[name="email"]', form);
-		this.phoneInput = ensureElement<HTMLInputElement>('input[name="phone"]', form);
-		this.submitButton = ensureElement<HTMLButtonElement>('button[type="submit"]', form);
+		this.emailInput = ensureElement<HTMLInputElement>(
+			'input[name="email"]',
+			form
+		);
+		this.phoneInput = ensureElement<HTMLInputElement>(
+			'input[name="phone"]',
+			form
+		);
+		this.submitButton = ensureElement<HTMLButtonElement>(
+			'button[type="submit"]',
+			form
+		);
 		this.errorContainer = ensureElement<HTMLElement>('.form__errors', form);
 
+		this.emailInput.value = email;
+		this.phoneInput.value = phone;
 		// Initially disable the submit button
 		this.submitButton.disabled = true;
 
@@ -60,6 +74,11 @@ export class ContactsModalView {
 			this.contactsButtonClicked();
 		});
 
+		this.showErrors(errors);
+		this.setSubmitButtonEnabled(errors.length === 0);
+
+		this.container.replaceChildren(form);
+
 		return form;
 	}
 
@@ -69,16 +88,14 @@ export class ContactsModalView {
 	}
 
 	// Method to show validation errors
-	showError(message: string): void {
+	showErrors(errors: IValidationError[]): void {
 		this.errorContainer.innerHTML = '';
-		const errorElement = document.createElement('div');
-		errorElement.className = 'form__error';
-		errorElement.textContent = message;
-		this.errorContainer.appendChild(errorElement);
-	}
-
-	// Method to clear errors
-	clearErrors(): void {
-		this.errorContainer.innerHTML = '';
+		errors.forEach((error) => {
+			const errorElement = document.createElement('div');
+			errorElement.className = `form__error`;
+			errorElement.textContent = error.message;
+			this.errorContainer.appendChild(errorElement);
+		});
+		this.setSubmitButtonEnabled(errors.length === 0);
 	}
 }

@@ -59,6 +59,11 @@ export class AppStateModel {
 		events.on(AppEvents.ORDER_DELIVERY_SET, (data: { address: string }) => {
 			this.order = { address: data.address };
 		});
+		events.on(AppEvents.ORDER_SUBMITTED, () => {
+			this.order = {};
+			this.basket = [];
+			this.updateBasketTotal();
+		});
 	}
 
 	/**
