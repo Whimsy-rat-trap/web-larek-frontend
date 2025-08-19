@@ -129,7 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		deleteButtonClick
 	);
 
+	const orderModalContainer = ensureElement<HTMLElement>('#modal-order');
+	const orderModalView = new ModalView(orderModalContainer, eventEmitter);
+	const orderViewContainer = ensureElement<HTMLElement>(
+		'.modal__content',
+		orderModalContainer
+	)
 	const orderView = new OrderView(
+		orderViewContainer,
 		orderAddressInput,
 		orderPaymentMethodSet,
 		orderNextButtonClick
@@ -171,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const views: ModalViewList = {
 		basketModalView: basketModalView,
 		productModalView: productModalView,
+		orderModalView: orderModalView
 	};
 	const modalPresenter = new ModalPresenter(views, appState, eventEmitter);
 

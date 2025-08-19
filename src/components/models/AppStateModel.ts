@@ -122,6 +122,10 @@ export class AppStateModel {
 			errors: this.validateOrderFields(form),
 		};
 
+		if (!this._state.order.isValid) {
+			this.events.emit(AppEvents.ORDER_VALIDATION_ERROR);
+		}
+
 		this.events.emit(StateEvents.ORDER_STATE_FORM_UPDATED, {
 			order: this._state.order,
 		});

@@ -22,11 +22,13 @@ export class OrderView {
 	/**
 	 * Создает экземпляр OrderModal
 	 * @constructor
+	 * @param container - контейнер для отрисовки содержимого
 	 * @param orderAddressInput
 	 * @param orderPaymentMethodSet
 	 * @param orderNextButtonClick
 	 */
 	constructor(
+		private container: HTMLElement,
 		private orderAddressInput: (address: string) => void,
 		private orderPaymentMethodSet: (method: PaymentMethod) => void,
 		private orderNextButtonClick: () => void
@@ -87,6 +89,8 @@ export class OrderView {
 		this.showErrors(errors);
 		this.nextButton.disabled = errors.length > 0;
 
+		this.container.replaceChildren(form);
+
 		return form;
 	}
 
@@ -110,7 +114,7 @@ export class OrderView {
 	 * @private
 	 * @param errors - список ошибок
 	 */
-	private showErrors(errors: IValidationError[]): void {
+	showErrors(errors: IValidationError[]): void {
 		this.errorContainer.innerHTML = '';
 		errors.forEach((error) => {
 			const errorElement = document.createElement('div');
@@ -118,5 +122,6 @@ export class OrderView {
 			errorElement.textContent = error.message;
 			this.errorContainer.appendChild(errorElement);
 		});
+		this.nextButton.disabled = errors.length > 0;
 	}
 }

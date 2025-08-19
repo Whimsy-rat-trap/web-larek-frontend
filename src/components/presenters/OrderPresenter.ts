@@ -9,6 +9,14 @@ export class OrderPresenter {
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter
 	) {
+		this.view.render(
+			this.model.state.order.payment,
+			this.model.state.order.address,
+			this.model.state.order.errors.filter(
+				(error) => error.field === 'payment' || error.field === 'address'
+			)
+		);
+
 		eventEmitter.on(AppEvents.ORDER_INITIATED, () =>
 			this.view.render(
 				this.model.state.order.payment,
@@ -18,5 +26,12 @@ export class OrderPresenter {
 				)
 			)
 		);
+		this.eventEmitter.on(AppEvents.ORDER_VALIDATION_ERROR, () => {
+			this.view.showErrors(
+				this.model.state.order.errors.filter(
+					(error) => error.field === 'payment' || error.field === 'address'
+				)
+			);
+		});
 	}
 }

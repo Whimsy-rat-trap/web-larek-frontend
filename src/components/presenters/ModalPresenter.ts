@@ -1,12 +1,12 @@
-import { AppEvents, StateEvents } from '../../types/events';
+import { AppEvents } from '../../types/events';
 import { AppStateModel } from '../models/AppStateModel';
 import { ModalView } from '../views/ModalView';
 import { EventEmitter } from '../base/events';
 
 export type ModalViewList = {
-	basketModalView: ModalView,
-	productModalView: ModalView,
-	// orderModalView: ModalView,
+	basketModalView: ModalView;
+	productModalView: ModalView;
+	orderModalView: ModalView;
 	// contactsModalView: ModalView,
 	// successModalView: ModalView,
 };
@@ -24,28 +24,18 @@ export class ModalPresenter {
 		eventEmitter.on(
 			AppEvents.MODAL_OPENED,
 			(data: { type: string; productId?: string }) => {
+				// Закрываем все модальные окна перед открытием нового
+				Object.values(this.views).forEach((view) => view.close());
+				// Открываем требуемое модальное окно
 				if (data.type === 'cart') {
 					this.views.basketModalView.open();
 				}
 				if (data.type === 'product') {
-					const product = model.state.catalog.find(
-						(p) => p.id === data.productId
-					);
-					const inCart = this.model.state.basket.some(
-						(p) => p.id === product.id
-					);
 					this.views.productModalView.open();
 				}
-				// if (data.type === 'order') {
-				// 	const content = this.orderView.render(
-				// 		this.model.state.order.payment,
-				// 		this.model.state.order.address,
-				// 		this.model.state.order.errors.filter(
-				// 			(error) => error.field === 'payment' || error.field === 'address'
-				// 		)
-				// 	);
-				// 	modalView.render(content);
-				// }
+				if (data.type === 'order') {
+					this.views.orderModalView.open();
+				}
 				// if (data.type === 'contacts') {
 				// 	const content = this.contactsView.renderContactsForm();
 				// 	modalView.render(content);
@@ -57,15 +47,5 @@ export class ModalPresenter {
 				// }
 			}
 		);
-		// this.eventEmitter.on(StateEvents.ORDER_STATE_FORM_UPDATED, () => {
-		// 	const content = this.orderView.render(
-		// 		this.model.state.order.payment,
-		// 		this.model.state.order.address,
-		// 		this.model.state.order.errors.filter(
-		// 			(error) => error.field === 'payment' || error.field === 'address'
-		// 		)
-		// 	);
-		// 	modalView.render(content);
-		// });
 	}
 }
