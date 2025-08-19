@@ -1,6 +1,6 @@
 import { BasketView } from '../views/BasketView';
 import { AppStateModel } from '../models/AppStateModel';
-import { AppEvents } from '../../types/events';
+import { AppEvents, StateEvents } from '../../types/events';
 import { EventEmitter } from '../base/events';
 
 export class BasketPresenter {
@@ -24,6 +24,10 @@ export class BasketPresenter {
 		});
 
 		this.eventEmitter.on(AppEvents.BASKET_ITEM_REMOVED, () => {
+			this.view.render(this.model.state.basket, this.model.state.basketTotal);
+		});
+
+		this.eventEmitter.on(StateEvents.BASKET_STATE_CHANGED, () => {
 			this.view.render(this.model.state.basket, this.model.state.basketTotal);
 		});
 	}
