@@ -4,58 +4,61 @@
 
 ## Описание проекта
 
-Проект представляет собой интернет-магазин (веб-ларек) с возможностью:
-- Просмотра каталога товаров
-- Просмотра детальной информации о товаре
-- Добавления товаров в корзину
+Проект представляет собой интернет-магазин (веб-ларек) с архитектурой Model-View-Presenter (MVP), реализующий следующие возможности:
+- Просмотра каталога товаров с динамической загрузкой данных
+- Детальный просмотр товаров в модальных окнах
+- Управление корзиной с добавлением/удалением товаров
 - Оформление заказа в два этапа:
   - Выбор способа оплаты и адреса доставки 
   - Ввод контактных данных (email и телефон)
-- Выбора способа оплаты
-- Валидация всех полей формы
-- Отправка заказа на сервер
-- Отображение подтверждения заказа
+- Валидация всех полей формы в реальном времени
+- Отправка заказа на сервер с обработкой ответа
+- Отображение подтверждения заказа с итоговой суммой
 
 ## Структура проекта
 ```
 src/
 ├── components/
-│   ├── base/				# Базовые классы
-│   │   ├── api.ts			# Класс для работы с API
-│   │   └── events.ts		# EventEmitter для управления событиями
-│   ├── presenters/         # Presenters для связи View и Model
-│   │   ├── BasketPresenter.ts  # Управление логикой корзины
-│   │   ├── ContactPresenter.ts # Управление логикой контактов
-│   │   ├── ModalPresenter.ts   # Управление модальными окнами
-│   │   ├── OrderPresenter.ts   # Управление логикой заказа
-│   │   ├── PagePresenter.ts    # Управление главной страницей
-│   │   ├── ProductPresenter.ts # Управление логикой товара
-│   │   └── SuccessPresenter.ts # Управление логикой успешного заказа
-│   ├── services/			# Сервисы приложения
-│   │   ├── ApiService.ts	# Работа с API магазина
-│   │   ├── AppStateModal.ts	# Централизованное состояние приложения
-│   │   ├── CartService.ts 		# Управление корзиной
-│   │   ├── ModalService.ts		# Управление модальными окнами
-│   │   ├── OrderService.ts		# Оформление заказов
+│   ├── base/				    # Базовые классы
+│   │   ├── api.ts			        # Класс для работы с API
+│   │   └── events.ts		        # EventEmitter для управления событиями
+│   ├── models/                # Модели данных
+│   │   └── AppStateModel.ts        # Централизованное состояние приложения
+│   ├── presenters/             # Presenters для связи View и Model
+│   │   ├── BasketPresenter.ts      # Управление логикой корзины
+│   │   ├── ContactPresenter.ts     # Управление логикой контактов
+│   │   ├── ModalPresenter.ts       # Управление модальными окнами
+│   │   ├── OrderPresenter.ts       # Управление логикой заказа
+│   │   ├── PagePresenter.ts        # Управление главной страницей
+│   │   ├── ProductPresenter.ts     # Управление логикой товара
+│   │   └── SuccessPresenter.ts     # Управление логикой успешного заказа
+│   ├── services/		        # Сервисы приложения
+│   │   ├── ApiService.ts	        # Работа с API магазина
+│   │   ├── AppStateModal.ts	    # Централизованное состояние приложения
+│   │   ├── BasketService.ts 		# Управление корзиной
+│   │   ├── ModalService.ts		    # Управление модальными окнами
+│   │   ├── OrderService.ts		    # Оформление заказов
 │   │   └── ValidationService.ts	# Валидация данных
-│   └── views/  # View компоненты
-│       ├── CartModalView.ts		# Модальное окно корзины
-│       ├── ContactsModalView.ts	# Модальное окно контактов
+│   └── views/                  # View компоненты
+│       ├── BasketItemView.ts       # Представление элемента в корзине
+│       ├── BasketView.ts		    # Модальное окно корзины
+│       ├── ContactsView.ts	        # Модальное окно контактов
 │       ├── ModalView.ts			# Базовое модальное окно
-│       ├── OrderModalView.ts		# Модальное окно оформления заказа
+│       ├── OrderView.ts		    # Модальное окно оформления заказа
 │       ├── PageView.ts				# Главная страница
-│       ├── ProductModalView.ts		# Модальное окно товара
-│       └── SuccessModalView.ts		# Модальное окно успешного заказа
+│       ├── ProductItemView.ts      # Представление товара в каталоге 
+│       ├── ProductView.ts		    # Модальное окно товара
+│       └── SuccessView.ts		    # Модальное окно успешного заказа
 ├── pages/
-│   └── index.html			# HTML страница
+│   └── index.html			        # HTML страница
 ├── types/
-│   ├── events.ts			# Типы событий приложения
-│   └── index.ts			# Основные типы данных
+│   ├── events.ts			        # Типы событий приложения
+│   └── index.ts			        # Основные типы данных
 ├── utils/
-│   ├── constants.ts		# Константы приложения
-│   └── utils.ts			# Вспомогательные утилиты
-├── index.ts				# Точка входа приложения
-└── scss/					# Стили проекта
+│   ├── constants.ts		        # Константы приложения
+│   └── utils.ts			        # Вспомогательные утилиты
+├── index.ts				        # Точка входа приложения
+└── scss/					    # Стили проекта
 ```
 
 ## API и компоненты
@@ -65,161 +68,113 @@ src/
 - `GET Product Item` - получение информации о конкретном товаре
 - `POST Order` - оформление заказа
 
-### Основные сервисы:
+### Основные сервисы и модели:
 
 1. **API Service**:
 	- Работает с API магазина
 	- Интегрирован с AppStateModal для хранения данных
 	- Слушает события:
-		- AppEvents.PAGE_MAIN_LOADED - загрузка главной страницы
-		- AppEvents.PRODUCT_DETAILS_REQUESTED - запрос деталей товара
-		- AppEvents.ORDER_READY - готовность заказа к отправке
+      - AppEvents.PAGE_MAIN_LOADED - загрузка главной страницы
+      - AppEvents.PRODUCT_DETAILS_REQUESTED - запрос деталей товара
+      - AppEvents.ORDER_READY - готовность заказа к отправке
 	- **Команды**:
 		- loadProducts()
-			- Загружает список товаров через API
-			- Сохраняет в AppStateModal.catalog
-			- Публикует: StateEvents.CATALOG_UPDATED
+          - Загружает список товаров через API
+          - Сохраняет в AppStateModal.catalog
+          - Не публикует событий (рендеринг через StateEvents.CATALOG_STATE_UPDATED от AppStateModel)
 		- loadProductDetails(productId)
-			- Загружает детали товара по ID (сначала проверяет кэш в AppStateModal)
-            - При отсутствии - запрашивает с сервера
-			- Публикует: AppEvents.PRODUCT_DETAILS_LOADED
+          - Загружает детали товара по ID (сначала проверяет кэш в AppStateModal)
+          - При отсутствии - запрашивает с сервера
+          - Публикует: AppEvents.PRODUCT_DETAILS_LOADED
 		- submitOrder(orderData)
 			- Формирует и отправляет заказ на сервер
             - Использует данные из AppStateModal (корзина и форма заказа)
 			- Публикует:
-				- AppEvents.ORDER_SENT (при отправке)
-				- AppEvents.ORDER_SUBMITTED (при успехе)
-                - AppEvents.ORDER_SUBMIT_ERROR (при ошибке)
+              - AppEvents.ORDER_SENT (при отправке)
+              - AppEvents.ORDER_SUBMITTED (при успехе)
+              - AppEvents.ORDER_SUBMIT_ERROR (при ошибке)
 
-2. **Cart Service**:
+2. **Basket Service**:
     - Управляет состоянием корзины через AppStateModal
-    - Слушает события:
-		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED - добавление товара в корзину
-		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - удаление товара из корзины
-        - AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - запрос состояния товара в корзине (для обновления кнопки в модальном окне товара)
+    - Не слушает события напрямую (взаимодействие через презентеры и обработчики)
 	- **Команды**:
 		- addToCart(productId)
-			- Добавляет товар в корзину через AppStateModal
-            - Вызывается по событию: AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED
+			- Добавляет товар в корзину через AppStateModel.basket
+            - Вызывается через обработчики в index.ts
 			- Публикует:
-				- AppEvents.BASKET_ITEM_ADDED (при успехе)
-				- AppEvents.BASKET_ITEM_ADD_ERROR (при ошибке)
-				- AppEvents.BASKET_CONTENT_CHANGED
+              - AppEvents.BASKET_ITEM_ADDED (при успехе)
+              - AppEvents.BASKET_ITEM_ADD_ERROR (при ошибке)
+              - AppEvents.BASKET_CONTENT_CHANGED
 		- removeFromCart(productId)
 			- Удаляет товар из корзины
-            - Вызывается по событию: AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED
+            - Вызывается через обработчики в index.ts
 			- Публикует:
-				- AppEvents.BASKET_ITEM_REMOVED
-				- AppEvents.BASKET_CONTENT_CHANGED
+              - AppEvents.BASKET_ITEM_REMOVED
+              - AppEvents.BASKET_CONTENT_CHANGED
 		- clearCart()
-			- Вызывается по событию: AppEvents.ORDER_SUBMITTED
+			- Очищает корзину полностью
 			- Публикует: 
-              - AppEvents.BASKET_CLEAR (после успешного оформления заказа)
-              - BASKET_CONTENT_CHANGED
-        - getCartItems()
-          - Возвращает текущие товары в корзине
-          - Используется CartModal для отображения содержимого корзины
-        - getTotalPrice()
-          - Возвращает сумму корзины
-          - Используется CartModal и SuccessModal для отображения общей стоимости
+              - AppEvents.BASKET_CONTENT_CHANGED
 
 3. **Modal Service**:
 	- Управляет открытием / закрытием модальных окон
 	- Слушает события:
-		- AppEvents.UI_BUTTON_CART_CLICKED (от Кнопки "Корзина")
-        - AppEvents.UI_PRODUCT_CLICKED (клик по карточке товара внутри каталога)
-		- AppEvents.UI_ORDER_BUTTON_START_CLICKED (от Модального окна корзины)
-		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (от Модального окна оформления заказа)
-		- AppEvents.ORDER_SUBMITTED (от ApiService при успешной отправке заказа)
+      - AppEvents.UI_BUTTON_BASKET_CLICKED (от Кнопки "Корзина")
+      - AppEvents.UI_PRODUCT_CLICKED (клик по карточке товара)
+      - AppEvents.UI_ORDER_BUTTON_START_CLICKED (от Модального окна корзины)
+      - AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (от Модального окна оформления заказа)
+      - AppEvents.ORDER_SUBMITTED (от ApiService при успешной отправке заказа)
 	- **Команды**:
 		- openCartModal()
-			- Открывает модальное окно корзины
-            - Вызывается по событию: AppEvents.UI_BUTTON_CART_CLICKED
-			- Публикует: AppEvents.MODAL_OPENED (тип: 'cart')
+          - Открывает модальное окно корзины
+          - Вызывается по событию: AppEvents.UI_BUTTON_CART_CLICKED
+          - Публикует: AppEvents.MODAL_OPENED (тип: 'cart')
 		- openProductModal(productId)
-			- Открывает модальное окно товара
-            - Вызывается по: AppEvents.PRODUCT_DETAILS_REQUESTED
-			- Публикует: AppEvents.MODAL_OPENED (тип: 'product')
+          - Открывает модальное окно товара
+          - Вызывается по: AppEvents.PRODUCT_DETAILS_REQUESTED
+          - Публикует: AppEvents.MODAL_OPENED (тип: 'product')
 		- openOrderModal()
-			- Открывает модальное окно оформления заказа
-            - Вызывается по: AppEvents.UI_ORDER_BUTTON_START_CLICKED
-			- Публикует: AppEvents.MODAL_OPENED (тип: 'order')
+          - Открывает модальное окно оформления заказа
+          - Вызывается по: AppEvents.UI_ORDER_BUTTON_START_CLICKED
+          - Публикует: AppEvents.MODAL_OPENED (тип: 'order')
 		- openContactsModal()
-			- Открывает модальное окно контактов
-            - Вызывается по: AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED
-			- Публикует: AppEvents.MODAL_OPENED (тип: 'contacts')
+          - Открывает модальное окно контактов
+          - Вызывается по: AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED
+          - Публикует: AppEvents.MODAL_OPENED (тип: 'contacts')
 		- openSuccessModal()
-			- Открывает модальное окно успешного оформления
-            - Вызывается по событию: AppEvents.ORDER_SUBMITTED
-			- Публикует: AppEvents.MODAL_OPENED (с типом 'success')
+          - Открывает модальное окно успешного оформления
+          - Вызывается по событию: AppEvents.ORDER_SUBMITTED
+          - Публикует: AppEvents.MODAL_OPENED (с типом 'success')
 		- closeModal()
-			- Закрывает текущее модальное окно / Сбрасывает состояние модального окна
-            - Публикует: MODAL_CLOSED
-			- Вызывается при ручном закрытии модального окна пользователем
+          - Закрывает текущее модальное окно / Сбрасывает состояние модального окна
+          - Публикует: MODAL_CLOSED
+          - Вызывается при ручном закрытии модального окна пользователем
 
 4. **Order Service**:
 	- Управляет процессом оформления заказа
     - Интегрирован с AppStateModal для хранения данных заказа
 	- Слушает события:
-		- AppEvents.UI_ORDER_BUTTON_START_CLICKED - начало оформления
-		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - переход к контактам
-		- AppEvents.UI_ORDER_BUTTON_PAYMENT_SET - выбор оплаты
-        - AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - подтверждение оплаты
+      - AppEvents.UI_ORDER_BUTTON_START_CLICKED - начало оформления
+      - AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - переход к контактам
+      - AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - подтверждение оплаты
 	- **Команды**:
-		- initOrder()
-			- Инициализирует процесс оформления заказа
-            - Вызывается по событию: AppEvents.UI_ORDER_BUTTON_START_CLICKED
-			- Публикует событие: AppEvents.ORDER_INITIATED (для инициализации процесса заказа)
-		- prepareOrder(step: 'delivery' | 'payment')
-			- Подготавливает заказ к отправке в зависимости от шага 
-            - Для шага 'delivery':
-              - Публикует: AppEvents.ORDER_DELIVERY_COMPLETED (переход к контактам)
-            - Для шага 'payment':
-              - Проверяет валидность данных через AppStateModal
-              - Публикует: AppEvents.ORDER_READY (если данные валидны)
-              - Не публикует событий при невалидных данных
-		- validate()
-          - Проверяет валидность всех полей формы:
-            - Адрес доставки 
-            - Способ оплаты 
-            - Email 
-            - Телефон
-          - Формирует массив ошибок
-          - Публикует: 
-            - AppEvents.ORDER_VALIDATION_ERROR для каждой ошибки
-          - Обновляет флаг isValid в состоянии
-        - updateDelivery(address):
-          - Обновляет адрес доставки 
-          - Публикует: AppEvents.ORDER_DELIVERY_SET 
-      - updatePayment(method):
-        - Обновляет способ оплаты 
-        - Публикует: AppEvents.ORDER_PAYMENT_SET 
-      - updateEmail(email):
-        - Обновляет email 
-        - Публикует: AppEvents.ORDER_EMAIL_SET
-      - updatePhone(phone):
-        - Обновляет телефон 
-        - Публикует: AppEvents.ORDER_PHONE_SET 
-      - getState():
-        - Возвращает текущее состояние формы заказа 
-        - Используется для проверки валидности данных 
-    
-    - **Взаимодействие с ValidationService**:
-      - Получает события успешной/неуспешной валидации полей 
-      - Агрегирует результаты валидации отдельных полей 
-      - Принимает окончательное решение о готовности заказа 
-      - Пример цепочки: 
-        - ValidationService проверяет формат email → AppEvents.ORDER_EMAIL_VALID 
-        - OrderService получает это событие и обновляет состояние 
-        - При попытке отправки OrderService проверяет все подобные флаги
+      - Инициализация заказа при AppEvents.UI_ORDER_BUTTON_START_CLICKED
+        - Сбрасывает данные заказа в AppStateModel
+        - Публикует событие: AppEvents.ORDER_INITIATED (для инициализации процесса заказа)
+      - prepareOrder(step: 'delivery' | 'payment')
+        - Подготавливает заказ к отправке в зависимости от шага 
+        - Для шага 'delivery': публикует AppEvents.ORDER_DELIVERY_COMPLETED
+        - Для шага 'payment': проверяет валидность через AppStateModel.order.isValid
+          - При валидности: публикует AppEvents.ORDER_READY
+          - При невалидности: не публикует событий
 
 5. **Validation Service**:
 	- Проверяет корректность введенных данных в формах заказа
 	- Слушает события:
-		- AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED (из OrderModal - при изменении поля адреса)
-		- AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED (из OrderModal - при изменении способа оплаты)
-		- ppEvents.UI_ORDER_INPUT_MAIL_CHANGED (из ContactsModal - при изменении email)
-		- AppEvents.UI_ORDER_INPUT_PHONE_CHANGED (из ContactsModal - при изменении телефона)
+		- AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED (из OrderView)
+		- AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED (из OrderView)
+		- ppEvents.UI_ORDER_INPUT_MAIL_CHANGED (из ContactsView)
+		- AppEvents.UI_ORDER_INPUT_PHONE_CHANGED (из ContactsView)
 	- **Команды**:
 		- validateDelivery(address: string)
           - Проверяет минимальную длину адреса (5 символов)
@@ -228,58 +183,51 @@ src/
             - AppEvents.ORDER_DELIVERY_VALID (при успехе)
             - AppEvents.ORDER_VALIDATION_ERROR (при ошибке)
 		- validatePayment(method)
-      		- Проверяет что выбран один из допустимых способов ('online' или 'cash')
-			- Вызывается по событию: AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED
-			- Публикует:
-              - AppEvents.ORDER_PAYMENT_VALID (при успехе)
-              - AppEvents.ORDER_PAYMENT_VALIDATION_ERROR (при ошибке)
+          - Проверяет что выбран один из допустимых способов ('online' или 'cash')
+          - Вызывается по событию: AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED
+          - Публикует:
+            - AppEvents.ORDER_PAYMENT_VALID (при успехе)
+            - AppEvents.ORDER_PAYMENT_VALIDATION_ERROR (при ошибке)
+            - AppEvents.UI_ORDER_BUTTON_PAYMENT_SET (для обновления состояния)
 		- validateEmail(email)
-      		- Проверяет email по регулярному выражению
-			- Вызывается по событию: AppEvents.UI_ORDER_INPUT_MAIL_CHANGED
-			- Публикует:
-              - AppEvents.ORDER_EMAIL_VALID (при успехе)
-              - AppEvents.ORDER_EMAIL_VALIDATION_ERROR (при ошибке)
+          - Проверяет email по регулярному выражению
+          - Вызывается по событию: AppEvents.UI_ORDER_INPUT_MAIL_CHANGED
+          - Публикует:
+            - AppEvents.ORDER_EMAIL_VALID (при успехе)
+            - AppEvents.ORDER_EMAIL_VALIDATION_ERROR (при ошибке)
+            - AppEvents.ORDER_EMAIL_SET (для обновления состояния)
 		- validatePhone(phone)
-			- Проверяет телефон по регулярному выражению
-            - Вызывается по событию: AppEvents.UI_ORDER_INPUT_PHONE_CHANGED
-			- Публикует:
-              - AppEvents.ORDER_PHONE_VALID (при успехе)
-              - AppEvents.ORDER_PHONE_VALIDATION_ERROR (при ошибке)
+          - Проверяет телефон по регулярному выражению
+          - Вызывается по событию: AppEvents.UI_ORDER_INPUT_PHONE_CHANGED
+          - Публикует:
+            - AppEvents.ORDER_PHONE_VALID (при успехе)
+            - AppEvents.ORDER_PHONE_VALIDATION_ERROR (при ошибке)
+        - validateOrderForm(formData)
+          - Комплексная валидация всей формы 
 
-6. **AppStateModal (Service)**:
+6. **AppStateModal (модель)**:
 	- Централизованное хранилище состояния приложения
     - Слушает события:
       - AppEvents.ORDER_PAYMENT_SET - обновление способа оплаты 
       - AppEvents.ORDER_EMAIL_SET - обновление email 
       - AppEvents.ORDER_PHONE_SET - обновление телефона 
       - AppEvents.ORDER_DELIVERY_SET - обновление адреса доставки
+      - AppEvents.ORDER_SUBMITTED - очистка после успешного заказа
 	- **Свойства**:
 		- catalog: IProduct[] - список товаров
-		- basket: string[] - ID товаров в корзине
+		- basket: string[] - товары в корзине (объекты, а не ID)
         - basketTotal: number - общая сумма корзины
 		- order: IOrderFormState - данные заказа
 		- preview: string | null - ID просматриваемого товара
 	- **Команды**:
       - Сеттеры:
-        - set catalog(items: IProduct[]):
-          - Обновляет каталог товаров
-          - Публикует: StateEvents.CATALOG_STATE_UPDATED - при обновлении каталога товаров
-        - set basket(items: IProduct[]):
-          - Обновляет корзину
-          - Автоматически пересчитывает сумму (basketTotal)
-          - Публикует:
-            - StateEvents.BASKET_STATE_CHANGED - при изменении корзины (включая обновление суммы)
-            - AppEvents.BASKET_CONTENT_CHANGED - дополнительное событие при обновлении корзины
-        - set order(form: Partial<IOrderFormState>):
-          - Обновляет данные заказа
-          - Выполняет валидацию заказа (проверяет заполнение обязательных полей)
-          - Публикует: StateEvents.ORDER_STATE_FORM_UPDATED - при изменении данных заказа
-        - set preview(id: string | null):
-          - Устанавливает ID просматриваемого товара
-          - Публикует: StateEvents.PREVIEW_STATE_UPDATED - при изменении просматриваемого товара
+        - set catalog(items: IProduct[]) - обновляет каталог, публикует StateEvents.CATALOG_STATE_UPDATED
+        - set basket(items: IProduct[]) - обновляет корзину, публикует StateEvents.BASKET_STATE_CHANGED
+        - set order(form: Partial<IOrderFormState>) - обновляет данные заказа, выполняет валидацию, публикует StateEvents.ORDER_STATE_FORM_UPDATED
+        - set preview(id: string | null) - устанавливает ID просматриваемого товара, публикует StateEvents.PREVIEW_STATE_UPDATED
       - Геттеры:
-        - state: IAppState - возвращает текущее состояние 
-        - basketTotal: number - возвращает сумму корзины
+        - get state(): IAppState - возвращает полное текущее состояние
+        - basketTotal(): number - возвращает сумму корзины
       - Приватные методы:
         - updateBasketTotal():
           - Пересчитывает сумму корзины
@@ -288,140 +236,105 @@ src/
         - validateOrderFields() 
           - Возвращает массив ошибок валидации 
 
-### Основные компоненты и их события:
+### Представления и их презентеры:
 
-1. **Главная страница(PageView)**
-	- Рендерит главную страницу приложения, включая каталог товаров и кнопку корзины
-    - Слушает события:
-		- StateEvents.CATALOG_STATE_UPDATED (от AppStateModal) - для отрисовки каталога
-		- StateEvents.BASKET_STATE_CHANGED (от AppStateModal) - при изменении состояния корзины
-	- Публикует события:
-		- AppEvents.PAGE_MAIN_LOADED - при инициализации страницы (один раз при загрузке)
-		- AppEvents.UI_BUTTON_BASKET_CLICKED - при клике на кнопку корзины в хедере
-		- AppEvents.PRODUCT_DETAILS_REQUESTED - при клике на карточку товара в каталоге (с передачей id товара)
-	
-2. **Карточка товара (в каталоге)**
-   - Отображает краткую информацию о товаре в каталоге (изображение, название, категорию, цену)
-   - Рендерится внутри Page 
-   - Не является отдельным классом-компонентом, реализована как часть главной страницы (Page)
-   - Создается динамически в методе createProductElement() класса Page
+1. **Главная страница (PageView & PagePresenter)**
+   **PageView (Представление)** 
+   - Рендерит главную страницу приложения, включая каталог товаров и кнопку корзины
+   - Публикует события UI:
+     - AppEvents.UI_BUTTON_BASKET_CLICKED - при клике на кнопку корзины в хедере
+     - AppEvents.UI_PRODUCT_CLICKED - при клике на карточку товара в каталоге (с передачей id товара)
+
+   **PagePresenter (Презентер)**
+   - Управляет View (PageView) на основе изменений в Model (AppStateModel)
+   - Слушает события Модели:
+     - StateEvents.CATALOG_STATE_UPDATED (от AppStateModel) - вызывает PageView.render() для отрисовки каталога
+     - StateEvents.BASKET_STATE_CHANGED (от AppStateModel) - вызывает PageView.updateBasketCounter() для обновления счетчика
+
+2. **Карточка товара в каталоге (ProductItemView)**
+   - Является частью PageView, создается динамически для каждого товара
    - Публикует события:
-     - AppEvents.UI_PRODUCT_CLICKED (при клике на карточку товара, передает объект с id товара: { id: productId })
-		
-3. **Модальное окно карточки товара (ProductModalView)**
-	- Отображает детальную информацию о товаре 
-    - Предоставляет кнопку добавления/удаления из корзины 
-    - Обновляет состояние кнопки при изменении корзины
-    - Слушает события:
-		- AppEvents.MODAL_OPENED (от ModalService) - при открытии модального окна с типом 'product'
-        - AppEvents.PRODUCT_DETAILS_LOADED  - загрузка данных товара (от ApiService)
-        - AppEvents.BASKET_CONTENT_CHANGED - изменение содержимого корзины (от CartService)
-	- Публикует события:
-		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED - при добавлении товара в корзину
-        - AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - при удалении товара из корзины
-        - AppEvents.UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED - запрос состояния товара в корзине (для обновления кнопки)
-		- AppEvents.MODAL_CLOSED - при закрытии окна
+     - Событие клика пробрасывается через замыкание до PageView, которое эмитит AppEvents.UI_PRODUCT_CLICKED
 
-4. **Модальное окно корзины (CartModalView)**
-	- Отображает список товаров в корзине
-    - Слушает события:
-   		- AppEvents.MODAL_OPENED (от ModalService) - при открытии модального окна с типом 'cart'
-		- AppEvents.BASKET_CONTENT_CHANGED (от CartService) - при любом изменении состояния корзины
-		- AppEvents.BASKET_ITEM_ADDED (от CartService) - при успешном добавлении товара в корзину
-        - AppEvents.BASKET_ITEM_REMOVED (от CartService) - при удалении товара из корзины
-		- AppEvents.BASKET_CLEAR (от CartService) - при полной очистке корзины
-	- Публикует события:
-		- AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED (при клике на кнопку удаления товара, передает { id: productId }) → CartService удаляет товар
-		- AppEvents.UI_ORDER_BUTTON_START_CLICKED (при клике на кнопку "Оформить заказ")
-        - AppEvents.MODAL_CLOSED - при закрытии окна
+3. **Модальное окно карточки товара (ProductView & ProductPresenter)**
+   **ProductView (Представление)**
+   - Отображает детальную информацию о товаре 
+   - Предоставляет кнопку добавления/удаления из корзины
+   - Публикует события UI:
+     - AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED - при клике на кнопку "Купить". 
+     - AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED - при клике на кнопку "Удалить из корзины"
 
-5. **Модальное окно оформления заказа (OrderModalView)**
-	- Отображает форму ввода адреса доставки 
-    - Предоставляет выбор способа оплаты
-    - Слушает события:
-		- AppEvents.ORDER_INITIATED (от OrderService) - инициализация формы заказа
-		- AppEvents.ORDER_DELIVERY_VALID (от ValidationService) - успешная валидация адреса
-		- AppEvents.ORDER_VALIDATION_ERROR (от ValidationService/OrderService) - ошибки валидации
-        - AppEvents.ORDER_PAYMENT_VALID (от ValidationService) - успешная валидация способа оплаты
-        - AppEvents.ORDER_PAYMENT_VALIDATION_ERROR (от ValidationService) - ошибки валидации способа оплаты
-	- Публикует события:
-		- AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED - при изменении поля адреса
-		- AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED - при изменении способа оплаты
-        - AppEvents.ORDER_DELIVERY_SET - при успешном вводе адреса
-		- AppEvents.ORDER_PAYMENT_SET - при выборе способа оплаты
-        - AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED (при клике "Далее") - при клике на кнопку "Далее"
-		- AppEvents.MODAL_CLOSED - при закрытии окна
+   **ProductPresenter (Презентер)**
+   - Управляет состоянием кнопки в ProductView на основе данных корзины из AppStateModel
+   - Слушает события:
+     - AppEvents.PRODUCT_DETAILS_LOADED (от ApiService) - вызывает ProductView.render() для отображения данных товара. 
+     - AppEvents.BASKET_ITEM_ADDED (от BasketService) - вызывает ProductView.updateButtonState() для обновления кнопки, если ID совпадает. 
+     - AppEvents.BASKET_ITEM_REMOVED (от BasketService) - вызывает ProductView.updateButtonState() для обновления кнопки, если ID совпадает. 
 
-6. **Модальное окно контактных данных (ContactsModalView)**
-	- Отображает форму ввода контактных данных (email и телефон)
-    - Управляет завершением оформления заказа
-    - Слушает события:
-		- AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - переход к шагу контактов (от OrderModal)
-        - AppEvents.ORDER_EMAIL_VALID - успешная валидация email (от ValidationService)
-		- AppEvents.ORDER_EMAIL_VALIDATION_ERROR - ошибка валидации email (от ValidationService)
-		- AppEvents.ORDER_PHONE_VALID - успешная валидация телефона (от ValidationService)
-        - AppEvents.ORDER_PHONE_VALIDATION_ERROR - ошибка валидации телефона (от ValidationService)
-	- Публикует события:
-		- AppEvents.UI_ORDER_INPUT_MAIL_CHANGED - при изменении поля email передает введенное значение
-		- AppEvents.UI_ORDER_INPUT_PHONE_CHANGED - при изменении поля телефона передает введенное значение
-		- AppEvents.ORDER_EMAIL_SET - при успешном вводе email передает валидный email
-        - AppEvents.ORDER_PHONE_SET - при успешном вводе телефона передает валидный телефон
-        - AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - при клике на кнопку "Оплатить"
-		- AppEvents.ORDER_READY - при готовности заказа к отправке
+4. **Модальное окно корзины (BasketView & BasketPresenter)**
+   **BasketView (Представление)**
+	- Отображает список товаров в корзине, общую сумму и кнопку оформления
+	- Публикует события UI:
+      - AppEvents.UI_ORDER_BUTTON_START_CLICKED - при клике на кнопку "Оформить заказ"
+      - (Через BasketItemView) Событие удаления товара пробрасывается в переданный колбэк, который emits AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED
 
-7. **Модальное окно подтверждения заказа (SuccessModalView)**
-	- Отображает сообщение об успешном оформлении заказа 
-    - Показывает итоговую сумму заказа
-    - Слушает события:
-		- AppEvents.MODAL_OPENED - открытие модального окна с типом 'success'
-	- Публикует события:
-		- AppEvents.BASKET_CLEAR - при очистке корзины (через CartService)
-        - AppEvents.MODAL_CLOSED - при закрытии окна
+   **BasketPresenter (Презентер)** 
+   - Управляет BasketView, перерисовывая её при любом изменении состояния корзины
+   - Слушает события Модели:
+     - StateEvents.BASKET_STATE_CHANGED (от AppStateModel) - вызывает BasketView.render() для полного обновления содержимого корзины
+     - AppEvents.BASKET_ITEM_ADDED (от BasketService) - вызывает BasketView.render()
+     - AppEvents.BASKET_ITEM_REMOVED (от BasketService) - вызывает BasketView.render()
+     - AppEvents.BASKET_CONTENT_CHANGED (от BasketService) - вызывает BasketView.render()
 
-### Презентеры
+5. **Модальное окно оформления заказа (OrderView & OrderPresenter)**
+   **OrderView (Представление)**
+   - Отображает форму ввода адреса доставки и выбора способа оплаты
+   - Публикует события UI:
+     - AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED - при изменении поля адреса
+     - AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED - при изменении способа оплаты (через клик по кнопке)
+     - AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED - при клике на кнопку "Далее"
 
-Презентеры в проекте выполняют роль посредников между View и Model, реализуя паттерн MVP (Model-View-Presenter). Каждый presenter:
+   **OrderPresenter (Презентер)**
+   - Инициализирует и обновляет OrderView на основе состояния заказа из AppStateModel
+   - Слушает события:
+     - AppEvents.ORDER_INITIATED (от OrderService) - вызывает OrderView.render() для инициализации формы
+     - AppEvents.ORDER_VALIDATION_ERROR (от ValidationService/AppStateModel) - вызывает OrderView.showErrors() для отображения ошибок
 
-1. **BasketPresenter** - управляет логикой корзины:
-    - Обрабатывает события открытия модального окна корзины
-    - Реагирует на изменения содержимого корзины
-    - Обновляет представление корзины при изменениях
+6. **Модальное окно контактных данных (ContactsView & ContactsPresenter)**
+   **ContactsView (Представление)**  
+   - Отображает форму ввода контактных данных (email и телефон)
+   - Публикует события UI:
+     - AppEvents.UI_ORDER_INPUT_MAIL_CHANGED - при изменении поля email
+     - AppEvents.UI_ORDER_INPUT_PHONE_CHANGED - при изменении поля телефона
+     - AppEvents.UI_ORDER_BUTTON_PAY_CLICKED - при клике на кнопку "Оплатить" (сабмит формы)
 
-2. **ContactsPresenter** - управляет логикой формы контактов:
-    - Обрабатывает переход к форме контактов
-    - Управляет валидацией контактных данных
-    - Координирует взаимодействие между ContactsModal и AppStateModel
+   **ContactsPresenter (Презентер)**
+   - Управляет ContactsView, отображая текущие данные и ошибки из AppStateModel.order
+   - Слушает события:
+     - AppEvents.ORDER_INITIATED (от OrderService) - вызывает ContactsView.render() для инициализации формы
+     - AppEvents.ORDER_VALIDATION_ERROR (от ValidationService/AppStateModel) - вызывает ContactsView.showErrors() для отображения ошибок
 
-3. **ModalPresenter** - управляет отображением модальных окон:
-    - Обрабатывает события открытия/закрытия модальных окон
-    - Контролирует текущее активное модальное окно
-    - Координирует переходы между разными модальными окнами
+7. **Модальное окно подтверждения заказа (SuccessView & SuccessPresenter)**
+   **SuccessView (Представление)** 
+   - Отображает сообщение об успешном оформлении заказа и итоговую сумму
+   - Публикует события UI:
+     - AppEvents.MODAL_CLOSED - при клике на кнопку закрытия
 
-4. **OrderPresenter** - управляет логикой оформления заказа:
-    - Обрабатывает ввод данных доставки
-    - Управляет выбором способа оплаты
-    - Производит валидацию данных заказа
-    - Управляет переходом между шагами оформления
+   **SuccessPresenter (Презентер)**
+   - Управляет отображением успешного заказа в SuccessView
+   - Слушает события:
+     - AppEvents.ORDER_SUBMITTED (от ApiService) - вызывает SuccessView.render() с итоговой суммой
 
-5. **PagePresenter** - управляет главной страницей:
-    - Обрабатывает загрузку каталога товаров
-    - Управляет отображением счетчика корзины
-    - Координирует взаимодействие между Page и AppStateModel
+8. **Базовое модальное окно (ModalView) и управление модалками (ModalPresenter)**
+   **ModalView (Базовое представление)**
+   - Реализует базовую логику открытия/закрытия модального окна
+   - Предоставляет метод render(content) для отображения контента
 
-6. **ProductPresenter** - управляет логикой товара:
-    - Обрабатывает открытие модального окна товара
-    - Управляет состоянием кнопки "В корзину"/"Удалить"
-    - Координирует добавление/удаление товаров из корзины
-
-7. **SuccessPresenter** - управляет отображением успешного заказа:
-    - Обрабатывает успешное оформление заказа
-    - Управляет отображением итоговой суммы
-    - Координирует очистку корзины после успешного заказа
-
-Каждый презентер:
-- Подписывается на необходимые события через EventEmitter
-- Обновляет модель (AppStateModel) при изменениях
-- Управляет соответствующим view компонентом
+   **ModalPresenter (Презентер)**
+   - Координирует отображение модальных окон, выступая как менеджер представлений
+   - Слушает события:
+     - AppEvents.MODAL_OPENED (от ModalService) - управляет открытием конкретного модального окна из переданного списка views, закрывая все остальные
+     - AppEvents.MODAL_CLOSED - закрывает все модальные окна
 
 ## Модели данных
 
@@ -559,49 +472,30 @@ export interface IAppState {
 	preview: string | null;
 }
 
-/**
- * Интерфейс сервиса корзины для SuccessModal
- * @interface ICartServiceForSuccess
- * @property {() => number} getTotalPrice - Получить сумму корзины
- * @property {() => void} clearCart - Очистить корзину
- */
-export interface ICartServiceForSuccess {
-	getTotalPrice(): number;
-	clearCart(): void;
-}
 ```
 
 ## Архитектурный подход
 
-Проект использует событийно-ориентированную архитектуру с четким разделением ответственностей между компонентами. Основные принципы:
-1. Событийная модель:
-   - Центральный EventEmitter для управления всеми событиями приложения 
-   - Все взаимодействия между компонентами происходят через события 
-   - Четкая типизация событий в types/events.ts
-2. Слоистая структура:
-   - Базовый слой (EventEmitter, Api) - фундаментальные классы
-   - Сервисы (ApiService, CartService и др.) - бизнес-логика
-   - UI компоненты (Page, модальные окна) - представление
-   - Состояние (AppStateModal) - централизованное управление данными
-3. Ключевые особенности:
-   - Одностраничное приложение (SPA) с динамическим рендерингом 
-   - Строгая типизация на TypeScript 
-   - Разделение данных (AppStateModal) и представления (компоненты)
-   - Валидация данных через специализированный сервис 
-4. Потоки данных:
-   - Пользовательские действия → События → Сервисы → Обновление состояния → Рендеринг 
-   - API взаимодействия инкапсулированы в ApiService 
-   - Состояние корзины и заказов управляется через AppStateModal
-5. Принципы проектирования:
-   - Единая точка истины (AppStateModal для данных)
-   - Инверсия зависимостей (DI через конструкторы)
-   - Открытость/закрытость (расширяемость через события)
-   - Разделение интерфейсов (ICartServiceForSuccess и др.)
-6. Технологический стек:
-   - TypeScript для строгой типизации 
-   - SCSS для стилей 
-   - Webpack для сборки 
-   - Fetch API для работы с сервером
+Проект использует гибридную событийно-ориентированную архитектуру, сочетающую паттерны Model-View-Presenter (MVP) и Посредник (Mediator), с четким разделением ответственности между компонентами
+
+1. Централизованное состояние (Единый источник истины):
+   - Модель AppStateModel является центральным хранилищем всего состояния приложения (каталог, корзина, данные заказа)
+   - Все изменения состояния происходят строго через сеттеры модели, которые автоматически публикуют соответствующие события (StateEvents)
+2. Событийная коммуникация (Шина событий):
+   - Центральный EventEmitter служит шиной событий для всех компонентов
+   - Взаимодействие между несвязанными компонентами (Сервисы, Презентеры, Модель) происходит исключительно через публикацию и подписку на строго типизированные события (AppEvents, StateEvents)
+3. Разделение ответственности:
+   - Model (AppStateModel): Управление данными, бизнес-логика состояния (валидация заказа, расчет суммы корзины)
+   - View (*View): Отрисовка UI, обработка пользовательского ввода (DOM-манипуляции, клики, ввод данных). Публикуют пользовательские события (UI_*)
+   - Presenter (*Presenter): Связующее звено. Слушают события от Модели (об изменении состояния) и View (о действиях пользователя). Реагируют на них, вызывая методы Сервисов для выполнения действий или обновляя View новыми данными из Модели. Содержат основную логику взаимодействия
+   - Service (*Service): Сервисы. Инкапсулируют специфическую бизнес-логику и side-effects (работа с API, управление модальными окнами, валидация полей). Предоставляют чистый API для вызова Презентерами.
+4. Однонаправленный поток данных:
+   - Поток данных в приложении преимущественно однонаправленный:
+     - Пользовательское действие -> View публикует UI_* событие
+     - Презентер ловит событие и вызывает метод Сервиса
+     - Сервис выполняет действие и/или изменяет состояние через Модель
+     - Модель публикует StateEvents о изменении состояния
+     - Презентер ловит StateEvents и обновляет View новыми данными
 
 ## Установка и запуск
 
@@ -648,28 +542,39 @@ yarn build
 ## Граф связей визуальных компонентов
 
 ```
-Главная страница (Page)
-├── Каталог товаров (рендерится внутри Page)
-│   └── Карточка товара (кнопка)
-├── Кнопка корзины (в хедере)
-│   └── Счётчик товаров
-└── Модальные окна (через ModalService)
-    ├── Модальное окно карточки товара (ProductModal)
-    │    └── Кнопка "Добавить в корзину"
-    ├── Модальное окно корзины (CartModal)
-    │    ├── Список товаров
-    │    ├── Кнопка удаления товара
-    │    └── Кнопка "Оформить заказ"
-    ├── Модальное окно оформления заказа (OrderModal)
-    │    ├── Форма заполнения адреса
-    │    ├── Выбор способа оплаты
-    │    └── Кнопка "Далее"
-    ├── Модальное окно контактных данных (ContactsModal)
-    │    ├── Форма заполнения email
-    │    ├── Форма заполнения телефона
-    │    └── Кнопка "Оплатить"
-    └── Модальное окно подтверждения заказа (SuccessModal)
-        └── Кнопка "За новыми покупками!"               
+Главная страница (PageView)
+├── Каталог товаров (рендерится внутри PageView)
+│   └── Карточка товара (ProductItemView)
+├── Кнопка корзины в хедере
+│   └── Счётчик товаров (обновляется из Model)
+└── Система модальных окон (независимые компоненты)
+    ├── Контейнер модального окна товара (#modal-product)
+    │   └── Контент модального окна товара (ProductView)
+    │       ├── Информация о товаре
+    │       └── Кнопка "В корзину" / "Удалить"
+    ├── Контейнер модального окна корзины (#modal-basket)
+    │   └── Контент модального окна корзины (BasketView)
+    │       ├── Список товаров (набор BasketItemView)
+    │       ├── Общая сумма
+    │       └── Кнопка "Оформить"
+    ├── Контейнер модального окна заказа (#modal-order)
+    │   └── Контент модального окна заказа (OrderView)
+    │       ├── Поле "Адрес доставки"
+    │       ├── Кнопка "Онлайн"
+    │       ├── Кнопка "При получении"
+    │       └── Кнопка "Далее"
+    ├── Контейнер модального окна контактов (#modal-contacts)
+    │   └── Контент модального окна контактов (ContactsView)
+    │       ├── Поле "Email"
+    │       ├── Поле "Телефон"
+    │       └── Кнопка "Оплатить"
+    └── Контейнер модального окна успеха (#modal-success)
+        └── Контент модального окна успеха (SuccessView)
+            └── Кнопка "За новыми покупками!"
+
+Управление видимостью (open/close):
+- Каждое модальное окно (ModalView) управляет своим контейнером (#modal-*)
+- ModalPresenter координирует, какое именно окно должно быть открыто, на основе события MODAL_OPENED               
 ```
 
 ## Граф событий
@@ -677,101 +582,80 @@ yarn build
 1. **Инициализация приложения**:
 	- DOMContentLoaded → index.ts инициализация
 	- AppEvents.PAGE_MAIN_LOADED → ApiService.loadProducts()
-      - Успех: сохраняет в AppStateModal.catalog → StateEvents.CATALOG_UPDATED → Page.renderProducts() 
+      - Успех: сохраняет в AppStateModal.catalog → StateEvents.CATALOG_UPDATED → PagePresenter → PageView.render()
       - Ошибка: очищает каталог (AppStateModal.catalog = [])
    
 2. **Просмотр товара**:
-   - Клик на товар → AppEvents.UI_PRODUCT_CLICKED → ModalService.openProductModal()
+   - Клик на товар в PageView → AppEvents.UI_PRODUCT_CLICKED → ModalService.openProductModal()
      - AppEvents.MODAL_OPENED (type: 'product') + AppEvents.PRODUCT_DETAILS_REQUESTED
      - ApiService.loadProductDetails():
-       - Найден в кэше (AppStateModal.state.catalog): AppEvents.PRODUCT_DETAILS_LOADED → ProductModal.renderProduct()
-       - Не найден: запрос на сервер → AppEvents.PRODUCT_DETAILS_LOADED → ProductModal.renderProduct()
+       - Найден в кэше (AppStateModal.state.catalog): AppEvents.PRODUCT_DETAILS_LOADED → ProductPresenter → ProductModal.renderProduct()
+       - Не найден: запрос на сервер → AppEvents.PRODUCT_DETAILS_LOADED → ProductPresenter → ProductView.renderProduct()
 
 3. **Работа с корзиной**:
 	- Добавление товара:
-	  - AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED → CartService.addToCart()
-        - Проверка наличия → Обновление AppStateModal.basket 
-          - StateEvents.BASKET_STATE_CHANGED → Page.updateBasketCounter()
-            - AppEvents.BASKET_ITEM_ADDED (успех)
-            - AppEvents.BASKET_ITEM_ADD_ERROR (ошибка)
-          - AppEvents.BASKET_CONTENT_CHANGED  → CartModal.renderCart()
-
-   - Удаление товара:
-     - AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED → CartService.removeFromCart()
-     - Обновление AppStateModal.basket 
-     - StateEvents.BASKET_STATE_CHANGED → Page.updateBasketCounter()
-     - AppEvents.BASKET_ITEM_REMOVED
-     - AppEvents.BASKET_UPDATED → CartModal.renderCart()
-   
-   - Открытие корзины:
-     - AppEvents.UI_BUTTON_BASKET_CLICKED → ModalService.openCartModal()
-     - AppEvents.MODAL_OPENED (type: 'cart') → CartModal.renderCart()
+	  - Клик "Купить" в ProductView → AppEvents.MODAL_PRODUCT_BASKET_ITEM_ADDED → Обработчик в index.ts → BasketService.addToBasket()
+      - BasketService вызывает appState.basket = [...newItems]
+      - StateEvents.BASKET_STATE_CHANGED (публикует AppStateModel) → PagePresenter → PageView.updateBasketCounter(), BasketPresenter → BasketView.render()
+      - AppEvents.BASKET_ITEM_ADDED (публикует BasketService) → ProductPresenter → ProductView.updateButtonState() (если ID совпадает)
+    
+    - Удаление товара:
+      - Клик "Удалить" в BasketItemView → Колбэк в BasketView → AppEvents.MODAL_PRODUCT_BASKET_ITEM_REMOVED → Обработчик в index.ts → BasketService.removeFromBasket()
+      - BasketService вызывает appState.basket = [...newItems]
+      - StateEvents.BASKET_STATE_CHANGED (публикует AppStateModel) → PagePresenter → PageView.updateBasketCounter(), BasketPresenter → BasketView.render()
+      - AppEvents.BASKET_ITEM_REMOVED (публикует BasketService) → ProductPresenter → ProductView.updateButtonState() (если ID совпадает)
+    
+    - Открытие корзины:
+      - Клик на иконку корзины в PageView → AppEvents.UI_BUTTON_BASKET_CLICKED → ModalService.openCartModal()
+      - AppEvents.MODAL_OPENED (type: 'cart') → ModalPresenter → BasketModalView.open()
+      - BasketView уже отрендерен и актуален благодаря реакции BasketPresenter на StateEvents.BASKET_STATE_CHANGED
 
 4. **Оформление заказа**:
    - Инициализация:
-     - AppEvents.UI_ORDER_BUTTON_START_CLICKED → OrderService.initOrder()
-       - AppEvents.ORDER_INITIATED → OrderModal.renderOrderForm()
-     
-   - Шаг 1 (адрес и оплата):
-     - Изменение адреса:
-       - AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED → ValidationService.validateDelivery()
-         - Успех: AppEvents.ORDER_DELIVERY_VALID → OrderService.updateDelivery()
-           - AppEvents.ORDER_DELIVERY_SET → Обновление AppStateModal.order  
-         - Ошибка: AppEvents.ORDER_VALIDATION_ERROR → OrderModal.showError()
+     - Клик "Оформить" в BasketView → AppEvents.UI_ORDER_BUTTON_START_CLICKED → OrderService (сбрасывает форму) → AppEvents.ORDER_INITIATED → OrderPresenter → OrderView.render()
+     - ModalService.openOrderModal() → AppEvents.MODAL_OPENED (type: 'order') → ModalPresenter → OrderModalView.open()
    
-     - Выбор оплаты:
-       - AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED → ValidationService.validatePayment()
-         - Успех: AppEvents.ORDER_PAYMENT_VALID → OrderService.updatePayment()
-           - AppEvents.ORDER_PAYMENT_SET → Обновление AppStateModal.order
-         - Ошибка: AppEvents.ORDER_PAYMENT_VALIDATION_ERROR → OrderModal.showError()
+     - Ввод адреса и выбор оплаты:
+       - Изменение адреса в OrderView → AppEvents.UI_ORDER_INPUT_DELIVERY_CHANGED → ValidationService.validateDelivery()
+         - Успех: AppEvents.ORDER_DELIVERY_VALID → Обработчик в AppStateModel → appState.order = { address } → StateEvents.ORDER_STATE_FORM_UPDATED
+         - Ошибка: AppEvents.ORDER_VALIDATION_ERROR → OrderPresenter → OrderView.showErrors()
+       - Выбор оплаты в OrderView → AppEvents.UI_ORDER_SELECT_PAYMENT_CHANGED → ValidationService.validatePayment()
+         - Успех: AppEvents.ORDER_PAYMENT_VALID + AppEvents.UI_ORDER_BUTTON_PAYMENT_SET → Обработчик в AppStateModel → appState.order = { payment } → StateEvents.ORDER_STATE_FORM_UPDATED
+         - Ошибка: AppEvents.ORDER_PAYMENT_VALIDATION_ERROR → OrderPresenter → OrderView.showErrors()
      
-     - Кнопка "Далее":
-     - AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED → OrderService.prepareOrder('delivery')
-       - Валидация → AppEvents.ORDER_DELIVERY_COMPLETED → ModalService.openContactsModal()
-         - AppEvents.MODAL_OPENED (type: 'contacts') → ContactsModal.renderContactsForm()
+     - Кнопка "Далее" в OrderView → AppEvents.UI_ORDER_BUTTON_NEXT_CLICKED → OrderService.prepareOrder('delivery') → AppEvents.ORDER_DELIVERY_COMPLETED → ModalService.openContactsModal()
+       - AppEvents.MODAL_OPENED (type: 'contacts') → ModalPresenter → ContactsModalView.open()
    
-     - Шаг 2 (контакты):
-     - Изменение email:
-       - AppEvents.UI_ORDER_INPUT_MAIL_CHANGED → ValidationService.validateEmail()
-         - Успех: 
-           - AppEvents.ORDER_EMAIL_VALID → OrderService.updateEmail()
-           - AppEvents.ORDER_EMAIL_SET → Обновление AppStateModal.order  
-           - StateEvents.ORDER_STATE_FORM_UPDATED 
-         - Ошибка: AppEvents.ORDER_EMAIL_VALIDATION_ERROR → ContactsModal.showError()
+     - Ввод контактов:
+       - Изменение email в ContactsView → AppEvents.UI_ORDER_INPUT_MAIL_CHANGED → ValidationService.validateEmail()
+         - Успех: AppEvents.ORDER_EMAIL_VALID + AppEvents.ORDER_EMAIL_SET → Обработчик в AppStateModel → appState.order = { email } → StateEvents.ORDER_STATE_FORM_UPDATED
+         - Ошибка: AppEvents.ORDER_EMAIL_VALIDATION_ERROR → ContactsPresenter → ContactsView.showErrors()
      
-     - Изменение телефона:
-       - AppEvents.UI_ORDER_INPUT_PHONE_CHANGED → ValidationService.validatePhone()
-         - Успех: 
-           - AppEvents.ORDER_PHONE_VALID → OrderService.updatePhone()
-           - AppEvents.ORDER_PHONE_SET → Обновление AppStateModal.order
-           - StateEvents.ORDER_STATE_FORM_UPDATED
-         - Ошибка: AppEvents.ORDER_PHONE_VALIDATION_ERROR → ContactsModal.showError()
+     - Изменение телефона в ContactsView → AppEvents.UI_ORDER_INPUT_PHONE_CHANGED → ValidationService.validatePhone()
+       - Успех: AppEvents.ORDER_PHONE_VALID + AppEvents.ORDER_PHONE_SET → Обработчик в AppStateModel → appState.order = { phone } → StateEvents.ORDER_STATE_FORM_UPDATED
+       - Ошибка: AppEvents.ORDER_PHONE_VALIDATION_ERROR → ContactsPresenter → ContactsView.showErrors()
      
-     - Кнопка "Оплатить":
-       - AppEvents.UI_ORDER_BUTTON_PAY_CLICKED → OrderService.prepareOrder('payment')
-         - Валидация → AppEvents.ORDER_READY → ApiService.submitOrder()
-           - AppEvents.ORDER_SENT 
-           - Успех: 
-             - AppEvents.ORDER_SUBMITTED → ModalService.openSuccessModal()
-               - AppEvents.MODAL_OPENED (type: 'success') → SuccessModal.renderSuccess()
-                 - CartService.clearCart() → AppEvents.BASKET_CLEAR 
-                   - StateEvents.BASKET_STATE_CHANGED
-                   - BASKET_CONTENT_CHANGED
-           - Ошибка: AppEvents.ORDER_SUBMIT_ERROR
+     - Кнопка "Оплатить" в ContactsView → AppEvents.UI_ORDER_BUTTON_PAY_CLICKED → OrderService.prepareOrder('payment')
+       - Проверяет appState.state.order.isValid (рассчитано моделью)
+       - Если valid: AppEvents.ORDER_READY → ApiService.submitOrder()
 
 5. **Успешное оформление**:
-	- SuccessModal:
-      - Отображает сумму заказа через CartService.getTotalPrice()
-      - Кнопка закрытия → ModalService.closeModal() → AppEvents.MODAL_CLOSED
+	- SuccessPresenter подписан на AppEvents.ORDER_SUBMITTED → SuccessView.render(data.total)
+    - Клик "За новыми покупками!" → AppEvents.MODAL_CLOSED → ModalPresenter → SuccessModalView.close()
 
 6. **Закрытие модальных окон**:
-	- Любое закрытие → ModalService.closeModal() → AppEvents.MODAL_CLOSED
-	  → Сброс состояния модального окна
+	- Клик на крестик/оверлей → ModalView.close() → AppEvents.MODAL_CLOSED (вручную)
+    - AppEvents.MODAL_CLOSED → ModalPresenter → Закрывает все модальные окна
 
 ## Важные файлы:
 - src/pages/index.html — HTML-файл главной страницы
-- src/types/index.ts — файл с типами
-- src/index.ts — точка входа приложения
+- src/types/index.ts — Файл с основными типами данных и интерфейсами (IProduct, IOrder, IAppState и т.д.)
+- src/types/events.ts — Файл с константами событий (AppEvents, StateEvents)
+- src/index.ts — Точка входа приложения
 - src/scss/styles.scss — корневой файл стилей
-- src/utils/constants.ts — файл с константами
-- src/utils/utils.ts — файл с утилитами
+- src/utils/constants.ts — файл с утилитами (ensureElement, cloneTemplate)
+- src/components/models/AppStateModel.ts — Модель состояния приложения
+- src/components/services/ — Директория с сервисами, инкапсулирующими специфическую логику (API, Корзина, Модалки, Заказы, Валидация)
+- src/components/views/ — Директория с представлениями (Views), где каждый класс отвечает за отрисовку своего компонента и генерацию UI-событий
+- src/components/presenters/ — Директория с презентерами
+- src/components/base/events.ts — Реализация класса EventEmitter
