@@ -658,4 +658,4 @@ yarn build
 - src/components/services/ — Директория с сервисами, инкапсулирующими специфическую логику (API, Корзина, Модалки, Заказы, Валидация)
 - src/components/views/ — Директория с представлениями (Views), где каждый класс отвечает за отрисовку своего компонента и генерацию UI-событий
 - src/components/presenters/ — Директория с презентерами
-- src/components/base/events.ts — Реализация класса EventEmitter
+- src/components/base/events.ts — Реализация класса EventEmitter 
