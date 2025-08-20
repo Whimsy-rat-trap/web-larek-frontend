@@ -100,6 +100,10 @@ export class ValidationService {
 			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_SET, {
 				email: email.trim()
 			});
+			this.eventEmitter.emit(AppEvents.ORDER_VALIDATION_ERROR, {
+				field: 'email',
+				message: ''
+			});
 		} else {
 			this.eventEmitter.emit(AppEvents.ORDER_EMAIL_VALIDATION_ERROR, {
 				field: 'email',
@@ -108,6 +112,7 @@ export class ValidationService {
 		}
 	}
 
+
 	/**
 	 * Валидация номера телефона
 	 * @param {string} phone - Номер телефона
@@ -115,7 +120,6 @@ export class ValidationService {
 	 * @emits AppEvents.ORDER_PHONE_VALIDATION_ERROR - При ошибке валидации
 	 */
 	validatePhone(phone: string): void {
-		// Нормализация номера: оставляем только цифры и первый плюс
 		const normalizedPhone = phone.startsWith('+')
 			? '+' + phone.slice(1).replace(/\D/g, '')
 			: phone.replace(/\D/g, '');
@@ -125,6 +129,10 @@ export class ValidationService {
 		if (isValid) {
 			this.eventEmitter.emit(AppEvents.ORDER_PHONE_VALID, {
 				phone: normalizedPhone
+			});
+			this.eventEmitter.emit(AppEvents.ORDER_VALIDATION_ERROR, {
+				field: 'phone',
+				message: ''
 			});
 		} else {
 			this.eventEmitter.emit(AppEvents.ORDER_PHONE_VALIDATION_ERROR, {

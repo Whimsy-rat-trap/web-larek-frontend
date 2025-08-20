@@ -1,22 +1,15 @@
-import { EventEmitter } from "./base/events";
-import { ensureElement } from "../utils/utils";
+import { EventEmitter } from "../base/events";
+import { ensureElement } from "../../utils/utils";
 
 /**
  * Базовый класс модального окна
- * @class Modal
+ * @class ModalView
  * @property {HTMLElement} container - Основной контейнер модального окна
  * @property {HTMLElement} content - Контейнер для содержимого модального окна
  * @property {HTMLElement} closeButton - Кнопка закрытия модального окна
  * @property {EventEmitter} eventEmitter - Эмиттер событий приложения
  */
-export class Modal {
-	/**
-	 * Контейнер модального окна
-	 * @protected
-	 * @type {HTMLElement}
-	 */
-	protected container: HTMLElement;
-
+export class ModalView {
 	/**
 	 * Контейнер для содержимого модального окна
 	 * @protected
@@ -34,11 +27,10 @@ export class Modal {
 	/**
 	 * Создает экземпляр Modal
 	 * @constructor
+	 * @param container - Контейнер модального окна
 	 * @param {EventEmitter} eventEmitter - Эмиттер событий приложения
-	 * @param {string} [containerId='modal-container'] - ID DOM-элемента контейнера
 	 */
-	constructor(protected eventEmitter: EventEmitter, containerId = 'modal-container') {
-		this.container = ensureElement<HTMLElement>(`#${containerId}`);
+	constructor(private container: HTMLElement, protected eventEmitter: EventEmitter) {
 		this.content = ensureElement<HTMLElement>('.modal__content', this.container);
 		this.closeButton = ensureElement<HTMLElement>('.modal__close', this.container);
 

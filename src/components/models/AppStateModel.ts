@@ -1,14 +1,20 @@
-import { EventEmitter } from "../base/events";
-import { IAppState, IOrderFormState, IProduct, IValidationError, PaymentMethod } from '../../types';
+import { EventEmitter } from '../base/events';
+import {
+	IAppState,
+	IOrderFormState,
+	IProduct,
+	IValidationError,
+	PaymentMethod,
+} from '../../types';
 import { AppEvents, StateEvents } from '../../types/events';
 
 /**
  * Класс для управления состоянием приложения
- * @class AppState
+ * @class AppStateModel
  * @property {IAppState} _state - Текущее состояние приложения
  * @property {EventEmitter} events - Эмиттер событий для уведомлений об изменениях состояния
  */
-export class AppState {
+export class AppStateModel {
 	/**
 	 * Текущее состояние приложения
 	 * @private
@@ -24,20 +30,23 @@ export class AppState {
 			email: '',
 			phone: '',
 			isValid: false,
-			errors: []
+			errors: [],
 		},
-		preview: null
+		preview: null,
 	};
 
 	/**
-	 * Создает экземпляр AppState
+	 * Создает экземпляр AppStateModal
 	 * @constructor
 	 * @param {EventEmitter} events - Эмиттер событий для уведомлений
 	 */
 	constructor(private events: EventEmitter) {
-		events.on(AppEvents.UI_ORDER_BUTTON_PAYMENT_SET, (data: { method: PaymentMethod }) => {
-			this.order = { payment: data.method };
-		});
+		events.on(
+			AppEvents.UI_ORDER_BUTTON_PAYMENT_SET,
+			(data: { method: PaymentMethod }) => {
+				this.order = { payment: data.method };
+			}
+		);
 
 		events.on(AppEvents.ORDER_EMAIL_SET, (data: { email: string }) => {
 			this.order = { email: data.email };
@@ -49,6 +58,11 @@ export class AppState {
 
 		events.on(AppEvents.ORDER_DELIVERY_SET, (data: { address: string }) => {
 			this.order = { address: data.address };
+		});
+		events.on(AppEvents.ORDER_SUBMITTED, () => {
+			this.order = {};
+			this.basket = [];
+			this.updateBasketTotal();
 		});
 	}
 
@@ -67,9 +81,7 @@ export class AppState {
 	 */
 	set catalog(items: IProduct[]) {
 		this._state.catalog = items;
-		this.events.emit(StateEvents.CATALOG_STATE_UPDATED, {
-			catalog: this._state.catalog
-		});
+		this.events.emit(StateEvents.CATALOG_STATE_UPDATED);
 	}
 
 	/**
@@ -79,10 +91,7 @@ export class AppState {
 	set basket(items: IProduct[]) {
 		this._state.basket = items;
 		this.updateBasketTotal();
-		this.events.emit(StateEvents.BASKET_STATE_CHANGED, {
-			basket: this._state.basket,
-			basketTotal: this._state.basketTotal
-		});
+		this.events.emit(StateEvents.BASKET_STATE_CHANGED);
 	}
 
 	/**
@@ -115,11 +124,15 @@ export class AppState {
 			...this._state.order,
 			...form,
 			isValid: this.validateOrder(form),
-			errors: this.validateOrderFields(form)
+			errors: this.validateOrderFields(form),
 		};
 
+		if (!this._state.order.isValid) {
+			this.events.emit(AppEvents.ORDER_VALIDATION_ERROR);
+		}
+
 		this.events.emit(StateEvents.ORDER_STATE_FORM_UPDATED, {
-			order: this._state.order
+			order: this._state.order,
 		});
 	}
 
@@ -131,8 +144,12 @@ export class AppState {
 	 */
 	private validateOrder(form: Partial<IOrderFormState>): boolean {
 		const newState = { ...this._state.order, ...form };
-		return !!newState.address && !!newState.payment &&
-			!!newState.email && !!newState.phone;
+		return (
+			!!newState.address &&
+			!!newState.payment &&
+			!!newState.email &&
+			!!newState.phone
+		);
 	}
 
 	/**
@@ -141,7 +158,9 @@ export class AppState {
 	 * @param {Partial<IOrderFormState>} form - Объект с обновляемыми полями формы
 	 * @returns {IValidationError[]} Массив ошибок валидации
 	 */
-	private validateOrderFields(form: Partial<IOrderFormState>): IValidationError[] {
+	private validateOrderFields(
+		form: Partial<IOrderFormState>
+	): IValidationError[] {
 		const errors: IValidationError[] = [];
 		const newState = { ...this._state.order, ...form };
 
@@ -172,7 +191,7 @@ export class AppState {
 	set preview(id: string | null) {
 		this._state.preview = id;
 		this.events.emit(StateEvents.PREVIEW_STATE_UPDATED, {
-			preview: this._state.preview
+			preview: this._state.preview,
 		});
 	}
 }

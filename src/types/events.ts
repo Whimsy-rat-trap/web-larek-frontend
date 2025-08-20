@@ -23,8 +23,6 @@ export const AppEvents = {
 	BASKET_ITEM_REMOVED: 'basket:item_removed',
 	/** Событие обновления состояния корзины */
 	BASKET_CONTENT_CHANGED: 'basket:content_updated',
-	/** Событие очистки корзины */
-	BASKET_CLEAR: 'basket:clear',
 
 	// Заказ
 	/** Событие успешного создания заказа */
@@ -85,18 +83,12 @@ export const AppEvents = {
 	UI_ORDER_INPUT_MAIL_CHANGED: 'ui:order:input:mail:changed',
 	/** Событие изменения формы телефона доставки заказа */
 	UI_ORDER_INPUT_PHONE_CHANGED: 'ui:order:input:phone:changed',
-	/** Событие изменения состояния кнопки в модальном окне товара */
-	UI_MODAL_PRODUCT_BUTTON_STATE_CHANGED: 'ui:modal:product:button_state_changed',
 
 	// Модальные окна
 	/** Событие открытия модального окна */
 	MODAL_OPENED: 'modal:opened',
 	/** Событие закрытия модального окна */
 	MODAL_CLOSED: 'modal:closed',
-	/** Событие добавления товара в корзину */
-	MODAL_PRODUCT_BASKET_ITEM_ADDED: 'modal:product:basket_item_added',
-	/** Событие удаления товара из корзины */
-	MODAL_PRODUCT_BASKET_ITEM_REMOVED: 'modal:product:basket:item_removed',
 };
 
 export const StateEvents = {
@@ -107,5 +99,5 @@ export const StateEvents = {
 	/** Событие обновления формы заказа */
 	ORDER_STATE_FORM_UPDATED: 'state:order:updated',
 	/** Событие обновления превью товара */
-	PREVIEW_STATE_UPDATED: 'state:preview:updated'
+	PREVIEW_STATE_UPDATED: 'state:preview:updated',
 } as const;
