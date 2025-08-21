@@ -9,26 +9,30 @@ export class BasketPresenter {
 		private model: AppStateModel,
 		private eventEmitter: EventEmitter
 	) {
-		this.view.render(this.model.state.basket, this.model.state.basketTotal);
+		this.renderBasket();
 
 		/**
 		 * Подписка на обновление корзины
 		 * @listens AppEvents.BASKET_CONTENT_CHANGED
 		 */
 		this.eventEmitter.on(AppEvents.BASKET_CONTENT_CHANGED, () => {
-			this.view.render(this.model.state.basket, this.model.state.basketTotal);
+			this.renderBasket();
 		});
 
 		this.eventEmitter.on(AppEvents.BASKET_ITEM_ADDED, () => {
-			this.view.render(this.model.state.basket, this.model.state.basketTotal);
+			this.renderBasket();
 		});
 
 		this.eventEmitter.on(AppEvents.BASKET_ITEM_REMOVED, () => {
-			this.view.render(this.model.state.basket, this.model.state.basketTotal);
+			this.renderBasket();
 		});
 
 		this.eventEmitter.on(StateEvents.BASKET_STATE_CHANGED, () => {
-			this.view.render(this.model.state.basket, this.model.state.basketTotal);
+			this.renderBasket();
 		});
+	}
+
+	private renderBasket(): void {
+		this.view.render(this.model.state.basket, this.model.state.basketTotal);
 	}
 }
