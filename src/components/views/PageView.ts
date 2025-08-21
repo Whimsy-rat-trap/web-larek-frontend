@@ -41,17 +41,11 @@ export class PageView {
 	/**
 	 * Отображает список товаров в галерее
 	 * @private
-	 * @param {IProduct[]} products - Массив товаров для отображения
+	 * @param productElements
 	 */
-	public render(products: IProduct[]): void {
+	public render(productElements: HTMLElement[]): void {
 		this.gallery.innerHTML = '';
-		products.forEach((product) => {
-			const productItemView = new ProductItemView(
-				product,
-				() => this.cardButtonClick(product.id)
-			);
-			this.gallery.appendChild(productItemView.element);
-		});
+		this.gallery.append(...productElements);
 	}
 
 	/**
